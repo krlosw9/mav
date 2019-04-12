@@ -1,0 +1,147 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+<h1>
+    Persona
+    <small>Editar</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./peoplelist">Persona</a></li>
+    <li class="active">Editar</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Informacion de la persona - <small>Todos los campos marcados con un asterisco (*) son obligatorios.</small></h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="peopleupdate" method="post" role="form" enctype="multipart/form-data">
+          <div class="box-body">
+            <input type="hidden" name="id" value="{{ personas.id }}" required>
+            <div class="form-group col-xs-6">
+              <label>Tipo de Documento (*):</label>
+              <select class="form-control select-picker" name="tipodocumentoid" required>
+                {% for tipo in tiposdocumentos %}
+                  {% if personas.tipodocumentoid == tipo.id %} 
+                    <option value="{{ tipo.id }}" selected>{{ tipo.nombre }}</option>
+                  {% else %}
+                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Numero Documento (*):</label>
+              <input type="number" name="numerodocumento" class="form-control" placeholder="Numero menor a 15 digitos" min="0" max="999999999999999" value="{{ personas.numerodocumento }}" required>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Nombre (*):</label>
+              <input type="text" name="nombre" class="form-control" placeholder="" value="{{ personas.nombre }}" maxlength="50" required>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Apellido (*):</label>
+              <input type="text" name="apellido" class="form-control" placeholder="" value="{{ personas.apellido }}" maxlength="50" required>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Genero (*):</label>
+              <select class="form-control select-picker" name="genero" required>
+                    <option value="Femenino" {% if personas.genero == "Femenino" %} selected {% endif %}>Femenino</option>
+                    <option value="Masculino" {% if personas.genero == "Masculino" %} selected {% endif %}>Masculino</option>
+              </select>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Estado civil (*):</label>
+              <select class="form-control select-picker" name="estadocivil" required>
+                <option value="Casado" {% if personas.estadocivil == "Casado" %} selected {% endif %}>Casado</option>
+                <option value="Union_Libre" {% if personas.estadocivil == "Union_Libre" %} selected {% endif %}>Union_Libre</option>
+                <option value="Soltero" {% if personas.estadocivil == "Soltero" %} selected {% endif %}>Soltero</option>
+                <option value="Divorciado" {% if personas.estadocivil == "Divorciado" %} selected {% endif %}>Divorciado</option>
+                <option value="Viudo" {% if personas.estadocivil == "Viudo" %} selected {% endif %}>Viudo</option>
+              </select>
+            </div>
+            <div class="form-group col-xs-3">
+              <label for="">Fecha-Nacimiento (*):</label>
+              <div class="input-group date">
+                  <input name="fechanacimiento" type="date" class="form-control" data-placement="top" value="{{ personas.fechanacimiento }}" data-toggle="tooltip" required/>
+              </div>
+            </div>
+            <div class="form-group col-xs-3">
+              <label>Rh (*):</label>
+              <select class="form-control select-picker" name="rh" required>
+                <option value="O+" {% if personas.rh == "O+" %} selected {% endif %}>O+</option>
+                <option value="O-" {% if personas.rh == "O-" %} selected {% endif %}>O-</option>
+                <option value="AB+" {% if personas.rh == "AB+" %} selected {% endif %}>AB+</option>
+                <option value="AB-" {% if personas.rh == "AB-" %} selected {% endif %}>AB-</option>
+                <option value="B+" {% if personas.rh == "B+" %} selected {% endif %}>B+</option>
+                <option value="B-" {% if personas.rh == "B-" %} selected {% endif %}>B-</option>
+                <option value="A+" {% if personas.rh == "A+" %} selected {% endif %}>A+</option>
+                <option value="A-" {% if personas.rh == "A-" %} selected {% endif %}>A-</option>
+                <option value="Otro" {% if personas.rh == "Otro" %} selected {% endif %}>Otro</option>
+              </select>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Nivel Educativo:</label>
+              <select class="form-control select-picker" name="niveleducativo">
+                <option value="Primaria" {% if personas.niveleducativo == "Primaria" %} selected {% endif %}>Primaria</option>
+                <option value="Bachillerato" {% if personas.niveleducativo == "Bachillerato" %} selected {% endif %}>Bachillerato</option>
+                <option value="Tecnico" {% if personas.niveleducativo == "Tecnico" %} selected {% endif %}>Tecnico</option>
+                <option value="Tecnologico" {% if personas.niveleducativo == "Tecnologico" %} selected {% endif %}>Tecnologico</option>
+                <option value="Profesional" {% if personas.niveleducativo == "Profesional" %} selected {% endif %}>Profesional</option>
+                <option value="Posgrado" {% if personas.niveleducativo == "Posgrado" %} selected {% endif %}>Posgrado</option>
+                <option value="Ninguno" {% if personas.niveleducativo == "Ninguno" %} selected {% endif %}>Ninguno</option>
+                <option value="Otro" {% if personas.niveleducativo == "Otro" %} selected {% endif %}>Otro</option>
+              </select>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Profesión:</label>
+              <input type="text" name="profesion" class="form-control" value="{{ personas.profesion }}" placeholder="">
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Dirección (*):</label>
+              <input type="text" name="direccion" class="form-control" placeholder="" value="{{ personas.direccion }}" maxlength="50" required>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Correo (*):</label>
+              <input type="email" name="correo" class="form-control" placeholder="" value="{{ personas.correo }}" maxlength="100" required>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Telefono:</label>
+              <input type="number" name="telefono" class="form-control" min="0" max="999999999999999" value="{{ personas.telefono }}" title="El valor debe ser mayor a 0 y debe tener menos de 15 digitos">
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Celular (*):</label>
+              <input type="number" name="celular" class="form-control" required min="0" value="{{ personas.celular }}" max="999999999999999" title="El valor debe ser mayor a 0 y debe tener menos de 15 digitos">
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Rol (*):</label>
+              <select class="form-control select-picker" name="rolid" required>
+                {% for rol in roles %}
+                  {% if personas.rolid == rol.id %} 
+                    <option value="{{ rol.id }}" selected>{{ rol.nombrerol }}</option>
+                  {% else %}
+                    <option value="{{ rol.id }}">{{ rol.nombrerol }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <!-- /.box-body -->
+          <div class="box-footer">
+            <center><button type="submit" class="btn btn-primary">Registrar</button></center>
+          </div>
+
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        </form>
+      </div>
+
+{% endblock %}
