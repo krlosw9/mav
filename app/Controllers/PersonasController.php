@@ -248,19 +248,6 @@ class PersonasController extends BaseController{
 					$responseMessage='Selecciono un criterio no valido';
 				}
 
-				/*$personaValidator = v::key('nombre', v::stringType()->length(1, 50)->notEmpty())
-					->key('apellido', v::stringType()->length(1, 50)->notEmpty())
-					->key('tipodocumentoid', v::numeric()->positive()->notEmpty())
-					->key('numerodocumento', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('genero', v::stringType()->length(1, 10)->notEmpty())
-					->key('estadocivil', v::stringType()->length(1, 12)->notEmpty())
-					->key('fechanacimiento', v::date())
-					->key('rh', v::stringType()->length(1, 5)->notEmpty())
-					->key('correo', v::email())
-					->key('celular', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('rolid', v::numeric()->positive()->length(1, 2)->notEmpty());
-				*/
-
 			}
 			
 			
@@ -278,14 +265,31 @@ class PersonasController extends BaseController{
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelPersonas($request){
-		$roles = null; $tiposdocumentos=null; $personas=null; $responseMessage = null;
+		$roles = null; $tiposdocumentos=null; $personas=null; $responseMessage = null; $id=null; $boton=null;
 		$quiereActualizar = false; $ruta='buscarPersonas.twig';
 		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			
 			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			$btnDocumentos = $postData['btnDocumentos'] ?? null;			
+
+			if ($btnDocumentos) {
+				$id = $postData['id'] ?? null;				
+				if ($id) {
+					if ($btnDocumentos == 'doc') {
+					$responseMessage = 'Quiere agregar documentos al id: '.$id;
+
+					}elseif ($btnDocumentos == 'lic') {
+						$responseMessage = 'Quiere agregar licencias al id: '.$id;
+					}else{
+						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
+					}	
+				}else{
+					$responseMessage = 'Debe Seleccionar una persona';
+				}
+			}
+			
 			if ($btnDelUpd) {
 				$divideCadena = explode("|", $btnDelUpd);
 				$boton=$divideCadena[0];
@@ -302,6 +306,8 @@ class PersonasController extends BaseController{
 				  	$prevMessage = substr($e->getMessage(), 0, 38);
 					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
 						$responseMessage = 'Error, No se puede eliminar, esta persona esta en uso en la base de datos.';
+					}else{
+						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
 				  }
 				}elseif ($boton == 'upd') {
