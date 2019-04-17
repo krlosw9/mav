@@ -53,18 +53,25 @@
             <div class="form-group col-xs-6">
               <label>Genero (*):</label>
               <select class="form-control select-picker" name="genero" required>
-                    <option value="Femenino" {% if personas.genero == "Femenino" %} selected {% endif %}>Femenino</option>
-                    <option value="Masculino" {% if personas.genero == "Masculino" %} selected {% endif %}>Masculino</option>
+                {% for genero in generos %}
+                  {% if personas.generoid == genero.id %} 
+                    <option value="{{ genero.id }}" selected>{{ genero.nombre }}</option>
+                  {% else %}
+                    <option value="{{ genero.id }}">{{ genero.nombre }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">
               <label>Estado civil (*):</label>
               <select class="form-control select-picker" name="estadocivil" required>
-                <option value="Casado" {% if personas.estadocivil == "Casado" %} selected {% endif %}>Casado</option>
-                <option value="Union_Libre" {% if personas.estadocivil == "Union_Libre" %} selected {% endif %}>Union_Libre</option>
-                <option value="Soltero" {% if personas.estadocivil == "Soltero" %} selected {% endif %}>Soltero</option>
-                <option value="Divorciado" {% if personas.estadocivil == "Divorciado" %} selected {% endif %}>Divorciado</option>
-                <option value="Viudo" {% if personas.estadocivil == "Viudo" %} selected {% endif %}>Viudo</option>
+                {% for estadocivil in estadocivil %}
+                  {% if personas.estadocivilid == estadocivil.id %} 
+                    <option value="{{ estadocivil.id }}" selected>{{ estadocivil.nombre }}</option>
+                  {% else %}
+                    <option value="{{ estadocivil.id }}">{{ estadocivil.nombre }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-3">
@@ -73,31 +80,30 @@
                   <input name="fechanacimiento" type="date" class="form-control" data-placement="top" value="{{ personas.fechanacimiento }}" data-toggle="tooltip" required/>
               </div>
             </div>
+
             <div class="form-group col-xs-3">
               <label>Rh (*):</label>
               <select class="form-control select-picker" name="rh" required>
-                <option value="O+" {% if personas.rh == "O+" %} selected {% endif %}>O+</option>
-                <option value="O-" {% if personas.rh == "O-" %} selected {% endif %}>O-</option>
-                <option value="AB+" {% if personas.rh == "AB+" %} selected {% endif %}>AB+</option>
-                <option value="AB-" {% if personas.rh == "AB-" %} selected {% endif %}>AB-</option>
-                <option value="B+" {% if personas.rh == "B+" %} selected {% endif %}>B+</option>
-                <option value="B-" {% if personas.rh == "B-" %} selected {% endif %}>B-</option>
-                <option value="A+" {% if personas.rh == "A+" %} selected {% endif %}>A+</option>
-                <option value="A-" {% if personas.rh == "A-" %} selected {% endif %}>A-</option>
-                <option value="Otro" {% if personas.rh == "Otro" %} selected {% endif %}>Otro</option>
+                {% for rh in rh %}
+                  {% if personas.rhid == rh.id %} 
+                    <option value="{{ rh.id }}" selected>{{ rh.nombre }}</option>
+                  {% else %}
+                    <option value="{{ rh.id }}">{{ rh.nombre }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
+
             <div class="form-group col-xs-6">
               <label>Nivel Educativo:</label>
-              <select class="form-control select-picker" name="niveleducativo">
-                <option value="Primaria" {% if personas.niveleducativo == "Primaria" %} selected {% endif %}>Primaria</option>
-                <option value="Bachillerato" {% if personas.niveleducativo == "Bachillerato" %} selected {% endif %}>Bachillerato</option>
-                <option value="Tecnico" {% if personas.niveleducativo == "Tecnico" %} selected {% endif %}>Tecnico</option>
-                <option value="Tecnologico" {% if personas.niveleducativo == "Tecnologico" %} selected {% endif %}>Tecnologico</option>
-                <option value="Profesional" {% if personas.niveleducativo == "Profesional" %} selected {% endif %}>Profesional</option>
-                <option value="Posgrado" {% if personas.niveleducativo == "Posgrado" %} selected {% endif %}>Posgrado</option>
-                <option value="Ninguno" {% if personas.niveleducativo == "Ninguno" %} selected {% endif %}>Ninguno</option>
-                <option value="Otro" {% if personas.niveleducativo == "Otro" %} selected {% endif %}>Otro</option>
+              <select class="form-control select-picker" name="niveleducativo" required>
+                {% for niveleducativo in niveleducativo %}
+                  {% if personas.niveleducativoid == niveleducativo.id %} 
+                    <option value="{{ niveleducativo.id }}" selected>{{ niveleducativo.nombre }}</option>
+                  {% else %}
+                    <option value="{{ niveleducativo.id }}">{{ niveleducativo.nombre }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">

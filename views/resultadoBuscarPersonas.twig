@@ -1,0 +1,128 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+<h1>
+    Personas
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./peoplelist">Personas</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Buscar personas </h3>
+      </div>
+      <div class="box-body">
+       <form action="peoplesearch" method="post" role="form">
+          <div class="row" style="padding-left: 15px;">
+            <div class="form-group col-xs-4">
+              <label>Buscar:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label>Por:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label></label>
+            </div>
+          </div>
+          <div class="row" style="padding-left: 15px;">
+          <div class="form-group col-xs-4">
+            <input type="text" name="textBuscar" class="form-control" placeholder="Que desea buscar" maxlength="50" >
+          </div>
+          <div class="form-group col-xs-4">
+
+            <select class="form-control select-picker" name="criterio">
+              <option value="1">Documento de identidad</option>
+              <option value="2">Nombre</option>
+              <option value="3">Apellido</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-4">
+              <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
+              <a type="button" class="btn btn-primary" href="./peopleadd">Agregar</a>
+          </div>
+        </div>
+       </form>
+     </div>
+     <hr noshade="noshade" size="4" width="95%" />
+
+    <div class="container-fluid" style="padding-top: 1em;">
+      <div class="row">
+        <div class="col-sm-12 col-sm-offset-0">
+          <form action="peopledel" method="post" role="form">
+            <input type="hidden" name="sw" value="1">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th style="width: 10px">#</th>
+                  <th style="width: 100px">Tipo/Doc</th>
+                  <th style="width: 100px">Documento</th>
+                  <th style="width: 100px">Nombre</th>
+                  <th style="width: 100px">Apellido</th>
+                  <th style="width: 50px">Rh</th>
+                  <th style="width: 100px">Celular</th>
+                  <th style="width: 130px">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% set ciclo = false %}
+                  {% for persona in personas %}
+                    <tr>
+                      <input type="hidden" name="ruta" value="buscar">
+                      <td><input type="radio" name="id" value="{{ persona.id }}"></td>
+                      <td>{{ persona.tiposdocumento }}</td>
+                      <td>{{ persona.numerodocumento }}</td>
+                      <td>{{ persona.nombre }}</td>
+                      <td>{{ persona.apellido }}</td>
+                      <td>{{ persona.rh }}</td>
+                      <td>{{ persona.celular }}</td>
+                      <td>
+                        <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                        <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                      </td>
+                    </tr>
+                    {% set ciclo = true %}
+                  {% endfor %}
+                  {#Fin ciclo que trae la query#}
+                {% if ciclo == false %}
+                <tr>
+                  <td colspan=8>
+                    <div class="alert alert-danger">
+                      No se encontraron datos
+                      {% if queryErrorMessage %}
+                        {% for errorMessage in queryErrorMessage %} 
+                          {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                        {% endfor %}
+                      {% else %}
+                        {% if responseMessage %}
+                          {{ responseMessage }}
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+            <div class="box-footer">
+              <button type="submit" name="boton" value="del" class="btn btn-primary" >Documentos</button>
+              <button type="submit" name="boton" value="upd" class="btn btn-primary">Licencias</button>
+            </div> 
+          </form>
+          </div>
+          </div>
+                
+      </div> 
+      </div>
+    </div>
+    
+
+{% endblock %}

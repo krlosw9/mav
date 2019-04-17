@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Personas,Roles,TiposDocumento};
+use App\Models\{Personas,Roles,TiposDocumento, Generos, EstadosCiviles, Rh, NivelesEducativos};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -10,7 +10,7 @@ use Zend\Diactoros\Response\RedirectResponse;
 class PersonasController extends BaseController{
 	
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
-	private $articulosPorPagina=15;
+	private $articulosPorPagina=10;
 	private $limitePaginacion=20;
 
 	public function getAddPersonas(){
@@ -18,11 +18,19 @@ class PersonasController extends BaseController{
 
 		$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
 		$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
+		$generos = Generos::orderBy('nombre')->get();
+		$estadocivil = EstadosCiviles::orderBy('nombre')->get();
+		$rh = Rh::latest('nombre')->get();
+		$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
 		
 
 		return $this->renderHTML('addPersonas.twig',[
 				'roles' => $roles,
-				'tiposdocumentos' => $tiposdocumentos
+				'tiposdocumentos' => $tiposdocumentos,
+				'generos' => $generos,
+				'estadocivil' => $estadocivil,
+				'rh' => $rh,
+				'niveleducativo' => $niveleducativo
 		]);
 	}
 
@@ -38,10 +46,10 @@ class PersonasController extends BaseController{
 					->key('apellido', v::stringType()->length(1, 50)->notEmpty())
 					->key('tipodocumentoid', v::numeric()->positive()->notEmpty())
 					->key('numerodocumento', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('genero', v::stringType()->length(1, 10)->notEmpty())
-					->key('estadocivil', v::stringType()->length(1, 12)->notEmpty())
+					->key('genero', v::numeric()->positive()->notEmpty())
+					->key('estadocivil', v::numeric()->positive()->notEmpty())
 					->key('fechanacimiento', v::date())
-					->key('rh', v::stringType()->length(1, 5)->notEmpty())
+					->key('rh', v::numeric()->positive()->notEmpty())
 					->key('correo', v::email())
 					->key('celular', v::numeric()->positive()->length(1, 15)->notEmpty())
 					->key('rolid', v::numeric()->positive()->length(1, 2)->notEmpty());
@@ -57,11 +65,11 @@ class PersonasController extends BaseController{
 					$persona->tipodocumentoid = $postData['tipodocumentoid'];
 					$persona->nombre = $postData['nombre'];
 					$persona->apellido = $postData['apellido'];
-					$persona->genero = $postData['genero'];
-					$persona->estadocivil = $postData['estadocivil'];
+					$persona->generoid = $postData['genero'];
+					$persona->estadocivilid = $postData['estadocivil'];
 					$persona->fechanacimiento = $postData['fechanacimiento'];
-					$persona->rh = $postData['rh'];
-					$persona->niveleducativo = $postData['niveleducativo'];
+					$persona->rhid = $postData['rh'];
+					$persona->niveleducativoid = $postData['niveleducativo'];
 					$persona->profesion = $postData['profesion'];
 					$persona->direccion = $postData['direccion'];
 					$persona->correo = $postData['correo'];
@@ -74,10 +82,14 @@ class PersonasController extends BaseController{
 
 					$responseMessage = 'Registrado';
 				}catch(\Exception $exception){
+					//$responseMessage = $exception->getMessage();
 					$prevMessage = substr($exception->getMessage(), 0, 33);
-					
+					$responseMessage = substr($exception->getMessage(), 0, 33);	
+
 					if ($prevMessage == "SQLSTATE[23505]: Unique violation") {
 						$responseMessage = 'Error, El numero del documento o el correo ya esta registrado';
+					}elseif ($prevMessage == "SQLSTATE[42703]: Undefined column") {
+						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 					}else{
 						$registrationErrorMessage = $exception->findMessages([
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
@@ -87,19 +99,21 @@ class PersonasController extends BaseController{
 						'date' => '- Formato de fecha no valido',
 						'numeric' => '- Solo puede contener numeros', 
 						'positive' => '- Solo puede contener numeros mayores a cero'
-						]);
+						]) ?? null;
 					}
 				}
 			}
 		}
 		$iniciar=0;
 		$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
-		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento')
-		->orderBy('nombre')
+		->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
+		->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
+		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+		->latest('id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
-		return $this->renderHTML('listPersonas.twig',[
+		return $this->renderHTML('buscarPersonas.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'personas' => $personas
@@ -131,12 +145,14 @@ class PersonasController extends BaseController{
 		}
 
 		$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
-		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento')
-		->orderBy('nombre')
+		->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
+		->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
+		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+		->latest('id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 	
-		return $this->renderHTML('listPersonas.twig', [
+		return $this->renderHTML('buscarPersonas.twig', [
 			'personas' => $personas,
 			'numeroDePaginas' => $numeroDePaginas,
 			'paginaActual' => $paginaActual
@@ -144,18 +160,139 @@ class PersonasController extends BaseController{
 		
 	}
 
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelPersonas($request){
-		$roles = null; $tiposdocumentos=null; $personas=null; $responseMessage = null;
-		$quiereActualizar = false; $ruta='listPersonas.twig';
+
+	public function postBusquedaPersonas($request){
+		$responseMessage = null; $iniciar=0; $personas=null; $queryErrorMessage=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
-			$id = $postData['id'] ?? false;
+
+			$textBuscar = $postData['textBuscar'] ?? null;
+			$criterio = $postData['criterio'] ?? null;
+
+			if ($textBuscar) {
+
+				if ($criterio==1) {
+					$personaValidator = v::key('textBuscar', v::numeric()->positive()->length(1, 15)->notEmpty());
+					try{
+						$personaValidator->assert($postData);
+						$postData = $request->getParsedBody();
+
+						$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
+						->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
+						->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+						->where("numerodocumento","=",$textBuscar)
+						->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
+						->get();
+					}catch(\Exception $exception){
+						//$responseMessage = $exception->getMessage();
+						$responseMessage = substr($exception->getMessage(), 0, 30);
+						
+						$queryErrorMessage = $exception->findMessages([
+						'notEmpty' => '- El texto de busqueda no puede quedar vacio',
+						'length' => '- Tiene una longitud no permitida',
+						'numeric' => '- Solo puede contener numeros', 
+						'positive' => '- Solo puede contener numeros mayores a cero'
+						]);
+					}
+				}elseif ($criterio==2) {
+					$personaValidator = v::key('textBuscar', v::stringType()->length(1, 50)->notEmpty());
+					try{
+						$personaValidator->assert($postData);
+						$postData = $request->getParsedBody();
+
+						$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
+						->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
+						->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+						->where("persona.personas.nombre","ilike", '%'.$textBuscar.'%')
+						->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
+						->limit($this->articulosPorPagina)->offset($iniciar)
+						->orderBy('nombre')
+						->get();
+					}catch(\Exception $exception){
+						//$responseMessage = $exception->getMessage();
+						$responseMessage = substr($exception->getMessage(), 0, 30);
+
+						$queryErrorMessage = $exception->findMessages([
+						'notEmpty' => '- El texto de busqueda no puede quedar vacio',
+						'length' => '- Tiene una longitud no permitida',
+						'stringType' => '- Solo puede contener nombres de personas'
+						]);
+					}
+				}elseif ($criterio==3) {
+					$personaValidator = v::key('textBuscar', v::stringType()->length(1, 50)->notEmpty());
+					try{
+						$personaValidator->assert($postData);
+						$postData = $request->getParsedBody();
+
+						$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
+						->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
+						->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+						->where("persona.personas.apellido","ilike", '%'.$textBuscar.'%')
+						->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
+						->limit($this->articulosPorPagina)->offset($iniciar)
+						->orderBy('apellido')
+						->get();
+					}catch(\Exception $exception){
+						//$responseMessage = $exception->getMessage();
+						$responseMessage = substr($exception->getMessage(), 0, 30);
+
+						$queryErrorMessage = $exception->findMessages([
+						'notEmpty' => '- El texto de busqueda no puede quedar vacio',
+						'length' => '- Tiene una longitud no permitida',
+						'stringType' => '- Solo puede contener apellidos de personas'
+						]);
+					}
+				}else{
+					$responseMessage='Selecciono un criterio no valido';
+				}
+
+				/*$personaValidator = v::key('nombre', v::stringType()->length(1, 50)->notEmpty())
+					->key('apellido', v::stringType()->length(1, 50)->notEmpty())
+					->key('tipodocumentoid', v::numeric()->positive()->notEmpty())
+					->key('numerodocumento', v::numeric()->positive()->length(1, 15)->notEmpty())
+					->key('genero', v::stringType()->length(1, 10)->notEmpty())
+					->key('estadocivil', v::stringType()->length(1, 12)->notEmpty())
+					->key('fechanacimiento', v::date())
+					->key('rh', v::stringType()->length(1, 5)->notEmpty())
+					->key('correo', v::email())
+					->key('celular', v::numeric()->positive()->length(1, 15)->notEmpty())
+					->key('rolid', v::numeric()->positive()->length(1, 2)->notEmpty());
+				*/
+
+			}
+			
+			
+		}
+	
+		return $this->renderHTML('resultadoBuscarPersonas.twig', [
+			'personas' => $personas,
+			'responseMessage' => $responseMessage,
+			'queryErrorMessage' => $queryErrorMessage
+		]);
+		
+	}
+
+
+	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
+	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
+	public function postUpdDelPersonas($request){
+		$roles = null; $tiposdocumentos=null; $personas=null; $responseMessage = null;
+		$quiereActualizar = false; $ruta='buscarPersonas.twig';
+		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			
+			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			if ($btnDelUpd) {
+				$divideCadena = explode("|", $btnDelUpd);
+				$boton=$divideCadena[0];
+				$id=$divideCadena[1];
+			}
 			if ($id) {
-				if($postData['boton']=='del'){
+				if($boton == 'del'){
 				  try{
 					$people = new Personas();
 					$people->destroy($id);
@@ -167,7 +304,7 @@ class PersonasController extends BaseController{
 						$responseMessage = 'Error, No se puede eliminar, esta persona esta en uso en la base de datos.';
 					}
 				  }
-				}elseif ($postData['boton']=='upd') {
+				}elseif ($boton == 'upd') {
 					$quiereActualizar=true;
 				}
 			}else{
@@ -179,8 +316,12 @@ class PersonasController extends BaseController{
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
 			$personas = Personas::find($id);
 
-			$roles = Roles::latest('id')->get();
+			$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
 			$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
+			$generos = Generos::orderBy('nombre')->get();
+			$estadocivil = EstadosCiviles::orderBy('nombre')->get();
+			$rh = Rh::latest('nombre')->get();
+			$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
 			$ruta='updatePersonas.twig';
 		}else{
 			$iniciar=0;
@@ -194,7 +335,11 @@ class PersonasController extends BaseController{
 			'personas' => $personas,
 			'roles' => $roles,
 			'tiposdocumentos' => $tiposdocumentos,
-			'responseMessage' => $responseMessage
+			'responseMessage' => $responseMessage,
+			'generos' => $generos,
+			'estadocivil' => $estadocivil,
+			'rh' => $rh,
+			'niveleducativo' => $niveleducativo
 		]);
 	}
 
@@ -209,10 +354,10 @@ class PersonasController extends BaseController{
 					->key('apellido', v::stringType()->length(1, 50)->notEmpty())
 					->key('tipodocumentoid', v::numeric()->positive()->notEmpty())
 					->key('numerodocumento', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('genero', v::stringType()->length(1, 10)->notEmpty())
-					->key('estadocivil', v::stringType()->length(1, 12)->notEmpty())
+					->key('genero', v::numeric()->positive()->notEmpty())
+					->key('estadocivil', v::numeric()->positive()->notEmpty())
 					->key('fechanacimiento', v::date())
-					->key('rh', v::stringType()->length(1, 5)->notEmpty())
+					->key('rh', v::numeric()->positive()->notEmpty())
 					->key('correo', v::email())
 					->key('celular', v::numeric()->positive()->length(1, 15)->notEmpty())
 					->key('rolid', v::numeric()->positive()->length(1, 2)->notEmpty());
@@ -231,11 +376,11 @@ class PersonasController extends BaseController{
 					$persona->tipodocumentoid = $postData['tipodocumentoid'];
 					$persona->nombre = $postData['nombre'];
 					$persona->apellido = $postData['apellido'];
-					$persona->genero = $postData['genero'];
-					$persona->estadocivil = $postData['estadocivil'];
+					$persona->generoid = $postData['genero'];
+					$persona->estadocivilid = $postData['estadocivil'];
 					$persona->fechanacimiento = $postData['fechanacimiento'];
-					$persona->rh = $postData['rh'];
-					$persona->niveleducativo = $postData['niveleducativo'];
+					$persona->rhid = $postData['rh'];
+					$persona->niveleducativoid = $postData['niveleducativo'];
 					$persona->profesion = $postData['profesion'];
 					$persona->direccion = $postData['direccion'];
 					$persona->correo = $postData['correo'];
@@ -248,10 +393,15 @@ class PersonasController extends BaseController{
 
 					$responseMessage .= 'Editado.';
 				}catch(\Exception $exception){
+					//$responseMessage = substr($exception->getMessage(), 0, 33);
+					//$responseMessage = $exception->getMessage();
 					$prevMessage = substr($exception->getMessage(), 0, 33);
-					
+					$responseMessage = substr($exception->getMessage(), 0, 33);	
+
 					if ($prevMessage == "SQLSTATE[23505]: Unique violation") {
 						$responseMessage = 'Error, El numero del documento o el correo ya esta registrado';
+					}elseif ($prevMessage == "SQLSTATE[42703]: Undefined column") {
+						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 					}else{
 						$registrationErrorMessage = $exception->findMessages([
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
@@ -261,7 +411,7 @@ class PersonasController extends BaseController{
 						'date' => '- Formato de fecha no valido',
 						'numeric' => '- Solo puede contener numeros', 
 						'positive' => '- Solo puede contener numeros mayores a cero'
-						]);
+						]) ?? null;
 					}
 				}
 			}
@@ -269,12 +419,14 @@ class PersonasController extends BaseController{
 
 		$iniciar=0;
 		$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
-		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento')
-		->orderBy('nombre')
+		->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
+		->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
+		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+		->latest('id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
-		return $this->renderHTML('listPersonas.twig',[
+		return $this->renderHTML('buscarPersonas.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'personas' => $personas

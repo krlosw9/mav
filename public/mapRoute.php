@@ -46,6 +46,12 @@ $map->get('getListPersonas', $subdomain.'/peoplelist', [
         'auth' => true,
         'license' => [$admin,$secretary]
 ]);
+$map->post('postBuscarPersonas', $subdomain.'/peoplesearch', [
+        'controller' => 'App\Controllers\PersonasController',
+        'action' => 'postBusquedaPersonas',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
 $map->get('getListAddPersonas', $subdomain.'/peoplelistadd', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'getListAddPersonas',

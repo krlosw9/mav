@@ -1,0 +1,130 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+<h1>
+    Personas
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./peoplelist">Personas</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Buscar personas </h3>
+      </div>
+      <div class="box-body">
+       <form action="peoplesearch" method="post" role="form">
+          <div class="row" style="padding-left: 15px;">
+            <div class="form-group col-xs-4">
+              <label>Buscar:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label>Por:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label></label>
+            </div>
+          </div>
+          <div class="row" style="padding-left: 15px;">
+          <div class="form-group col-xs-4">
+            <input type="text" name="textBuscar" class="form-control" placeholder="Que desea buscar" maxlength="50" required>
+          </div>
+          <div class="form-group col-xs-4">
+            
+            <select class="form-control select-picker" name="criterio">
+              <option value="1">Documento de identidad</option>
+              <option value="2">Nombre</option>
+              <option value="3">Apellido</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-4">
+              <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
+              <a type="button" class="btn btn-primary" href="./peopleadd">Agregar</a>
+          </div>
+        </div>
+       </form>
+     </div>
+     <hr noshade="noshade" size="4" width="95%" />
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="peopledel" method="post" role="form">
+        <table class="table table-striped" >
+
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 100px">Tipo/Doc</th>
+            <th style="width: 100px">Documento</th>
+            <th style="width: 100px">Nombre</th>
+            <th style="width: 100px">Apellido</th>
+            <th style="width: 50px">Rh</th>
+            <th style="width: 100px">Celular</th>
+            <th style="width: 130px">Acción</th>
+          </tr>
+          {% for persona in personas %}
+          <tr>
+              <input type="hidden" name="ruta" value="listar">
+              <td><input type="radio" name="id" value="{{ persona.id }}"></td>
+              <td>{{ persona.tiposdocumento }}</td>
+              <td>{{ persona.numerodocumento }}</td>
+              <td>{{ persona.nombre }}</td>
+              <td>{{ persona.apellido }}</td>
+              <td>{{ persona.rh }}</td>
+              <td>{{ persona.celular }}</td>
+              <td>
+                <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+              </td>
+          </tr>
+          {% endfor %}
+        </table>
+
+        <div class="row">
+          <div class="form-group col-xs-4" style="padding-left: 25px;">
+            <button type="submit" name="btnDocumentos" class="btn btn-primary">Documentos</button>
+            <button type="submit" name="btnDocumentos" class="btn btn-primary">Licencias</button>
+          </div>
+        </div>
+
+
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            {% for i in 1..numeroDePaginas %}
+              {% if paginaActual == i %}
+                <li class="page-item active"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+
+        {% if registrationErrorMessage %}
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+             Se presentaron los siguientes errores, por favor corríjalos: <br>
+            {% for errorMessage in registrationErrorMessage %} 
+              {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+            {% endfor %}
+          </div>
+        {% else %}
+          {% if responseMessage %}
+            <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+              {{ responseMessage }}
+            </div>  
+          {% endif %}
+        {% endif %}
+       </form>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+    
+
+{% endblock %}

@@ -56,8 +56,8 @@ class AuthController extends BaseController{
 			if ($prevMessage =="SQLSTATE[23000]: Integrity constraint violation") {
 				$responseMessage = 'Error.';
 			}else{
-				//$responseMessage = substr($e->getMessage(), 0, 50);
-				$responseMessage = $e->getMessage();
+				$responseMessage = substr($e->getMessage(), 0, 47);
+				//$responseMessage = $e->getMessage();
 			}
 		}
 		return $this->renderHTML('login.twig',[

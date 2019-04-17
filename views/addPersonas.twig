@@ -49,17 +49,17 @@
               <label>Genero (*):</label>
               <select class="form-control select-picker" name="genero" required>
                 <option value="">Seleccione una opción</option>
-                <option value="Femenino">Femenino</option>
-                <option value="Masculino">Masculino</option>
+                {% for genero in generos %}
+                  <option value="{{ genero.id }}">{{ genero.nombre }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">
               <label>Estado civil (*):</label>
               <select class="form-control select-picker" name="estadocivil" required>
-                <option value="Casado">Casado</option>
-                <option value="Soltero">Soltero</option>
-                <option value="Divorciado">Divorciado</option>
-                <option value="Viudo">Viudo</option>
+                {% for estadocivil in estadocivil %}
+                  <option value="{{ estadocivil.id }}">{{ estadocivil.nombre }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-3">
@@ -71,27 +71,17 @@
             <div class="form-group col-xs-3">
               <label>Rh (*):</label>
               <select class="form-control select-picker" name="rh" required>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="Otro">Otro</option>
+                {% for rh in rh %}
+                  <option value="{{ rh.id }}">{{ rh.nombre }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">
               <label>Nivel Educativo:</label>
-              <select class="form-control select-picker" name="niveleducativo">
-                <option value="Primaria">Primaria</option>
-                <option value="Bachillerato">Bachillerato</option>
-                <option value="Tecnico">Tecnico</option>
-                <option value="Tecnologico">Tecnologico</option>
-                <option value="Profesional">Profesional</option>
-                <option value="Posgrado">Posgrado</option>
-                <option value="Otro">Otro</option>
+              <select class="form-control select-picker" name="niveleducativo" required>
+                {% for niveleducativo in niveleducativo %}
+                  <option value="{{ niveleducativo.id }}">{{ niveleducativo.nombre }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="form-group col-xs-6">
