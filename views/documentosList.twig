@@ -1,0 +1,119 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+<h1>
+    Documentos
+    <small>Listado/Búsqueda</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./documentslist??={{idPer}}">Documentos</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Buscar documentos </h3>
+      </div>
+      <div class="box-body">
+       <form action="peoplesearch" method="post" role="form">
+          <div class="row" style="padding-left: 15px;">
+            <div class="form-group col-xs-4">
+              <label>Buscar:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label>Por:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label></label>
+            </div>
+          </div>
+          <div class="row" style="padding-left: 15px;">
+          <div class="form-group col-xs-4">
+            <input type="text" name="textBuscar" class="form-control" placeholder="Que desea buscar" maxlength="50" required>
+          </div>
+          <div class="form-group col-xs-4">
+            
+            <select class="form-control select-picker" name="criterio">
+              <option value="1">Referencia</option>
+              <option value="2">Emisor</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-4">
+              <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
+              <a type="button" class="btn btn-primary" href="./documentsadd">Agregar</a>
+          </div>
+        </div>
+       </form>
+     </div>
+     <hr noshade="noshade" size="4" width="95%" />
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="peopledel" method="post" role="form">
+        <table class="table table-striped" >
+          <tr>
+            <th style="width: 100px">Referencia</th>
+            <th style="width: 120px">Tipo Documento</th>
+            <th style="width: 100px">Emisor</th>
+            <th style="width: 100px">Fecha/Inicio</th>
+            <th style="width: 100px">Fecha/Final</th>
+            <th style="width: 120px">Acción</th>
+          </tr>
+          {% set ciclo = false %}
+          {% for documento in documentos %}
+          <tr>
+              <td>{{ documento.referencia }}</td>
+              <td>{{ documento.tipoDocumento }}</td>
+              <td>{{ documento.emisor }}</td>
+              <td>{{ documento.fechainicio }}</td>
+              <td>{{ documento.fechafinal }}</td>
+              <td>
+                <button type="submit" class="btn btn-success" value="upd|{{ documento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                <button type="submit" class="btn btn-danger" value="del|{{ documento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+              </td>
+          </tr>
+          {% set ciclo = true %}
+          {% endfor %}
+          {% if ciclo == false %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger">
+                  No se encontraron datos
+                  {% if queryErrorMessage %}
+                    {% for errorMessage in queryErrorMessage %} 
+                      {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                    {% endfor %}
+                  {% else %}
+                    {% if responseMessage %}
+                      {{ responseMessage }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+        </table>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            {% for i in 1..numeroDePaginas %}
+              {% if paginaActual == i %}
+                <li class="page-item active"><a class="page-link" href="./documentslist??={{idPer}}&pag={{i}}">{{i}}</a></li>
+              {% else %}
+                <li class="page-item"><a class="page-link" href="./documentslist??={{idPer}}&pag={{i}}">{{i}}</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </nav>
+       </form>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+    
+
+{% endblock %}

@@ -68,6 +68,7 @@
             <th style="width: 100px">Celular</th>
             <th style="width: 130px">Acción</th>
           </tr>
+          {% set ciclo = false %}
           {% for persona in personas %}
           <tr>
               <input type="hidden" name="ruta" value="listar">
@@ -83,7 +84,50 @@
                 <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
               </td>
           </tr>
+          {% set ciclo = true %}
           {% endfor %}
+          {% if ciclo == false %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  No se encontraron datos
+                  {% if queryErrorMessage %}
+                    {% for errorMessage in queryErrorMessage %} 
+                      {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                    {% endfor %}
+                  {% else %}
+                    {% if prevMessage %}
+                      {{ prevMessage }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+
+          {% if registrationErrorMessage %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  Se presentaron los siguientes errores, por favor corríjalos: <br>
+                  {% for errorMessage in registrationErrorMessage %} 
+                    {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            {% if responseMessage %}
+              <tr>
+                <td colspan=8>
+                  <div class="alert alert-danger" style="font-size:17px;">
+                    {{ responseMessage }}
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          {% endif %}
+          
         </table>
 
         <div class="row">
@@ -93,33 +137,34 @@
           </div>
         </div>
 
-
-        <nav aria-label="Page navigation example">
-          <ul class="pagination">
-            {% for i in 1..numeroDePaginas %}
-              {% if paginaActual == i %}
-                <li class="page-item active"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
-              {% else %}
-                <li class="page-item"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </nav>
-
-        {% if registrationErrorMessage %}
-          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
-             Se presentaron los siguientes errores, por favor corríjalos: <br>
-            {% for errorMessage in registrationErrorMessage %} 
-              {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
-            {% endfor %}
-          </div>
+        {% if numeroDePaginas%}
+          <nav aria-label="Page navigation example">
+            <ul class="pagination" style="padding-left: 10px;">
+              {% for i in 1..numeroDePaginas %}
+                {% if paginaActual == i %}
+                  <li class="page-item active"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
+                {% else %}
+                  <li class="page-item"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </nav>
         {% else %}
-          {% if responseMessage %}
-            <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
-              {{ responseMessage }}
-            </div>  
-          {% endif %}
+          {% if numeroDePaginasBusqueda > 1%}
+            <nav aria-label="Page navigation example">
+              <ul class="pagination" style="padding-left: 10px;">
+                {% for i in 1..numeroDePaginasBusqueda %}
+                  {% if paginaActual == i %}
+                    <li class="page-item active"><a class="page-link" href="./peoplesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="./peoplesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}  
         {% endif %}
+
        </form>
       </div>
       <!-- /.box-body -->

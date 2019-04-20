@@ -52,10 +52,11 @@ $map->post('postBuscarPersonas', $subdomain.'/peoplesearch', [
         'auth' => true,
         'license' => [$admin,$secretary]
 ]);
-$map->get('getListAddPersonas', $subdomain.'/peoplelistadd', [
+$map->get('getBuscarPersonas', $subdomain.'/peoplesearch', [
         'controller' => 'App\Controllers\PersonasController',
-        'action' => 'getListAddPersonas',
-        'auth' => true
+        'action' => 'postBusquedaPersonas',
+        'auth' => true,
+        'license' => [$admin,$secretary]
 ]);
 $map->post('postDelPersonas', $subdomain.'/peopledel', [
         'controller' => 'App\Controllers\PersonasController',
@@ -68,7 +69,40 @@ $map->post('postUpdatePersonas', $subdomain.'/peopleupdate', [
         'auth' => true
 ]);
 
-
+//Rutas PersonaDocumentos
+$map->get('getAddDocumentos', $subdomain.'/documentsadd', [
+        'controller' => 'App\Controllers\DocumentosController',
+        'action' => 'getAddDocumentos',
+        'auth' => true,
+        'license' => [$admin]
+]);
+$map->post('postAddDocumentos', $subdomain.'/documentsadd', [
+        'controller' => 'App\Controllers\DocumentosController',
+        'action' => 'postAddDocumentos',
+        'auth' => true
+]);
+$map->get('getListDocumentos', $subdomain.'/documentslist', [
+        'controller' => 'App\Controllers\DocumentosController',
+        'action' => 'getLlamaListDocumentos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postBuscarDocumentos', $subdomain.'/documentssearch', [
+        'controller' => 'App\Controllers\DocumentosController',
+        'action' => 'postBusquedaDocumentos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postDelDocumentos', $subdomain.'/documentsdel', [
+        'controller' => 'App\Controllers\DocumentosController',
+        'action' => 'postUpdDelDocumentos',
+        'auth' => true
+]);
+$map->post('postUpdateDocumentos', $subdomain.'/documentsupdate', [
+        'controller' => 'App\Controllers\DocumentosController',
+        'action' => 'postUpdateDocumentos',
+        'auth' => true
+]);
 
 
 
