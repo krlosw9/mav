@@ -11,7 +11,7 @@ use Zend\Diactoros\Response\RedirectResponse;
 class PersonasController extends BaseController{
 	
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
-	private $articulosPorPagina=2;
+	private $articulosPorPagina=10;
 	private $limitePaginacion=20;
 
 	public function getAddPersonas(){
@@ -354,8 +354,8 @@ class PersonasController extends BaseController{
 				$id = $postData['id'] ?? null;				
 				if ($id) {
 					if ($btnDocumentos == 'doc') {
-						$DocumentosController = new DocumentosController();
-						return $DocumentosController->getListDocumentos($id);
+						$DocumentosController = new PersonaDocumentosController();
+						return $DocumentosController->listPersonasDocumentos($id);
 
 					}elseif ($btnDocumentos == 'lic') {
 						$responseMessage = 'Quiere agregar licencias al id: '.$id;

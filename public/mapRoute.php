@@ -71,35 +71,35 @@ $map->post('postUpdatePersonas', $subdomain.'/peopleupdate', [
 
 //Rutas PersonaDocumentos
 $map->get('getAddDocumentos', $subdomain.'/documentsadd', [
-        'controller' => 'App\Controllers\DocumentosController',
+        'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'getAddDocumentos',
         'auth' => true,
         'license' => [$admin]
 ]);
 $map->post('postAddDocumentos', $subdomain.'/documentsadd', [
-        'controller' => 'App\Controllers\DocumentosController',
+        'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postAddDocumentos',
         'auth' => true
 ]);
 $map->get('getListDocumentos', $subdomain.'/documentslist', [
-        'controller' => 'App\Controllers\DocumentosController',
-        'action' => 'getLlamaListDocumentos',
+        'controller' => 'App\Controllers\PersonaDocumentosController',
+        'action' => 'getListDocumentos',
         'auth' => true,
         'license' => [$admin,$secretary]
 ]);
 $map->post('postBuscarDocumentos', $subdomain.'/documentssearch', [
-        'controller' => 'App\Controllers\DocumentosController',
+        'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postBusquedaDocumentos',
         'auth' => true,
         'license' => [$admin,$secretary]
 ]);
 $map->post('postDelDocumentos', $subdomain.'/documentsdel', [
-        'controller' => 'App\Controllers\DocumentosController',
+        'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postUpdDelDocumentos',
         'auth' => true
 ]);
 $map->post('postUpdateDocumentos', $subdomain.'/documentsupdate', [
-        'controller' => 'App\Controllers\DocumentosController',
+        'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postUpdateDocumentos',
         'auth' => true
 ]);
