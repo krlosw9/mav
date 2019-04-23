@@ -350,6 +350,7 @@ class PersonasController extends BaseController{
 			$btnDelUpd = $postData['btnDelUpd'] ?? null;
 			$btnDocumentos = $postData['btnDocumentos'] ?? null;			
 
+			/*En este if verifica que boton se presiono si el de documentos o licencia y crea una instancia de la clase que corresponde, ejemplo si presiono documentos crea una instancia de la clase PersonaDocumentosController y llama al metodo listPersonasDocumentos(parametro el ID de la persona)*/
 			if ($btnDocumentos) {
 				$id = $postData['id'] ?? null;				
 				if ($id) {

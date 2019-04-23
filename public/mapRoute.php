@@ -108,6 +108,23 @@ $map->post('postUpdateDocumentos', $subdomain.'/documentsupdate', [
 
 
 
+//Prueba de Vistas
+$map->get('getViews', $subdomain.'/forms', [
+        'controller' => 'App\Controllers\GetViews',
+        'action' => 'getForms',
+        'auth' => true,
+]);
+$map->get('getList', $subdomain.'/list', [
+        'controller' => 'App\Controllers\GetViews',
+        'action' => 'getList',
+        'auth' => true,
+]);
+
+
+
+
+
+
 //Rutas que validan el login, dan acceso o denega acceso
 $map->get('loginForm', $subdomain.'/login', [
         'controller' => 'App\Controllers\AuthController',

@@ -1,4 +1,4 @@
-{% extends "layout.twig" %}
+{% extends "layout.twig" %} 
 
 {% block content %}
 
@@ -8,6 +8,7 @@
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./peoplelist">Personas</a></li>
     <li><a href="./documentslist??={{idPer}}">Documentos</a></li>
     <li class="active">Editar</li>
   </ol>
@@ -23,7 +24,7 @@
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="documentsupdate" method="post" role="form" enctype="multipart/form-data">
+        <form action="documentsupdate" method="post" role="form" >
           <div class="box-body">
             <input type="hidden" name="id" value="{{ documentos.id }}" required>
             <input type="hidden" name="idPer" value="{{ idPer }}" required>
@@ -59,6 +60,10 @@
             <div class="form-group col-xs-6">
               <label>Emisor(*):</label>
               <input type="text" name="emisor" class="form-control" placeholder="" maxlength="100" value="{{ documentos.emisor }}" required>
+            </div>
+            <div class="form-group col-xs-6">
+              <label>Comprobante (*):</label>
+              <input type="file" name="urlcomprobante" class="form-control" required>
             </div>
           </div>
           <!-- /.box-body -->
