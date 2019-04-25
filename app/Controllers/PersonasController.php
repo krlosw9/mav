@@ -89,6 +89,8 @@ class PersonasController extends BaseController{
 						$responseMessage = 'Error, El numero del documento ya esta registrado';
 					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
+					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
+						$responseMessage = 'Error relacional de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 					}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 						$registrationErrorMessage = $exception->findMessages([
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
@@ -484,6 +486,8 @@ class PersonasController extends BaseController{
 						$responseMessage = 'Error, El numero del documento ya esta registrado';
 					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
+					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
+						$responseMessage = 'Error relacional de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 					}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 						$registrationErrorMessage = $exception->findMessages([
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
