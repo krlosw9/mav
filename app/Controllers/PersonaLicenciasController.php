@@ -17,28 +17,28 @@ class PersonaLicenciasController extends BaseController{
 
 
 	public function getAddLicencias(){
-		$responseMessage=null; $ruta='personaLicenciasAdd.twig'; $tiposdocumentos=null;
+		$responseMessage=null; $ruta='personaLicenciasAdd.twig'; $categoriaslicencias=null;
 
 		$idPer = $_GET['?'] ?? null;
 
 		if ($idPer) {
-			$tiposdocumentos = PersonaTiposDocumentosPer::orderBy('nombre')->get();
+			$categoriaslicencias = PersonaCategoriasLicencias::orderBy('descripcion')->get();
 		}else{
 			$responseMessage = $this->mensajePersonaNoDefinida;
-			$ruta='personaDocumentosList.twig';
+			$ruta='personaLicenciasList.twig';
 		}
 
 		return $this->renderHTML($ruta,[
 				'responseMessage' => $responseMessage,
 				'idPer' => $idPer,
-				'tiposdocumentos' => $tiposdocumentos,
+				'categoriaslicencias' => $categoriaslicencias,
 		]);
 	}
 
-	//Registra el Documento
+	//Registra la Licencia
 	public function postAddLicencias($request){
 		$responseMessage = null; $registrationErrorMessage=null; $fileName=null;
-		$documentos = null; $numeroDePaginas=null; $idPer=0; $persona=null;
+		$licencias = null; $numeroDePaginas=null; $idPer=0; $persona=null;
 
 
 		if($request->getMethod()=='POST'){
@@ -49,17 +49,16 @@ class PersonaLicenciasController extends BaseController{
 			*almacena el array con todas las propiedades de este file*/
 			$files = $request->getUploadedFiles(); 
 			$fileComprobante = $files['urlcomprobante']; 
-			$temporaryFileName = 'docp'.$postData['referencia'];
+			$temporaryFileName = 'licp'.$postData['numero'].$postData['catid'];
 			
 			/*Se hace llamado al metodo que se creo para validar las imagenes */
 			$FilesValidatorController = new FilesValidatorController();
 			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
 
-			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
-					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
-					->key('fechainicio', v::date())
-					->key('fechafinal', v::date())
-					->key('tdpid', v::numeric()->positive()->notEmpty());
+			$documentoValidator = v::key('numero', v::stringType()->length(1, 50)->notEmpty())
+					->key('fechaexpedicion', v::date())
+					->key('fechavencimiento', v::date())
+					->key('catid', v::numeric()->positive()->notEmpty());
 			$idPer = $postData['idPer'];
 			
 			if($_SESSION['userId']){
@@ -70,24 +69,22 @@ class PersonaLicenciasController extends BaseController{
 						$documentoValidator->assert($postData);
 						$postData = $request->getParsedBody();
 
-						$documento = new PersonaDocumentos();
-						$documento->referencia=$postData['referencia'];
-						$documento->emisor = $postData['emisor'];
-						$documento->fechainicio = $postData['fechainicio'];
-						$documento->fechafinal = $postData['fechafinal'];
+						$licencia = new PersonaLicencias();
+						$licencia->numero=$postData['numero'];
+						$licencia->fechaexpedicion = $postData['fechaexpedicion'];
+						$licencia->fechavencimiento = $postData['fechavencimiento'];
 						$fileComprobante->moveTo("uploads/$fileName");
-						$documento->urlcomprobante = $fileName;
-						$documento->activocheck = 1;
-						$documento->perid = $idPer;
-						$documento->tdpid = $postData['tdpid'];
-						$documento->iduserregister = $_SESSION['userId'];
-						$documento->iduserupdate = $_SESSION['userId'];
-						$documento->save();
+						$licencia->urlcomprobante = $fileName;
+						$licencia->perid = $idPer;
+						$licencia->catid = $postData['catid'];
+						$licencia->iduserregister = $_SESSION['userId'];
+						$licencia->iduserupdate = $_SESSION['userId'];
+						$licencia->save();
 
 						$responseMessage = 'Registrado';
 					}catch(\Exception $exception){
 						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 25);
+						$prevMessage = substr($exception->getMessage(), 0, 100);
 						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 							$responseMessage = 'Error, La referencia ya esta registrada';
 						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
@@ -117,15 +114,15 @@ class PersonaLicenciasController extends BaseController{
 		$paginador = $this->paginador($idPer);
 		$persona = $paginador['persona'];
 		if ($responseMessage=='Registrado') {
-			$documentos = $paginador['documentos'];
+			$licencias = $paginador['licencias'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];	
 		}
 
-		return $this->renderHTML('personaDocumentosList.twig',[
+		return $this->renderHTML('personaLicenciasList.twig',[
 				'idPer' => $idPer,
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
-				'documentos' => $documentos,
+				'licencias' => $licencias,
 				'numeroDePaginas' => $numeroDePaginas,
 				'persona' => $persona
 		]);
@@ -134,9 +131,9 @@ class PersonaLicenciasController extends BaseController{
  
 	//Lista todas los modelos Ordenando por posicion
 	public function paginador($idPer=0, $paginaActual=0){
-		$retorno = array(); $iniciar=0; $documentos=null; $persona=null;
+		$retorno = array(); $iniciar=0; $licencias=null; $persona=null;
 		
-		$numeroDeFilas = PersonaDocumentos::selectRaw('count(*) as query_count')
+		$numeroDeFilas = PersonaLicencias::selectRaw('count(*) as query_count')
 		->first();
 		
 		$totalFilasDb = $numeroDeFilas->query_count;
@@ -155,10 +152,10 @@ class PersonaLicenciasController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 		
-		$documentos = PersonaLicencias::Join("persona.tiposdocumentosper","persona.documentosper.tdpid","=","persona.tiposdocumentosper.id")
-		->where("persona.documentosper.perid","=",$idPer)
-		->select('persona.documentosper.*', 'persona.tiposdocumentosper.nombre As tipoDocumento')
-		->latest('persona.documentosper.id')
+		$licencias = PersonaLicencias::Join("persona.categoriaslicencias","persona.licencias.catid","=","persona.categoriaslicencias.id")
+		->where("persona.licencias.perid","=",$idPer)
+		->select('persona.licencias.*', 'persona.categoriaslicencias.descripcion As categoria')
+		->latest('persona.licencias.id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
@@ -168,7 +165,7 @@ class PersonaLicenciasController extends BaseController{
 		$retorno = [
 			'iniciar' => $iniciar,
 			'numeroDePaginas' => $numeroDePaginas,
-			'documentos' => $documentos,
+			'licencias' => $licencias,
 			'persona' => $persona
 		];
 
@@ -177,7 +174,7 @@ class PersonaLicenciasController extends BaseController{
 	}
 
 	public function paginadorWhere($idPer=null, $paginaActual=null, $criterio=null, $comparador='=', $textBuscar=null, $orden='latest', $criterioOrden='id'){
-		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $documentos=null; $persona=null;
+		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $licencias=null; $persona=null;
 		
 		$numeroDeFilas = PersonaLicencias::where($criterio, $comparador ,$textBuscar)->selectRaw('count(*) as query_count')
 		->first();
@@ -198,11 +195,11 @@ class PersonaLicenciasController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-		$documentos = PersonaLicencias::Join("persona.tiposdocumentosper","persona.documentosper.tdpid","=","persona.tiposdocumentosper.id")
-		->where("persona.documentosper.perid","=",$idPer)
+		$licencias = PersonaLicencias::Join("persona.categoriaslicencias","persona.licencias.catid","=","persona.categoriaslicencias.id")
+		->where("persona.licencias.perid","=",$idPer)
 		->where($criterio,$comparador,$textBuscar)
-		->select('persona.documentosper.*', 'persona.tiposdocumentosper.nombre As tipoDocumento')
-		->latest('persona.documentosper.id')
+		->select('persona.licencias.*', 'persona.categoriaslicencias.descripcion As categoria')
+		->latest('persona.licencias.id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();	
 
@@ -212,7 +209,7 @@ class PersonaLicenciasController extends BaseController{
 		$retorno = [
 			'iniciar' => $iniciar,
 			'numeroDePaginas' => $numeroDePaginas,
-			'documentos' => $documentos,
+			'licencias' => $licencias,
 			'persona' => $persona
 
 		];
@@ -220,26 +217,26 @@ class PersonaLicenciasController extends BaseController{
 		return $retorno;
 	}
 
-	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton documentos en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus documentos)
+	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton licencias en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus licencias)
 	public function listPersonasLicencias($idPer=null){
-		$numeroDePaginas=null; $documentos=null; $persona=null;
+		$numeroDePaginas=null; $licencias=null; $persona=null;
 
 		$paginador = $this->paginador($idPer);
 		
-		$documentos = $paginador['documentos'];
+		$licencias = $paginador['licencias'];
 		$numeroDePaginas = $paginador['numeroDePaginas'];
 		$persona = $paginador['persona'];
 		
-		return $this->renderHTML('personaDocumentosList.twig', [
+		return $this->renderHTML('personaLicenciasList.twig', [
 			'idPer' => $idPer,
-			'documentos' => $documentos,
+			'licencias' => $licencias,
 			'numeroDePaginas' => $numeroDePaginas,
 			'persona' => $persona
 		]);
 	}
 
 	public function getListLicencias(){
-		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $persona=null;
+		$responseMessage=null; $numeroDePaginas=null; $licencias=null; $numeroDePaginas=null; $persona=null;
 		
 		$idPer = $_GET['?'] ?? null;
 		$paginaActual = $_GET['pag'] ?? null;
@@ -247,7 +244,7 @@ class PersonaLicenciasController extends BaseController{
 		if ($idPer) {
 			$paginador = $this->paginador($idPer, $paginaActual);
 		
-			$documentos = $paginador['documentos'];
+			$licencias = $paginador['licencias'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];	
 			$persona = $paginador['persona'];
 
@@ -256,10 +253,10 @@ class PersonaLicenciasController extends BaseController{
 		}
 		
 		
-		return $this->renderHTML('personaDocumentosList.twig', [
+		return $this->renderHTML('personaLicenciasList.twig', [
 			'idPer' => $idPer,
 			'responseMessage' => $responseMessage,
-			'documentos' => $documentos,
+			'licencias' => $licencias,
 			'numeroDePaginas' => $numeroDePaginas,
 			'paginaActual' => $paginaActual,
 			'persona' => $persona
@@ -268,7 +265,7 @@ class PersonaLicenciasController extends BaseController{
 
 
 	public function postBusquedaLicencias($request){
-		$prevMessage = null; $responseMessage=null; $iniciar=0; $documentos=null; $queryErrorMessage=null; $error=false;
+		$prevMessage = null; $responseMessage=null; $iniciar=0; $licencias=null; $queryErrorMessage=null; $error=false;
 		$numeroDePaginas=null; $paginaActual=null; $criterio=null; $textBuscar=null; $idPer=null; $persona=null;
 
 		//if($request->getMethod()=='POST'){
@@ -297,26 +294,28 @@ class PersonaLicenciasController extends BaseController{
 						$personaValidator->assert($postData);
 						$postData = $request->getParsedBody();
 						
-						$criterioQuery="persona.documentosper.referencia"; $comparador='ilike';
+						$criterioQuery="persona.licencias.numero"; $comparador='ilike';
 						$textBuscarModificado='%'.$textBuscar.'%';
 						$paginador = $this->paginadorWhere($idPer,$paginaActual, $criterioQuery,$comparador, $textBuscarModificado);
-						$documentos=$paginador['documentos'];
+						$licencias=$paginador['licencias'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
 						$persona=$paginador['persona'];
 
 					}catch(\Exception $exception){
 						$error=true;
 						//$prevMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 30);
-						if ($prevMessage == 'SQLSTATE[42703]: Undefined col') {
+						$prevMessage = substr($exception->getMessage(), 0, 25);
+						if ($prevMessage == 'SQLSTATE[42703]: Undefine') {
 							$prevMessage= "(Parámetro de criterio incorrecto)";
-						}else{
+						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 							$queryErrorMessage = $exception->findMessages([
 							'notEmpty' => '- El texto de busqueda no puede quedar vacio',
 							'length' => '- Tiene una longitud no permitida',
 							'numeric' => '- Solo puede contener numeros', 
 							'positive' => '- Solo puede contener numeros mayores a cero'
 							]);
+						}else{
+							$responseMessage = $prevMessage;
 						}
 					}
 				}elseif ($criterio==2) {
@@ -325,26 +324,28 @@ class PersonaLicenciasController extends BaseController{
 						$personaValidator->assert($postData);
 						$postData = $request->getParsedBody();
 
-						$criterioQuery="persona.documentosper.emisor"; $comparador='ilike'; $orden='orderBy';
+						$criterioQuery="persona.licencias.fechaexpedicion"; $comparador='ilike'; $orden='orderBy';
 						$textBuscarModificado='%'.$textBuscar.'%';
 						$paginador = $this->paginadorWhere($idPer,$paginaActual, $criterioQuery, $comparador, $textBuscarModificado,$orden, $criterioQuery);
-						$documentos=$paginador['documentos'];
+						$licencias=$paginador['licencias'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
 						$persona=$paginador['persona'];
 
 					}catch(\Exception $exception){
 						$error=true;
 						//$prevMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 30);
+						$prevMessage = substr($exception->getMessage(), 0, 25);
 
-						if ($prevMessage == 'SQLSTATE[42703]: Undefined col') {
+						if ($prevMessage == 'SQLSTATE[42703]: Undefine') {
 							$prevMessage= "(Parámetro de criterio incorrecto)";
-						}else{
+						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 							$queryErrorMessage = $exception->findMessages([
 							'notEmpty' => '- El texto de busqueda no puede quedar vacio',
 							'length' => '- Tiene una longitud no permitida',
 							'stringType' => '- Solo puede contener nombres'
 							]);
+						}else{
+							$responseMessage = $prevMessage;
 						}
 					}
 				}else{
@@ -361,10 +362,10 @@ class PersonaLicenciasController extends BaseController{
 			}
 		//}
 	
-		return $this->renderHTML('personaDocumentosList.twig', [
+		return $this->renderHTML('personaLicenciasList.twig', [
 			'idPer' => $idPer,
 			'numeroDePaginasBusqueda' => $numeroDePaginas,
-			'documentos' => $documentos,
+			'licencias' => $licencias,
 			'prevMessage' => $prevMessage,
 			'responseMessage' => $responseMessage,
 			'queryErrorMessage' => $queryErrorMessage,
@@ -380,8 +381,8 @@ class PersonaLicenciasController extends BaseController{
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelLicencias($request){
-		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='personaDocumentosList.twig'; $numeroDePaginas=null; $persona=null;
+		$categoriaslicencias=null; $licencias=null; $responseMessage = null; $id=null; $boton=null;
+		$quiereActualizar = false; $ruta='personaLicenciasList.twig'; $numeroDePaginas=null; $persona=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -396,14 +397,14 @@ class PersonaLicenciasController extends BaseController{
 			if ($id) {
 				if($boton == 'del'){
 				  try{
-					$people = new PersonaDocumentos();
+					$people = new PersonaLicencias();
 					$people->destroy($id);
-					$responseMessage = "Se elimino el documento";
+					$responseMessage = "Se elimino la licencias";
 				  }catch(\Exception $e){
 				  	//$responseMessage = $e->getMessage();
 				  	$prevMessage = substr($e->getMessage(), 0, 38);
 					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, este documento esta en uso.';
+						$responseMessage = 'Error, No se puede eliminar, esta licencia esta en uso.';
 					}else{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
@@ -412,26 +413,26 @@ class PersonaLicenciasController extends BaseController{
 					$quiereActualizar=true;
 				}
 			}else{
-				$responseMessage = 'Debe Seleccionar un documento';
+				$responseMessage = 'Debe Seleccionar una licencia';
 			}
 		}
 		
 		if ($quiereActualizar){
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$documentos = PersonaDocumentos::find($id);
-			$tiposdocumentos = PersonaTiposDocumentosPer::orderBy('nombre')->get();
+			$licencias = PersonaLicencias::find($id);
+			$categoriaslicencias = PersonaCategoriasLicencias::orderBy('descripcion')->get();
 
-			$ruta='personaDocumentosUpdate.twig';
+			$ruta='personaLicenciasUpdate.twig';
 		}else{
 			$paginador = $this->paginador($idPer);
 
-			$documentos = $paginador['documentos'];
+			$licencias = $paginador['licencias'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];
 			$persona = $paginador['persona'];
 		}
 		return $this->renderHTML($ruta, [
-			'documentos' => $documentos,
-			'tiposdocumentos' => $tiposdocumentos,
+			'licencias' => $licencias,
+			'categoriaslicencias' => $categoriaslicencias,
 			'responseMessage' => $responseMessage,
 			'numeroDePaginas' => $numeroDePaginas,
 			'idPer' => $idPer,
@@ -441,7 +442,7 @@ class PersonaLicenciasController extends BaseController{
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdateLicencias($request){
-		$responseMessage = null; $registrationErrorMessage=null; $documentos=null; $numeroDePaginas=null; $persona=null;
+		$responseMessage = null; $registrationErrorMessage=null; $licencias=null; $numeroDePaginas=null; $persona=null;
 				
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -450,7 +451,7 @@ class PersonaLicenciasController extends BaseController{
 			*almacena el array con todas las propiedades de este file*/
 			$files = $request->getUploadedFiles();
 			$fileComprobante = $files['urlcomprobante'];
-			$temporaryFileName = 'docp'.$postData['referencia'];
+			$temporaryFileName = 'licp'.$postData['numero'].$postData['catid'];
 			
 			/*Se hace llamado al metodo que se creo para validar las imagenes */
 			$FilesValidatorController = new FilesValidatorController();
@@ -458,11 +459,10 @@ class PersonaLicenciasController extends BaseController{
 
 			$idPer = $postData['idPer'] ?? null;
 
-			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
-					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
-					->key('fechainicio', v::date())
-					->key('fechafinal', v::date())
-					->key('tdpid', v::numeric()->positive()->notEmpty());
+			$documentoValidator = v::key('numero', v::stringType()->length(1, 50)->notEmpty())
+					->key('fechaexpedicion', v::date())
+					->key('fechavencimiento', v::date())
+					->key('catid', v::numeric()->positive()->notEmpty());
 
 			
 			if($_SESSION['userId']){
@@ -475,26 +475,25 @@ class PersonaLicenciasController extends BaseController{
 						$postData = $request->getParsedBody();
 
 						//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-						$idDocumento = $postData['id'];
-						$documento = PersonaDocumentos::find($idDocumento);
+						$idLicencia = $postData['id'];
+						$licencia = PersonaLicencias::find($idLicencia);
 						
-						$documento->referencia=$postData['referencia'];
-						$documento->emisor = $postData['emisor'];
-						$documento->fechainicio = $postData['fechainicio'];
-						$documento->fechafinal = $postData['fechafinal'];
+						$licencia->numero=$postData['numero'];
+						$licencia->fechaexpedicion = $postData['fechaexpedicion'];
+						$licencia->fechavencimiento = $postData['fechavencimiento'];
 						if ($validadorComprobante['error'] == 0) {
 							$fileComprobante->moveTo("uploads/$fileName");	
+							$licencia->urlcomprobante = $fileName;
 						}
-						$documento->tdpid = $postData['tdpid'];
-						$documento->activocheck = 1;
-						$documento->iduserregister = $_SESSION['userId'];
-						$documento->iduserupdate = $_SESSION['userId'];
-						$documento->save();
+						$licencia->catid = $postData['catid'];
+						$licencia->iduserregister = $_SESSION['userId'];
+						$licencia->iduserupdate = $_SESSION['userId'];
+						$licencia->save();
 
 						$responseMessage = 'Editado.';
 					}catch(\Exception $exception){
 						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 25);
+						$prevMessage = substr($exception->getMessage(), 0, 100);
 						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 							$responseMessage = 'Error, La referencia ya esta registrada';
 						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
@@ -525,16 +524,16 @@ class PersonaLicenciasController extends BaseController{
 		$paginador = $this->paginador($idPer);
 		$persona = $paginador['persona'];
 		if ($responseMessage == 'Editado.') {
-			$documentos = $paginador['documentos'];
+			$licencias = $paginador['licencias'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];
 		}
 		
 
-		return $this->renderHTML('personaDocumentosList.twig',[
+		return $this->renderHTML('personaLicenciasList.twig',[
 				'idPer' => $idPer,
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
-				'documentos' => $documentos,
+				'licencias' => $licencias,
 				'numeroDePaginas' => $numeroDePaginas,
 				'persona' => $persona
 		]);

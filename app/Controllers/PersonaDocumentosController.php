@@ -77,7 +77,6 @@ class PersonaDocumentosController extends BaseController{
 						$documento->fechafinal = $postData['fechafinal'];
 						$fileComprobante->moveTo("uploads/$fileName");
 						$documento->urlcomprobante = $fileName;
-						$documento->activocheck = 1;
 						$documento->perid = $idPer;
 						$documento->tdpid = $postData['tdpid'];
 						$documento->iduserregister = $_SESSION['userId'];
@@ -87,7 +86,7 @@ class PersonaDocumentosController extends BaseController{
 						$responseMessage = 'Registrado';
 					}catch(\Exception $exception){
 						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 25);
+						$prevMessage = substr($exception->getMessage(), 0, 100);
 						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 							$responseMessage = 'Error, La referencia ya esta registrada';
 						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
@@ -307,16 +306,18 @@ class PersonaDocumentosController extends BaseController{
 					}catch(\Exception $exception){
 						$error=true;
 						//$prevMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 30);
-						if ($prevMessage == 'SQLSTATE[42703]: Undefined col') {
+						$prevMessage = substr($exception->getMessage(), 0, 25);
+						if ($prevMessage == 'SQLSTATE[42703]: Undefine') {
 							$prevMessage= "(Parámetro de criterio incorrecto)";
-						}else{
+						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 							$queryErrorMessage = $exception->findMessages([
 							'notEmpty' => '- El texto de busqueda no puede quedar vacio',
 							'length' => '- Tiene una longitud no permitida',
 							'numeric' => '- Solo puede contener numeros', 
 							'positive' => '- Solo puede contener numeros mayores a cero'
 							]);
+						}else{
+							$responseMessage = $prevMessage;
 						}
 					}
 				}elseif ($criterio==2) {
@@ -335,16 +336,18 @@ class PersonaDocumentosController extends BaseController{
 					}catch(\Exception $exception){
 						$error=true;
 						//$prevMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 30);
+						$prevMessage = substr($exception->getMessage(), 0, 25);
 
-						if ($prevMessage == 'SQLSTATE[42703]: Undefined col') {
+						if ($prevMessage == 'SQLSTATE[42703]: Undefine') {
 							$prevMessage= "(Parámetro de criterio incorrecto)";
-						}else{
+						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 							$queryErrorMessage = $exception->findMessages([
 							'notEmpty' => '- El texto de busqueda no puede quedar vacio',
 							'length' => '- Tiene una longitud no permitida',
 							'stringType' => '- Solo puede contener nombres'
 							]);
+						}else{
+							$responseMessage = $prevMessage;
 						}
 					}
 				}else{
@@ -484,9 +487,9 @@ class PersonaDocumentosController extends BaseController{
 						$documento->fechafinal = $postData['fechafinal'];
 						if ($validadorComprobante['error'] == 0) {
 							$fileComprobante->moveTo("uploads/$fileName");	
+							$documento->urlcomprobante = $fileName;
 						}
 						$documento->tdpid = $postData['tdpid'];
-						$documento->activocheck = 1;
 						$documento->iduserregister = $_SESSION['userId'];
 						$documento->iduserupdate = $_SESSION['userId'];
 						$documento->save();

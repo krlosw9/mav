@@ -2,41 +2,38 @@
 
 namespace App\Controllers;
 
-use App\Models\{Personas,Roles,TiposDocumento, Generos, EstadosCiviles, Rh, NivelesEducativos};
+use App\Models\{Personas,Alistamientos};
 use App\Controllers\{DocumentosController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class PersonasController extends BaseController{
+class AlistamientosController extends BaseController{
 	
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
 	private $articulosPorPagina=10;
 	private $limitePaginacion=20;
 
-	public function getAddPersonas(){
+	public function getAddAlistamientos(){
 		$roles = null; $tiposdocumentos=null;
 
+		/*
 		$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
 		$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
 		$generos = Generos::orderBy('nombre')->get();
 		$estadocivil = EstadosCiviles::orderBy('nombre')->get();
 		$rh = Rh::latest('nombre')->get();
 		$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
-		
+		*/
 
-		return $this->renderHTML('personasAdd.twig',[
+		return $this->renderHTML('alistamientosAdd.twig',[
 				'roles' => $roles,
-				'tiposdocumentos' => $tiposdocumentos,
-				'generos' => $generos,
-				'estadocivil' => $estadocivil,
-				'rh' => $rh,
-				'niveleducativo' => $niveleducativo
+				'tiposdocumentos' => $tiposdocumentos
 		]);
 	}
 
-	//Registra la Persona
-	public function postAddPersonas($request){
+	//Registra el Alistamientos
+	public function postAddAlistamientos($request){
 		$responseMessage = null; $prevMessage=null; $registrationErrorMessage=null;
 		$personas = null; $numeroDePaginas=null;
 
@@ -112,7 +109,7 @@ class PersonasController extends BaseController{
 		$numeroDePaginas=$paginador['numeroDePaginas'];
 		$personas=$paginador['personas'];
 
-		return $this->renderHTML('personasList.twig',[
+		return $this->renderHTML('alistamientosList.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'prevMessage' => $prevMessage,
@@ -122,16 +119,16 @@ class PersonasController extends BaseController{
 	}
 
 	//Lista todas los modelos Ordenando por posicion
-	public function getListPersonas(){
-		$responseMessage = null; $personas=null; $numeroDePaginas=null;
+	public function getListAlistamientos(){
+		$responseMessage = null; $alistamientos=null; $numeroDePaginas=null;
 
 		$paginaActual = $_GET['pag'] ?? null;		
 		$paginador = $this->paginador($paginaActual);
 		$numeroDePaginas=$paginador['numeroDePaginas'];
-		$personas=$paginador['personas'];
+		$alistamientos=$paginador['alistamientos'];
 
-		return $this->renderHTML('personasList.twig', [
-			'personas' => $personas,
+		return $this->renderHTML('alistamientosList.twig', [
+			'alistamientos' => $alistamientos,
 			'numeroDePaginas' => $numeroDePaginas,
 			'paginaActual' => $paginaActual
 		]);
@@ -139,9 +136,9 @@ class PersonasController extends BaseController{
 	}
 
 	public function paginador($paginaActual=null){
-		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $personas=null;
+		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $alistamientos=null;
 		
-		$numeroDeFilas = Personas::selectRaw('count(*) as query_count')
+		$numeroDeFilas = Alistamientos::selectRaw('count(*) as query_count')
 		->first();
 		
 		$totalFilasDb = $numeroDeFilas->query_count;
@@ -160,7 +157,7 @@ class PersonasController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-		$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
+		$alistamientos = Alistamientos::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
 		->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
 		->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
 		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
@@ -171,7 +168,7 @@ class PersonasController extends BaseController{
 		$retorno = [
 			'iniciar' => $iniciar,
 			'numeroDePaginas' => $numeroDePaginas,
-			'personas' => $personas
+			'alistamientos' => $alistamientos
 
 		];
 
@@ -179,9 +176,9 @@ class PersonasController extends BaseController{
 	}
 
 	public function paginadorWhere($paginaActual=null, $criterio=null, $comparador='=', $textBuscar=null, $orden='latest', $criterioOrden='id'){
-		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $personas=null;
+		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $alistamientos=null;
 		
-		$numeroDeFilas = Personas::where($criterio, $comparador ,$textBuscar)->selectRaw('count(*) as query_count')
+		$numeroDeFilas = Alistamientos::where($criterio, $comparador ,$textBuscar)->selectRaw('count(*) as query_count')
 		->first();
 		
 		$totalFilasDb = $numeroDeFilas->query_count;
@@ -200,7 +197,7 @@ class PersonasController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-		$personas = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
+		$alistamientos = Personas::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
 		->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
 		->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
 		->where($criterio,$comparador,$textBuscar)
@@ -212,7 +209,7 @@ class PersonasController extends BaseController{
 		$retorno = [
 			'iniciar' => $iniciar,
 			'numeroDePaginas' => $numeroDePaginas,
-			'personas' => $personas
+			'alistamientos' => $alistamientos
 
 		];
 		
@@ -220,7 +217,7 @@ class PersonasController extends BaseController{
 	}
 
 
-	public function postBusquedaPersonas($request){
+	public function postBusquedaAlistamientos($request){
 		$prevMessage = null; $responseMessage=null; $iniciar=0; $personas=null; $queryErrorMessage=null;
 		$numeroDePaginas=null; $paginaActual=null; $criterio=null; $textBuscar=null;
 
@@ -333,7 +330,7 @@ class PersonasController extends BaseController{
 			
 		//}
 	
-		return $this->renderHTML('personasList.twig', [
+		return $this->renderHTML('alistamientosList.twig', [
 			'numeroDePaginasBusqueda' => $numeroDePaginas,
 			'personas' => $personas,
 			'prevMessage' => $prevMessage,
@@ -349,9 +346,9 @@ class PersonasController extends BaseController{
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelPersonas($request){
+	public function postUpdDelAlistamientos($request){
 		$roles = null; $tiposdocumentos=null; $personas=null; $numeroDePaginas=null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='personasList.twig'; $responseMessage = null;
+		$quiereActualizar = false; $ruta='alistamientosList.twig'; $responseMessage = null;
 		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
 
 		if($request->getMethod()=='POST'){
@@ -416,7 +413,7 @@ class PersonasController extends BaseController{
 			$estadocivil = EstadosCiviles::orderBy('nombre')->get();
 			$rh = Rh::latest('nombre')->get();
 			$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
-			$ruta='personasUpdate.twig';
+			$ruta='alistamientosUpdate.twig';
 		}else{
 			$iniciar=0;
 
@@ -438,7 +435,7 @@ class PersonasController extends BaseController{
 	}
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
-	public function postUpdatePersonas($request){
+	public function postUpdateAlistamientos($request){
 		$responseMessage = null; $registrationErrorMessage=null; $personas=null; $numeroDePaginas=null;
 				
 		if($request->getMethod()=='POST'){
@@ -516,7 +513,7 @@ class PersonasController extends BaseController{
 		$numeroDePaginas=$paginador['numeroDePaginas'];
 		$personas=$paginador['personas'];
 
-		return $this->renderHTML('personasList.twig',[
+		return $this->renderHTML('alistamientosList.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'numeroDePaginas' => $numeroDePaginas,

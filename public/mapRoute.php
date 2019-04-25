@@ -143,6 +143,50 @@ $map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
 
 
 
+//Rutas Alistamientos
+$map->get('getAddAlistamientos', $subdomain.'/checkadd', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'getAddAlistamientos',
+        'auth' => true,
+        'license' => [$admin]
+]);
+$map->post('postAddAlistamientos', $subdomain.'/checkadd', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'postAddAlistamientos',
+        'auth' => true
+]);
+$map->get('getListAlistamientos', $subdomain.'/checklist', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'getListAlistamientos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postBuscarAlistamientos', $subdomain.'/checksearch', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'postBusquedaAlistamientos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->get('getBuscarAlistamientos', $subdomain.'/checksearch', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'postBusquedaAlistamientos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postDelAlistamientos', $subdomain.'/checkdel', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'postUpdDelAlistamientos',
+        'auth' => true
+]);
+$map->post('postUpdateAlistamientos', $subdomain.'/checkupdate', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'postUpdateAlistamientos',
+        'auth' => true
+]);
+
+
+
+
 
 //Prueba de Vistas
 $map->get('getViews', $subdomain.'/forms', [
