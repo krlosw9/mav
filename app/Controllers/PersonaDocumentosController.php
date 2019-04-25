@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\{Personas,PersonaDocumentos, PersonaTiposDocumentosPer};
+use App\Controllers\{FilesValidatorController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -36,87 +37,89 @@ class PersonaDocumentosController extends BaseController{
 
 	//Registra el Documento
 	public function postAddDocumentos($request){
-		$responseMessage = null; $registrationErrorMessage=null;
+		$responseMessage = null; $registrationErrorMessage=null; $fileName=null;
 		$documentos = null; $numeroDePaginas=null; $idPer=0; $persona=null;
 
 
 		if($request->getMethod()=='POST'){
 			//crea el array $postData pasando las variables POST como indices de este array
 			$postData = $request->getParsedBody();
-			//crea el array $files guardando el archivo (files) y sus propiedades
-			$files = $request->getUploadedFiles(); var_dump($files);
 			
+			/*En la variable $files se almacena el $request del file y en $fileComprobante se
+			*almacena el array con todas las propiedades de este file*/
+			$files = $request->getUploadedFiles(); 
+			$fileComprobante = $files['urlcomprobante']; 
+			$temporaryFileName = 'docp'.$postData['referencia'];
+			
+			/*Se hace llamado al metodo que se creo para validar las imagenes */
+			$FilesValidatorController = new FilesValidatorController();
+			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
+
 			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
 					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
 					->key('fechainicio', v::date())
 					->key('fechafinal', v::date())
 					->key('tdpid', v::numeric()->positive()->notEmpty());
-			
+			$idPer = $postData['idPer'];
 			
 			if($_SESSION['userId']){
-				try{
-					$documentoValidator->assert($postData);
-					//$filesValidator->assert($files);
-					assert($filesValidator);
-					$postData = $request->getParsedBody();
+				if ($validadorComprobante['error'] == 0) {
+					$fileName = $validadorComprobante['fileName'];
 
-					/* Toma el archivo y lo mueve a la carpeta upload en public */
-					$fileImg = $files['urlcomprobante'];
-					
-					if($fileImg->getError() == UPLOAD_ERR_OK){
-						$fileName = $fileImg->getClientFilename();
-						$imgName = 'docp'.$postData['referencia'].$fileName;
-						//$fileImg->moveTo("uploads/$imgName");
+					try{
+						$documentoValidator->assert($postData);
+						$postData = $request->getParsedBody();
+
+						$documento = new PersonaDocumentos();
+						$documento->referencia=$postData['referencia'];
+						$documento->emisor = $postData['emisor'];
+						$documento->fechainicio = $postData['fechainicio'];
+						$documento->fechafinal = $postData['fechafinal'];
+						$fileComprobante->moveTo("uploads/$fileName");
+						$documento->urlcomprobante = $fileName;
+						$documento->activocheck = 1;
+						$documento->perid = $idPer;
+						$documento->tdpid = $postData['tdpid'];
+						$documento->iduserregister = $_SESSION['userId'];
+						$documento->iduserupdate = $_SESSION['userId'];
+						$documento->save();
+
+						$responseMessage = 'Registrado';
+					}catch(\Exception $exception){
+						//$responseMessage = $exception->getMessage();
+						$prevMessage = substr($exception->getMessage(), 0, 25);
+						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
+							$responseMessage = 'Error, La referencia ya esta registrada';
+						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
+							$responseMessage = 'Error, El ID de esta persona no esta registrado';
+						}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
+							$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
+						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
+							$registrationErrorMessage = $exception->findMessages([
+							'notEmpty' => '- Los campos con (*) no pueden estar vacios',
+							'length' => '- Tiene una longitud no permitida',
+							'stringType' => '- Solo puede contener numeros y letras',
+							'date' => '- Formato de fecha no valido',
+							'numeric' => '- Solo puede contener numeros', 
+							'positive' => '- Solo puede contener numeros mayores a cero'
+							]);
+						}else{
+							$responseMessage = $prevMessage;
+						}
 					}
-
-
-					$idPer = $postData['idPer'];
-
-					$documento = new PersonaDocumentos();
-					$documento->referencia=$postData['referencia'];
-					$documento->emisor = $postData['emisor'];
-					$documento->fechainicio = $postData['fechainicio'];
-					$documento->fechafinal = $postData['fechafinal'];
-					$documento->urlcomprobante = $imgName;
-					$documento->activocheck = 1;
-					$documento->perid = $idPer;
-					$documento->tdpid = $postData['tdpid'];
-					$documento->iduserregister = $_SESSION['userId'];
-					$documento->iduserupdate = $_SESSION['userId'];
-					$documento->save();
-
-					$responseMessage = 'Registrado';
-				}catch(\Exception $exception){
-					//$responseMessage = $exception->getMessage();
-					$prevMessage = substr($exception->getMessage(), 0, 33);
-					$responseMessage = substr($exception->getMessage(), 0, 200);	
-echo "mensaje: $responseMessage";
-					if ($prevMessage == "SQLSTATE[23505]: Unique violation") {
-						$responseMessage = 'Error, La referencia ya esta registrada';
-					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign key viol") {
-						$responseMessage = 'Error, El ID de esta persona no esta registrado';
-					}elseif ($prevMessage == "SQLSTATE[42703]: Undefined column") {
-						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
-					}else{
-						$registrationErrorMessage = $exception->findMessages([
-						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
-						'length' => '- Tiene una longitud no permitida',
-						'stringType' => '- Solo puede contener numeros y letras',
-						'date' => '- Formato de fecha no valido',
-						'numeric' => '- Solo puede contener numeros', 
-						'positive' => '- Solo puede contener numeros mayores a cero'
-						]) ?? null;
-						
-					}
+				}else{
+					//si la validacion del $file da error, se guarda en la variable $responseMessage el mensaje de error
+					$responseMessage = $validadorComprobante['message'];
 				}
+
 			}
 		}
-		
 		$paginador = $this->paginador($idPer);
-
-		$documentos = $paginador['documentos'];
-		$numeroDePaginas = $paginador['numeroDePaginas'];
 		$persona = $paginador['persona'];
+		if ($responseMessage=='Registrado') {
+			$documentos = $paginador['documentos'];
+			$numeroDePaginas = $paginador['numeroDePaginas'];	
+		}
 
 		return $this->renderHTML('personaDocumentosList.twig',[
 				'idPer' => $idPer,
@@ -128,6 +131,7 @@ echo "mensaje: $responseMessage";
 		]);
 	}
 
+ 
 	//Lista todas los modelos Ordenando por posicion
 	public function paginador($idPer=0, $paginaActual=0){
 		$retorno = array(); $iniciar=0; $documentos=null; $persona=null;
@@ -442,6 +446,16 @@ echo "mensaje: $responseMessage";
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
+			/*En la variable $files se almacena el $request del file y en $fileComprobante se
+			*almacena el array con todas las propiedades de este file*/
+			$files = $request->getUploadedFiles();
+			$fileComprobante = $files['urlcomprobante'];
+			$temporaryFileName = 'docp'.$postData['referencia'];
+			
+			/*Se hace llamado al metodo que se creo para validar las imagenes */
+			$FilesValidatorController = new FilesValidatorController();
+			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
+
 			$idPer = $postData['idPer'] ?? null;
 
 			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
@@ -452,56 +466,69 @@ echo "mensaje: $responseMessage";
 
 			
 			if($_SESSION['userId']){
-				try{
-					$documentoValidator->assert($postData);
-					$postData = $request->getParsedBody();
 
-					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$idDocumento = $postData['id'];
-					$documento = PersonaDocumentos::find($idDocumento);
-					
-					$documento->referencia=$postData['referencia'];
-					$documento->emisor = $postData['emisor'];
-					$documento->fechainicio = $postData['fechainicio'];
-					$documento->fechafinal = $postData['fechafinal'];
-					$documento->tdpid = $postData['tdpid'];
-					$documento->activocheck = 1;
-					$documento->iduserregister = $_SESSION['userId'];
-					$documento->iduserupdate = $_SESSION['userId'];
-					$documento->save();
+				//Si no ocurrio error en la validacion del file 
+				if ($validadorComprobante['error'] == 0 or $validadorComprobante['error'] == 4) {
+					$fileName = $validadorComprobante['fileName'];
+					try{
+						$documentoValidator->assert($postData);
+						$postData = $request->getParsedBody();
 
-					$responseMessage .= 'Editado.';
-				}catch(\Exception $exception){
-					//$responseMessage = $exception->getMessage();
-					$prevMessage = substr($exception->getMessage(), 0, 33);
-					$responseMessage = substr($exception->getMessage(), 0, 33);	
+						//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
+						$idDocumento = $postData['id'];
+						$documento = PersonaDocumentos::find($idDocumento);
+						
+						$documento->referencia=$postData['referencia'];
+						$documento->emisor = $postData['emisor'];
+						$documento->fechainicio = $postData['fechainicio'];
+						$documento->fechafinal = $postData['fechafinal'];
+						if ($validadorComprobante['error'] == 0) {
+							$fileComprobante->moveTo("uploads/$fileName");	
+						}
+						$documento->tdpid = $postData['tdpid'];
+						$documento->activocheck = 1;
+						$documento->iduserregister = $_SESSION['userId'];
+						$documento->iduserupdate = $_SESSION['userId'];
+						$documento->save();
 
-					if ($prevMessage == "SQLSTATE[23505]: Unique violation") {
-						$responseMessage = 'Error, La referencia ya esta registrada';
-					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign key viol") {
-						$responseMessage = 'Error, El ID de esta persona no esta registrado';
-					}elseif ($prevMessage == "SQLSTATE[42703]: Undefined column") {
-						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
-					}else{
-						$registrationErrorMessage = $exception->findMessages([
-						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
-						'length' => '- Tiene una longitud no permitida',
-						'stringType' => '- Solo puede contener numeros y letras',
-						'date' => '- Formato de fecha no valido',
-						'numeric' => '- Solo puede contener numeros', 
-						'positive' => '- Solo puede contener numeros mayores a cero'
-						]) ?? null;
+						$responseMessage = 'Editado.';
+					}catch(\Exception $exception){
+						//$responseMessage = $exception->getMessage();
+						$prevMessage = substr($exception->getMessage(), 0, 25);
+						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
+							$responseMessage = 'Error, La referencia ya esta registrada';
+						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
+							$responseMessage = 'Error, El ID de esta persona no esta registrado';
+						}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
+							$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
+						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
+							$registrationErrorMessage = $exception->findMessages([
+							'notEmpty' => '- Los campos con (*) no pueden estar vacios',
+							'length' => '- Tiene una longitud no permitida',
+							'stringType' => '- Solo puede contener numeros y letras',
+							'date' => '- Formato de fecha no valido',
+							'numeric' => '- Solo puede contener numeros', 
+							'positive' => '- Solo puede contener numeros mayores a cero'
+							]);
+						}else{
+							$responseMessage = $prevMessage;
+						}
 					}
+				}else{
+					//si la validacion del $file da error, se guarda en la variable $responseMessage el mensaje de error
+					$responseMessage = $validadorComprobante['message'];
 				}
+
 			}
 		}
 
-		
 		$paginador = $this->paginador($idPer);
-
-		$documentos = $paginador['documentos'];
-		$numeroDePaginas = $paginador['numeroDePaginas'];
 		$persona = $paginador['persona'];
+		if ($responseMessage == 'Editado.') {
+			$documentos = $paginador['documentos'];
+			$numeroDePaginas = $paginador['numeroDePaginas'];
+		}
+		
 
 		return $this->renderHTML('personaDocumentosList.twig',[
 				'idPer' => $idPer,

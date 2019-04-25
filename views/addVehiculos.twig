@@ -1,0 +1,203 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+<h1>
+    Vehículo
+    <small>Registro</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./vehiclelist">Vehículo</a></li>
+    <li class="active">Registro</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Información del Vehículo - <small>Todos los campos marcados con un asterisco (*) son obligatorios.</small></h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="peopleadd" method="post" role="form" enctype="multipart/form-data">
+          <div class="box-body">
+            <div class="row">
+              <div class="form-group col-md-6 col-xs-6">
+                <label>Número Interno:</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" maxlength="5" name="interno" style="text-transform: uppercase;" title="" type="text" />
+              </div>
+              <div class="form-group col-md-6 col-xs-6">
+                <label>Placa (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" maxlength="6" name="placa" style="text-transform: uppercase;" title="" type="text" required="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Tipo Vinculación (*):</label>
+                <select class="form-control select-picker" name="tipvinculacionid" required>
+                  {% for tipo in tiposvinculacion %}
+                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Kilometraje (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" name="km" style="text-transform: uppercase;" title="" type="number" min="0" max="99999999999999999999" required="" />
+              </div>
+            </div>
+            <div class="box-header with-border">
+              <h3 class="box-title">Información Licencia de Tránsito</h3>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>No. Licencia de Tránsito (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" maxlength="50" name="licenciatransito" style="text-transform: uppercase;" title="" type="text" required="" />
+              </div>
+              <div class="form-group col-md-6">
+                <label>Capacidad de Pasajeros (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" min="0" max="99" name="capacidad" title="" type="number" required="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Marca (*):</label>
+                <select class="form-control select-picker" name="marcid" required>
+                  {% for marca in marcas %}
+                    <option value="{{ marca.id }}">{{ marca.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Línea (*):</label>
+                <select class="form-control select-picker" name="linea" required>
+                  {% for linea in lineas %}
+                    <option value="{{ linea.id }}">{{ linea.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Modelo (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" min="1950" max="2021" name="modelo" title="" type="number" />
+              </div>
+              <div class="form-group col-md-3">
+                <label>Cilindraje (CC):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" min="0" max="99999" name="cilindraje" title="" type="number" />
+              </div>
+              <div class="form-group col-md-3">
+                <label>Potencia (HP):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" min="0" max="99999" name="potencia" title="" type="number" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Color (*):</label>
+                <select class="form-control select-picker" name="colorid" required>
+                  {% for color in colores %}
+                    <option value="{{ colores.id }}">{{ colores.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Servicio (*):</label>
+                <select class="form-control select-picker" name="servid" required>
+                  {% for servicio in servicios %}
+                    <option value="{{ servicios.id }}">{{ servicios.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Clase (*):</label>
+                <select class="form-control select-picker" name="clasid" required>
+                  {% for clase in clases %}
+                    <option value="{{ clases.id }}">{{ clases.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Tipo Carrocería (*):</label>
+                <select class="form-control select-picker" name="carroceria" required>
+                  {% for carroceria in carrocerias %}
+                    <option value="{{ carroceria.id }}">{{ carroceria.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Combustible (*):</label>
+                <select class="form-control select-picker" name="combustibleid" required>
+                  {% for combustible in combustibles %}
+                    <option value="{{ combustible.id }}">{{ combustible.nombre }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Puertas (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" min="0" max="9" name="puertas" title="" type="number" required="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Número de Motor:</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" maxlength="50" name="nummotor" style="text-transform: uppercase;" title="" type="text" />
+              </div>
+              <div class="form-group col-md-6">
+                <label>VIN:</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" maxlength="50" name="vin" style="text-transform: uppercase;" title="" type="text" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Número de Serie:</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" id="Veh_numserie" maxlength="50" name="numserie" style="text-transform: uppercase;" title="" type="text" />
+              </div>
+              <div class="form-group col-md-6">
+                <label>Número de Chasis (*):</label>
+                <input class="form-control" data-placement="top" data-toggle="tooltip" maxlength="50" name="numchasis" style="text-transform: uppercase;" title="" type="text" required="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-3">
+                <label>Fecha Matrícula (*):</label>
+                <div class="input-group date">
+                    <input class="form-control" data-placement="top" data-toggle="tooltip"  name="fechamatricula" title="" type="date" required="" />
+                </div>
+              </div>
+              <div class="form-group col-md-3">
+                  <label>Fecha Exp. Licencia (*):</label>
+                  <div class="input-group date">
+                      <input class="form-control" data-placement="top" data-toggle="tooltip" name="fechaexpedicion" title="" type="date" required="" />
+                  </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-12">
+                  <label>Organismo de Tránsito (*):</label>
+                  <select class="form-control select-picker" name="orgtransitoid" required>
+                    {% for orgtransito in organismostransito %}
+                      <option value="{{ orgtransito.id }}">{{ orgtransito.nombreorg }}</option>
+                    {% endfor %}
+                  </select>
+              </div>
+            </div>
+          </div>
+          <!-- /.box-body -->
+          <div class="box-footer">
+            <center><button type="submit" class="btn btn-primary">Registrar</button></center>
+          </div>
+
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        </form>
+      </div>
+
+{% endblock %}

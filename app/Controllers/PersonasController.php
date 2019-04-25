@@ -83,14 +83,13 @@ class PersonasController extends BaseController{
 
 					$responseMessage = 'Registrado';
 				}catch(\Exception $exception){
-					//$responseMessage = $exception->getMessage();
-					$prevMessage = substr($exception->getMessage(), 0, 33);
+					$prevMessage = substr($exception->getMessage(), 0, 25);
 
-					if ($prevMessage == "SQLSTATE[23505]: Unique violation") {
-						$responseMessage = 'Error, El numero del documento o el correo ya esta registrado';
-					}elseif ($prevMessage == "SQLSTATE[42703]: Undefined column") {
+					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
+						$responseMessage = 'Error, El numero del documento ya esta registrado';
+					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
-					}else{
+					}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 						$registrationErrorMessage = $exception->findMessages([
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
 						'length' => '- Tiene una longitud no permitida',
@@ -100,6 +99,8 @@ class PersonasController extends BaseController{
 						'numeric' => '- Solo puede contener numeros', 
 						'positive' => '- Solo puede contener numeros mayores a cero'
 						]) ?? null;
+					}else{
+							$responseMessage = $prevMessage;
 					}
 				}
 			}
@@ -477,16 +478,13 @@ class PersonasController extends BaseController{
 
 					$responseMessage .= 'Editado.';
 				}catch(\Exception $exception){
-					//$responseMessage = substr($exception->getMessage(), 0, 33);
-					//$responseMessage = $exception->getMessage();
-					$prevMessage = substr($exception->getMessage(), 0, 33);
-					$responseMessage = substr($exception->getMessage(), 0, 33);	
+					$prevMessage = substr($exception->getMessage(), 0, 25);
 
-					if ($prevMessage == "SQLSTATE[23505]: Unique violation") {
-						$responseMessage = 'Error, El numero del documento o el correo ya esta registrado';
-					}elseif ($prevMessage == "SQLSTATE[42703]: Undefined column") {
+					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
+						$responseMessage = 'Error, El numero del documento ya esta registrado';
+					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
-					}else{
+					}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
 						$registrationErrorMessage = $exception->findMessages([
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
 						'length' => '- Tiene una longitud no permitida',
@@ -496,6 +494,8 @@ class PersonasController extends BaseController{
 						'numeric' => '- Solo puede contener numeros', 
 						'positive' => '- Solo puede contener numeros mayores a cero'
 						]) ?? null;
+					}else{
+							$responseMessage = $prevMessage;
 					}
 				}
 			}

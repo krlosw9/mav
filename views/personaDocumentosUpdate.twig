@@ -24,7 +24,7 @@
         </div>
         <!-- /.box-header -->
         <!-- form start -->
-        <form action="documentsupdate" method="post" role="form" >
+        <form action="documentsupdate" method="post" role="form" enctype="multipart/form-data">
           <div class="box-body">
             <input type="hidden" name="id" value="{{ documentos.id }}" required>
             <input type="hidden" name="idPer" value="{{ idPer }}" required>
@@ -61,9 +61,10 @@
               <label>Emisor(*):</label>
               <input type="text" name="emisor" class="form-control" placeholder="" maxlength="100" value="{{ documentos.emisor }}" required>
             </div>
+            <input type="hidden" name="urlcomprobanteAntiguo" value="{{ documentos.urlcomprobante }}">
             <div class="form-group col-xs-6">
               <label>Comprobante (*):</label>
-              <input type="file" name="urlcomprobante" class="form-control" required>
+              <input type="file" name="urlcomprobante" class="form-control">
             </div>
           </div>
           <!-- /.box-body -->
