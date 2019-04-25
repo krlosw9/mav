@@ -15,7 +15,7 @@ class GetViews extends BaseController{
 
 	public function getForms(){
 
-		return $this->renderHTML('addVehiculos.twig');
+		return $this->renderHTML('vehiculosAdd.twig');
 	}
 
 

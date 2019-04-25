@@ -105,6 +105,42 @@ $map->post('postUpdateDocumentos', $subdomain.'/documentsupdate', [
 ]);
 
 
+//Rutas PersonaLicencias
+$map->get('getAddLicencias', $subdomain.'/licenseadd', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'getAddLicencias',
+        'auth' => true,
+        'license' => [$admin]
+]);
+$map->post('postAddLicencias', $subdomain.'/licenseadd', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'postAddLicencias',
+        'auth' => true
+]);
+$map->get('getListLicencias', $subdomain.'/licenselist', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'getListLicencias',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postBuscarLicencias', $subdomain.'/licensesearch', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'postBusquedaLicencias',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postDelLicencias', $subdomain.'/licensedel', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'postUpdDelLicencias',
+        'auth' => true
+]);
+$map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'postUpdateLicencias',
+        'auth' => true
+]);
+
+
 
 
 

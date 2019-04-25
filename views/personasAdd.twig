@@ -25,7 +25,7 @@
         <!-- form start -->
         <form action="peopleadd" method="post" role="form">
           <div class="box-body">
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Tipo de Documento (*):</label>
               <select class="form-control select-picker" name="tipodocumentoid" required>
                 {% for tipo in tiposdocumentos %}
@@ -33,19 +33,19 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Numero Documento (*):</label>
               <input type="number" name="numerodocumento" class="form-control" placeholder="Numero menor a 15 digitos" min="0" max="999999999999999" required>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Nombre (*):</label>
               <input type="text" name="nombre" class="form-control" placeholder="" maxlength="50" required>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Apellido (*):</label>
               <input type="text" name="apellido" class="form-control" placeholder="" maxlength="50" required>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Genero (*):</label>
               <select class="form-control select-picker" name="genero" required>
                 <option value="">Seleccione una opción</option>
@@ -54,7 +54,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Estado civil (*):</label>
               <select class="form-control select-picker" name="estadocivil" required>
                 {% for estadocivil in estadocivil %}
@@ -62,13 +62,13 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group col-xs-3">
+            <div class="form-group col-xs-12 col-sm-6 col-md-3">
               <label for="">Fecha-Nacimiento (*):</label>
               <div class="input-group date">
                   <input name="fechanacimiento" type="date" class="form-control" data-placement="top" data-toggle="tooltip" required/>
               </div>
             </div>
-            <div class="form-group col-xs-3">
+            <div class="form-group col-xs-12 col-sm-6 col-md-3">
               <label>Rh (*):</label>
               <select class="form-control select-picker" name="rh" required>
                 {% for rh in rh %}
@@ -76,7 +76,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Nivel Educativo:</label>
               <select class="form-control select-picker" name="niveleducativo" required>
                 {% for niveleducativo in niveleducativo %}
@@ -84,27 +84,27 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Profesión:</label>
               <input type="text" name="profesion" class="form-control" placeholder="">
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Dirección (*):</label>
               <input type="text" name="direccion" class="form-control" placeholder="" maxlength="50" required>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Correo (*):</label>
               <input type="email" name="correo" class="form-control" placeholder="" maxlength="100" required>
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Telefono:</label>
               <input type="number" name="telefono" class="form-control" min="0" max="999999999999999" title="El valor debe ser mayor a 0 y debe tener menos de 15 digitos">
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Celular (*):</label>
               <input type="number" name="celular" class="form-control" required min="0" max="999999999999999" title="El valor debe ser mayor a 0 y debe tener menos de 15 digitos">
             </div>
-            <div class="form-group col-xs-6">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Rol (*):</label>
               <select class="form-control select-picker" name="rolid" required>
                 {% for rol in roles %}
@@ -115,7 +115,7 @@
           </div>
           <!-- /.box-body -->
           
-          <div class="box-footer" style="padding-left: 25px;">
+          <div class="box-footer col-xs-12 col-sm-12 col-md-12" style="padding-left: 25px;">
             <button type="submit" class="btn btn-primary">Registrar</button>
             <a type="button" class="btn btn-default" href="./peoplelist">Cancelar</a>
           </div>
