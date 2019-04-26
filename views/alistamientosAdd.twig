@@ -1,0 +1,117 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+<h1>
+    Alistamiento
+    <small>Registro</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./checklist">Alistamiento</a></li>
+    <li class="active">Registro</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+      <!-- general form elements -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Alistamiento - <small>Todos los campos marcados con un asterisco (*) son obligatorios.</small></h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <form action="checkadd" method="post" role="form">
+          <div class="box-body">
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
+              <label>Vehículo (*):</label>
+              <select class="form-control select-picker" name="vehplacaid" required>
+                {% for vehiculo in vehiculos %}
+                  <option value="{{ vehiculo.id }}">{{ vehiculo.placa }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
+              <label>Conductor (*):</label>
+              <select class="form-control select-picker" name="perconductorid" required>
+                {% for conductor in conductores %}
+                  <option value="{{ conductor.id }}">{{ conductor.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
+              <label>Responsable (*):</label>
+              <select class="form-control select-picker" name="perinspectorid" required>
+                {% for responsable in responsables %}
+                  <option value="{{ responsable.id }}">{{ responsable.nombre }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-xs-12 col-sm-3 col-md-3">
+              <label for="">Fecha (*):</label>
+              <div class="input-group date">
+                  <input name="fecha" type="date" value="{{fechaHoy}}" class="form-control" data-placement="top" data-toggle="tooltip" required/>
+              </div>
+            </div>
+            <div class="form-group col-xs-12 col-sm-3 col-md-3">
+              <label>Kilometraje (*):</label>
+              <input type="number" name="kilometraje" class="form-control" required>
+            </div>
+            <div class="row" style="padding-left: 5px;">
+              <div class="form-group col-xs-6 col-sm-4 col-md-4" style="font-size:17px; font-weight: bold;">
+                Elementos a inspeccionar
+              </div>
+              <div class="form-group col-xs-4 col-sm-2 col-md-2" style="font-size:17px; font-weight: bold;">
+                Cumple
+              </div>
+              <div class="form-group col-xs-12 col-sm-6 col-md-6" style="font-size:17px; font-weight: bold;">
+                Observaciones
+              </div>
+              {% for grupoAlis in gruposalistamiento %}<br><br>
+                <div class="form-group col-xs-12 col-sm-12 col-md-12" style="font-size:17px; padding-left: 60px; font-weight: bold;">
+                  {{ grupoAlis.nombre }} 
+                </div>
+                <hr align="center" noshade="noshade" size="4" width="80%"/>
+                {% for tipoAlis in tiposalistamiento %}
+                  {% if grupoAlis.id == tipoAlis.gaid %}
+                    <div class="form-group col-xs-6 col-sm-4 col-md-4" style="font-size:15px;">
+                      {{ tipoAlis.nombre }}
+                      <input type="hidden" name="taid[]" value="{{ tipoAlis.id }}">
+                      <input type="hidden" name="calificacionTipoAlis{{ tipoAlis.id }}" value="{{ tipoAlis.calificacion }}">
+                    </div>
+                    <div class="form-group col-xs-4 col-sm-2 col-md-2" style="padding-left: 35px;">
+                      <input type="checkbox" checked name="check{{ tipoAlis.id }}">
+                    </div>
+                    <div class="form-group col-xs-12 col-sm-6 col-md-6" >
+                      <input type="text" name="obs{{ tipoAlis.id }}" placeholder="Observación" style="width:90%;">
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            </div>
+            <div class="row">
+              <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                <label>Observación General: </label>
+              </div>
+              <div class="form-group col-xs-12 col-sm-12 col-md-12">
+                <textarea name="observaciongeneral" class="form-control" rows="5" cols="100%" placeholder="Escriba aquí su observación"></textarea>
+              </div>
+            </div>
+            
+          </div>
+          <!-- /.box-body -->
+          
+          <div class="box-footer col-xs-12 col-sm-12 col-md-12" style="padding-left: 25px;">
+            <button type="submit" class="btn btn-primary">Registrar</button>
+            <a type="button" class="btn btn-default" href="./checklist">Cancelar</a>
+          </div>
+
+          <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">
+          {{ responseMessage }}
+        </div>
+        </form>
+      </div>
+
+{% endblock %}

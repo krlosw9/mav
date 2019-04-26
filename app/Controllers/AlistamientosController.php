@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Personas,Alistamientos};
+use App\Models\{Personas, Vehiculos, Alistamientos, AlistamientoGruposAlistamiento, AlistamientosInformacionAlistamiento, AlistamientosTiposAlistamiento};
 use App\Controllers\{DocumentosController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -13,44 +13,54 @@ class AlistamientosController extends BaseController{
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
 	private $articulosPorPagina=10;
 	private $limitePaginacion=20;
+	private $maximoPuntosMalos=10;
 
 	public function getAddAlistamientos(){
-		$roles = null; $tiposdocumentos=null;
+		$gruposalistamiento = null; $tiposalistamiento=null; $vehiculos=null; $conductores=null; $responsables=null; $fechaHoy=null;
 
-		/*
-		$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
-		$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
-		$generos = Generos::orderBy('nombre')->get();
-		$estadocivil = EstadosCiviles::orderBy('nombre')->get();
-		$rh = Rh::latest('nombre')->get();
-		$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
-		*/
+		$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
+		$tiposalistamiento = AlistamientosTiposAlistamiento::orderBy('gaid')->get();
+		$vehiculos = Vehiculos::orderBy('placa')->get();
+		$conductores = Personas::where("persona.personas.rolid",">=",4)->orderBy('nombre')->get();
+		$responsables = Personas::where("persona.personas.rolid","=",3)->orderBy('nombre')->get();
+
+
+		$fechaHoy= date("Y-m-d");
 
 		return $this->renderHTML('alistamientosAdd.twig',[
-				'roles' => $roles,
-				'tiposdocumentos' => $tiposdocumentos
+				'gruposalistamiento' => $gruposalistamiento,
+				'tiposalistamiento' => $tiposalistamiento,
+				'fechaHoy' => $fechaHoy,
+				'vehiculos' => $vehiculos,
+				'conductores' => $conductores,
+				'responsables' => $responsables,
+		]);
+	}
+
+	public function getAddAlistamientos2(){
+		$gruposalistamiento = null; $tiposalistamiento=null;
+		$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
+		$tiposalistamiento = AlistamientosTiposAlistamiento::orderBy('gaid')->get();
+
+		return $this->renderHTML('alistamientosAdd2.twig',[
+				'gruposalistamiento' => $gruposalistamiento,
+				'tiposalistamiento' => $tiposalistamiento
 		]);
 	}
 
 	//Registra el Alistamientos
 	public function postAddAlistamientos($request){
 		$responseMessage = null; $prevMessage=null; $registrationErrorMessage=null;
-		$personas = null; $numeroDePaginas=null;
+		$alistamientos = null; $numeroDePaginas=null; $puntosMalos=0;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			
-			$personaValidator = v::key('nombre', v::stringType()->length(1, 50)->notEmpty())
-					->key('apellido', v::stringType()->length(1, 50)->notEmpty())
-					->key('tipodocumentoid', v::numeric()->positive()->notEmpty())
-					->key('numerodocumento', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('genero', v::numeric()->positive()->notEmpty())
-					->key('estadocivil', v::numeric()->positive()->notEmpty())
-					->key('fechanacimiento', v::date())
-					->key('rh', v::numeric()->positive()->notEmpty())
-					->key('correo', v::email())
-					->key('celular', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('rolid', v::numeric()->positive()->length(1, 2)->notEmpty());
+			$personaValidator = v::key('fecha', v::date())
+					->key('kilometraje', v::numeric()->positive()->notEmpty())
+					->key('vehplacaid', v::numeric()->positive()->length(1, 15)->notEmpty())
+					->key('perinspectorid', v::numeric()->positive()->notEmpty())
+					->key('perconductorid', v::numeric()->positive()->notEmpty());
 			
 			
 			if($_SESSION['userId']){
@@ -58,25 +68,55 @@ class AlistamientosController extends BaseController{
 					$personaValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
-					$persona = new Personas();
-					$persona->numerodocumento=$postData['numerodocumento'];
-					$persona->tipodocumentoid = $postData['tipodocumentoid'];
-					$persona->nombre = $postData['nombre'];
-					$persona->apellido = $postData['apellido'];
-					$persona->generoid = $postData['genero'];
-					$persona->estadocivilid = $postData['estadocivil'];
-					$persona->fechanacimiento = $postData['fechanacimiento'];
-					$persona->rhid = $postData['rh'];
-					$persona->niveleducativoid = $postData['niveleducativo'];
-					$persona->profesion = $postData['profesion'];
-					$persona->direccion = $postData['direccion'];
-					$persona->correo = $postData['correo'];
-					$persona->telefono = $postData['telefono'];
-					$persona->celular = $postData['celular'];
-					$persona->rolid = $postData['rolid'];
-					$persona->iduserregister = $_SESSION['userId'];
-					$persona->iduserupdate = $_SESSION['userId'];
-					$persona->save();
+					$calificacion = 'Aprovado';
+					/* Consulta el ultimo id de InfoAlistamiento */
+					$queryInfoAlis = AlistamientosInformacionAlistamiento::all();
+					$ultimoInfoAlis = $queryInfoAlis->last();
+					$ultimoIdInfoAlis = $ultimoInfoAlis->id+1;
+
+					$infoAlistamiento = new AlistamientosInformacionAlistamiento();
+					$infoAlistamiento->id=$ultimoIdInfoAlis;
+					$infoAlistamiento->fecha=$postData['fecha'];
+					$infoAlistamiento->kilometraje = $postData['kilometraje'];
+					$infoAlistamiento->calificacion = $calificacion;
+					$infoAlistamiento->observaciongeneral = $postData['observaciongeneral'];
+					$infoAlistamiento->vehplacaid = $postData['vehplacaid'];
+					$infoAlistamiento->perinspectorid = $postData['perinspectorid'];
+					$infoAlistamiento->perconductorid = $postData['perconductorid'];
+					$infoAlistamiento->iduserregister = $_SESSION['userId'];
+					$infoAlistamiento->iduserupdate = $_SESSION['userId'];
+					$infoAlistamiento->save();
+
+					$arrayIdTipoAlistamiento = $postData['taid'] ?? null;
+					foreach ($arrayIdTipoAlistamiento as $idTipoAlis) {
+						$calificacionTipoAlis = $postData['calificacionTipoAlis'.$idTipoAlis] ?? null;
+						$postCheck = $postData['check'.$idTipoAlis] ?? null;
+
+						if ($postCheck == 'on') {
+							$ccheck = 1;
+						}else{
+							$ccheck = 0;
+							$puntosMalos+=$calificacionTipoAlis; 
+						}
+						
+						//Registro del Alistamiento
+						$alistamiento = new Alistamientos();
+						$alistamiento->ccheck=$ccheck;
+						$alistamiento->observacion = $postData['obs'.$idTipoAlis];
+						$alistamiento->taid = $idTipoAlis;
+						$alistamiento->infoalisid = $ultimoIdInfoAlis;
+						$alistamiento->iduserregister = $_SESSION['userId'];
+						$alistamiento->iduserupdate = $_SESSION['userId'];
+						$alistamiento->save();		
+					}
+
+					if ($puntosMalos >= $this->maximoPuntosMalos) {
+						$infoAlistamientoUpd = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
+						$infoAlistamientoUpd->calificacion = 'Reprobado';
+						$infoAlistamientoUpd->save();	
+					}
+					
+					
 
 					$responseMessage = 'Registrado';
 				}catch(\Exception $exception){
@@ -93,13 +133,12 @@ class AlistamientosController extends BaseController{
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
 						'length' => '- Tiene una longitud no permitida',
 						'stringType' => '- Solo puede contener numeros y letras',
-						'email' => '- Formato de correo no valido', 
 						'date' => '- Formato de fecha no valido',
 						'numeric' => '- Solo puede contener numeros', 
 						'positive' => '- Solo puede contener numeros mayores a cero'
-						]) ?? null;
+						]);
 					}else{
-							$responseMessage = $prevMessage;
+						$responseMessage = $prevMessage;
 					}
 				}
 			}
@@ -107,14 +146,14 @@ class AlistamientosController extends BaseController{
 		
 		$paginador = $this->paginador();
 		$numeroDePaginas=$paginador['numeroDePaginas'];
-		$personas=$paginador['personas'];
+		$alistamientos=$paginador['alistamientos'];
 
 		return $this->renderHTML('alistamientosList.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'prevMessage' => $prevMessage,
 				'numeroDePaginas' => $numeroDePaginas,
-				'personas' => $personas
+				'alistamientos' => $alistamientos
 		]);
 	}
 
@@ -138,7 +177,7 @@ class AlistamientosController extends BaseController{
 	public function paginador($paginaActual=null){
 		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $alistamientos=null;
 		
-		$numeroDeFilas = Alistamientos::selectRaw('count(*) as query_count')
+		$numeroDeFilas = AlistamientosInformacionAlistamiento::selectRaw('count(*) as query_count')
 		->first();
 		
 		$totalFilasDb = $numeroDeFilas->query_count;
@@ -157,10 +196,9 @@ class AlistamientosController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-		$alistamientos = Alistamientos::Join("persona.tiposdocumento","persona.personas.tipodocumentoid","=","persona.tiposdocumento.id")
-		->Join("persona.rh","persona.personas.rhid","=","persona.rh.id")
-		->where("persona.personas.rolid",">=",$_SESSION['userRolId'])
-		->select('personas.*', 'persona.tiposdocumento.nombre As tiposdocumento', 'persona.rh.nombre As rh')
+		$alistamientos = AlistamientosInformacionAlistamiento::Join("vehiculo.vehiculos","alistamiento.informacionalistamiento.vehplacaid","=","vehiculo.vehiculos.id")
+		->Join("persona.personas","alistamiento.informacionalistamiento.perconductorid","=","persona.personas.id")
+		->select('alistamiento.informacionalistamiento.*', 'vehiculo.vehiculos.placa', 'persona.personas.nombre')
 		->latest('id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();

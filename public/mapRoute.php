@@ -33,7 +33,7 @@ $map->get('getAddPersonas', $subdomain.'/peopleadd', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'getAddPersonas',
         'auth' => true,
-        'license' => [$admin]
+        'license' => [$admin, $secretary]
 ]);
 $map->post('postAddPersonas', $subdomain.'/peopleadd', [
         'controller' => 'App\Controllers\PersonasController',
@@ -147,6 +147,12 @@ $map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
 $map->get('getAddAlistamientos', $subdomain.'/checkadd', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'getAddAlistamientos',
+        'auth' => true,
+        'license' => [$admin]
+]);
+$map->get('getAddAlistamientos2', $subdomain.'/checkadd2', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'getAddAlistamientos2',
         'auth' => true,
         'license' => [$admin]
 ]);

@@ -1,0 +1,168 @@
+{% extends "layout.twig" %} 
+
+{% block content %}
+
+<h1>
+    Alistamiento
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./checklist">Alistamiento</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Buscar personas </h3>
+      </div>
+      <div class="box-body">
+       <form action="checksearch" method="post" role="form">
+          <div class="row" style="padding-left: 15px;">
+            <div class="form-group col-xs-4">
+              <label>Buscar:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label>Por:</label>
+            </div>
+            <div class="form-group col-xs-4">
+              <label></label>
+            </div>
+          </div>
+          <div class="row" style="padding-left: 15px;">
+          <div class="form-group col-xs-4">
+            <input type="text" name="textBuscar" class="form-control" placeholder="Que desea buscar" maxlength="50" required>
+          </div>
+          <div class="form-group col-xs-4">
+            
+            <select class="form-control select-picker" name="criterio">
+              <option value="1">Documento de identidad</option>
+              <option value="2">Nombre</option>
+              <option value="3">Apellido</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-4">
+              <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
+              <a type="button" class="btn btn-primary" href="./checkadd">Agregar</a>
+          </div>
+        </div>
+       </form>
+     </div>
+     <hr noshade="noshade" size="4" width="95%" />
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="checkdel" method="post" role="form">
+        <table class="table table-striped" >
+
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 100px">Fecha</th>
+            <th style="width: 100px">Vehículo</th>
+            <th style="width: 100px">Conductor</th>
+            <th style="width: 100px">Resultado</th>
+            <th style="width: 130px">Acción</th>
+          </tr>
+          {% set ciclo = false %}
+          {% for alistamiento in alistamientos %}
+          <tr>
+              <input type="hidden" name="ruta" value="listar">
+              <td><input type="radio" name="id" value="{{ alistamiento.id }}"></td>
+              <td>{{ alistamiento.fecha }}</td>
+              <td>{{ alistamiento.placa }}</td>
+              <td>{{ alistamiento.nombre }}</td>
+              <td>{{ alistamiento.calificacion }}</td>
+              <td>
+                <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+              </td>
+          </tr>
+          {% set ciclo = true %}
+          {% endfor %}
+          {% if ciclo == false %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  No se encontraron datos
+                  {% if queryErrorMessage %}
+                    {% for errorMessage in queryErrorMessage %} 
+                      {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                    {% endfor %}
+                  {% else %}
+                    {% if prevMessage %}
+                      {{ prevMessage }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+
+          {% if registrationErrorMessage %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  Se presentaron los siguientes errores, por favor corríjalos: <br>
+                  {% for errorMessage in registrationErrorMessage %} 
+                    {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            {% if responseMessage %}
+              <tr>
+                <td colspan=8>
+                  <div class="alert alert-danger" style="font-size:17px;">
+                    {{ responseMessage }}
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          {% endif %}
+          
+        </table>
+
+        
+
+        {% if numeroDePaginas%}
+          {% if numeroDePaginas > 1 %}
+            <nav aria-label="Page navigation example">
+              <ul class="pagination" style="padding-left: 10px;">
+                {% for i in 1..numeroDePaginas %}
+                  {% if paginaActual == i %}
+                    <li class="page-item active"><a class="page-link" href="./checklist?pag={{i}}">{{i}}</a></li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="./checklist?pag={{i}}">{{i}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}
+        {% else %}
+          {% if numeroDePaginasBusqueda > 1 %}
+            <nav aria-label="Page navigation example">
+              <ul class="pagination" style="padding-left: 10px;">
+                {% for i in 1..numeroDePaginasBusqueda %}
+                  {% if paginaActual == i %}
+                    <li class="page-item active"><a class="page-link" href="./checksearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="./checksearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}  
+        {% endif %}
+
+       </form>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+    
+
+{% endblock %}
