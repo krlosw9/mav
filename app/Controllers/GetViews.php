@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Vehiculo, Personas};
+use App\Models\{Personas, Vehiculos, Alistamientos, AlistamientoGruposAlistamiento, AlistamientosInformacionAlistamiento, AlistamientosTiposAlistamiento};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -14,8 +14,25 @@ class GetViews extends BaseController{
 	private $limitePaginacion=20;
 
 	public function getForms(){
+		$gruposalistamiento = null; $tiposalistamiento=null; $vehiculos=null; $conductores=null; $responsables=null; $fechaHoy=null;
 
-		return $this->renderHTML('vehiculosAdd.twig');
+		$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
+		$tiposalistamiento = AlistamientosTiposAlistamiento::orderBy('gaid')->get();
+		$vehiculos = Vehiculos::orderBy('placa')->get();
+		$conductores = Personas::where("persona.personas.rolid",">=",4)->orderBy('nombre')->get();
+		$responsables = Personas::where("persona.personas.rolid","=",3)->orderBy('nombre')->get();
+
+
+		$fechaHoy= date("Y-m-d");
+
+		return $this->renderHTML('alistamientoPrint.twig',[
+				'gruposalistamiento' => $gruposalistamiento,
+				'alistamientosRegistrados' => $tiposalistamiento,
+				'fechaHoy' => $fechaHoy,
+				'vehiculos' => $vehiculos,
+				'conductores' => $conductores,
+				'responsables' => $responsables,
+		]);
 	}
 
 

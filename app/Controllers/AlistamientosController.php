@@ -51,7 +51,8 @@ class AlistamientosController extends BaseController{
 	//Registra el Alistamientos
 	public function postAddAlistamientos($request){
 		$responseMessage = null; $prevMessage=null; $registrationErrorMessage=null;
-		$alistamientos = null; $numeroDePaginas=null; $puntosMalos=0;
+		$alistamientos = null; $numeroDePaginas=null; $puntosMalos=0; $ruta='alistamientosList.twig';
+		$infoAlistamientoRegistrado=null; $alistamientosRegistrados=null; $gruposalistamiento=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -85,7 +86,7 @@ class AlistamientosController extends BaseController{
 					$infoAlistamiento->perconductorid = $postData['perconductorid'];
 					$infoAlistamiento->iduserregister = $_SESSION['userId'];
 					$infoAlistamiento->iduserupdate = $_SESSION['userId'];
-					$infoAlistamiento->save();
+					//$infoAlistamiento->save();
 
 					$arrayIdTipoAlistamiento = $postData['taid'] ?? null;
 					foreach ($arrayIdTipoAlistamiento as $idTipoAlis) {
@@ -107,18 +108,25 @@ class AlistamientosController extends BaseController{
 						$alistamiento->infoalisid = $ultimoIdInfoAlis;
 						$alistamiento->iduserregister = $_SESSION['userId'];
 						$alistamiento->iduserupdate = $_SESSION['userId'];
-						$alistamiento->save();		
+						//$alistamiento->save();		
 					}
 
 					if ($puntosMalos >= $this->maximoPuntosMalos) {
 						$infoAlistamientoUpd = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
 						$infoAlistamientoUpd->calificacion = 'Reprobado';
-						$infoAlistamientoUpd->save();	
+						//$infoAlistamientoUpd->save();	
 					}
 					
-					
+					$infoAlistamientoRegistrado = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
+					$alistamientosRegistrados=Alistamientos::Join("alistamiento.tiposalistamiento","alistamiento.alistamientos.taid","=","alistamiento.tiposalistamiento.id")
+					->where("alistamiento.alistamientos.infoalisid","=",$ultimoIdInfoAlis)->orderBy('alistamiento.alistamientos.id')
+					->select('alistamiento.alistamientos.*', 'alistamiento.tiposalistamiento.nombre', 'alistamiento.tiposalistamiento.gaid')
+					->get();
+					$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
 
-					$responseMessage = 'Registrado';
+					$ruta='alistamientoPrint.twig';
+					$responseMessage = 'Registrado'; 
+					
 				}catch(\Exception $exception){
 					$prevMessage = substr($exception->getMessage(), 0, 25);
 
@@ -148,12 +156,15 @@ class AlistamientosController extends BaseController{
 		$numeroDePaginas=$paginador['numeroDePaginas'];
 		$alistamientos=$paginador['alistamientos'];
 
-		return $this->renderHTML('alistamientosList.twig',[
+		return $this->renderHTML($ruta,[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'prevMessage' => $prevMessage,
 				'numeroDePaginas' => $numeroDePaginas,
-				'alistamientos' => $alistamientos
+				'alistamientos' => $alistamientos,
+				'infoAlistamientoRegistrado' => $infoAlistamientoRegistrado,
+				'alistamientosRegistrados' => $alistamientosRegistrados,
+				'gruposalistamiento' => $gruposalistamiento
 		]);
 	}
 
