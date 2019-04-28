@@ -86,7 +86,7 @@ class AlistamientosController extends BaseController{
 					$infoAlistamiento->perconductorid = $postData['perconductorid'];
 					$infoAlistamiento->iduserregister = $_SESSION['userId'];
 					$infoAlistamiento->iduserupdate = $_SESSION['userId'];
-					//$infoAlistamiento->save();
+					$infoAlistamiento->save();
 
 					$arrayIdTipoAlistamiento = $postData['taid'] ?? null;
 					foreach ($arrayIdTipoAlistamiento as $idTipoAlis) {
@@ -108,13 +108,13 @@ class AlistamientosController extends BaseController{
 						$alistamiento->infoalisid = $ultimoIdInfoAlis;
 						$alistamiento->iduserregister = $_SESSION['userId'];
 						$alistamiento->iduserupdate = $_SESSION['userId'];
-						//$alistamiento->save();		
+						$alistamiento->save();		
 					}
 
 					if ($puntosMalos >= $this->maximoPuntosMalos) {
 						$infoAlistamientoUpd = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
 						$infoAlistamientoUpd->calificacion = 'Reprobado';
-						//$infoAlistamientoUpd->save();	
+						$infoAlistamientoUpd->save();	
 					}
 					
 					$infoAlistamientoRegistrado = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
