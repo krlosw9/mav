@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Personas,Roles,TiposDocumento, Generos, EstadosCiviles, Rh, NivelesEducativos};
+use App\Models\{Personas,PersonaRoles,PersonaTiposDocumento, PersonaGeneros, PersonaEstadosCiviles, PersonaRh, PersonaNivelesEducativos};
 use App\Controllers\{DocumentosController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -17,12 +17,12 @@ class PersonasController extends BaseController{
 	public function getAddPersonas(){
 		$roles = null; $tiposdocumentos=null;
 
-		$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
-		$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
-		$generos = Generos::orderBy('nombre')->get();
-		$estadocivil = EstadosCiviles::orderBy('nombre')->get();
-		$rh = Rh::latest('nombre')->get();
-		$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
+		$roles = PersonaRoles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
+		$tiposdocumentos = PersonaTiposDocumento::orderBy('nombre')->get();
+		$generos = PersonaGeneros::orderBy('nombre')->get();
+		$estadocivil = PersonaEstadosCiviles::orderBy('nombre')->get();
+		$rh = PersonaRh::latest('nombre')->get();
+		$niveleducativo = PersonaNivelesEducativos::orderBy('nombre')->get();
 		
 
 		return $this->renderHTML('personasAdd.twig',[
@@ -410,12 +410,12 @@ class PersonasController extends BaseController{
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
 			$personas = Personas::find($id);
 
-			$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
-			$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
-			$generos = Generos::orderBy('nombre')->get();
-			$estadocivil = EstadosCiviles::orderBy('nombre')->get();
-			$rh = Rh::latest('nombre')->get();
-			$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
+			$roles = PersonaRoles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
+			$tiposdocumentos = PersonaTiposDocumento::orderBy('nombre')->get();
+			$generos = PersonaGeneros::orderBy('nombre')->get();
+			$estadocivil = PersonaEstadosCiviles::orderBy('nombre')->get();
+			$rh = PersonaRh::latest('nombre')->get();
+			$niveleducativo = PersonaNivelesEducativos::orderBy('nombre')->get();
 			$ruta='personasUpdate.twig';
 		}else{
 			$iniciar=0;

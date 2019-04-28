@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{User, Personas, Roles, Contrasenas};
+use App\Models\{User, Personas, PersonaRoles, PersonaContrasenas};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -20,7 +20,7 @@ class AuthController extends BaseController{
 			//Consulta si el nombre de usuario (email) esta en base de datos y si lo esta trae el primer registro que encuentra con todos sus datos idCedula, nombre, contrasena y otros para compararlos contra los que se trae en el $request que pasa a ser $postData['email']
 
 			//$user = User::where('nombre',$postData['email'])->first();
-			$user = Contrasenas::Join("persona.personas","persona.contrasenas.perid","=","persona.personas.id")
+			$user = PersonaContrasenas::Join("persona.personas","persona.contrasenas.perid","=","persona.personas.id")
 			->select('persona.contrasenas.*', 'persona.personas.nombre', 'persona.personas.apellido', 'persona.personas.numerodocumento', 'persona.personas.rolid')
 			->where('activocheck',1)
 			->where('numerodocumento',$postData['numerodocumento'])
@@ -29,7 +29,7 @@ class AuthController extends BaseController{
 			if ($user) {
 				if(\password_verify($postData['pass'], $user->pass)){
 					
-					$userRol = Roles::where("id","=",$user->rolid)->first();					
+					$userRol = PersonaRoles::where("id","=",$user->rolid)->first();					
 
 					$_SESSION['userId'] = $user->perid;
 					$_SESSION['companyName'] = 'SSoftrans';

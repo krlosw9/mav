@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Roles};
+use App\Models\{PersonaRoles};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -11,7 +11,7 @@ class IndexController extends BaseController{
 	public function indexAction(){
 
 		try{
-			$userRol = Roles::where("id","=",$_SESSION['userRolId'])->first();
+			$userRol = PersonaRoles::where("id","=",$_SESSION['userRolId'])->first();
 			if ($_SESSION['userRolId']) {
 				if ($userRol->ruta) {
 					return new RedirectResponse($userRol->ruta);
