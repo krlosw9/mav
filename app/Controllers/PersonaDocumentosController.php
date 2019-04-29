@@ -490,7 +490,6 @@ class PersonaDocumentosController extends BaseController{
 							$documento->urlcomprobante = $fileName;
 						}
 						$documento->tdpid = $postData['tdpid'];
-						$documento->iduserregister = $_SESSION['userId'];
 						$documento->iduserupdate = $_SESSION['userId'];
 						$documento->save();
 

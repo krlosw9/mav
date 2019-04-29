@@ -486,7 +486,6 @@ class PersonaLicenciasController extends BaseController{
 							$licencia->urlcomprobante = $fileName;
 						}
 						$licencia->catid = $postData['catid'];
-						$licencia->iduserregister = $_SESSION['userId'];
 						$licencia->iduserupdate = $_SESSION['userId'];
 						$licencia->save();
 

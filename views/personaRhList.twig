@@ -1,0 +1,109 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+<h1>
+    Rh
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./rhlist">Rh</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12 col-sm-8 col-md-8">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Listado de RH disponibles </h3>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="rhdel" method="post" role="form">
+        <div class="table-responsive">
+        <table class="table table-striped table-sm" >
+
+          <tr>
+            <th>Nombre</th>
+            <th>Acción</th>
+          </tr>
+          {% set ciclo = false %}
+          {% for rh in rhs %}
+          <tr>
+              <td>{{ rh.nombre }}</td>
+              <td>
+                <button type="submit" class="btn btn-success" value="upd|{{ rh.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                <button type="submit" class="btn btn-danger" value="del|{{ rh.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+              </td>
+          </tr>
+          {% set ciclo = true %}
+          {% endfor %}
+          {% if ciclo == false %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  No se encontraron datos
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+
+          {% if registrationErrorMessage %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  Se presentaron los siguientes errores, por favor corríjalos: <br>
+                  {% for errorMessage in registrationErrorMessage %} 
+                    {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            {% if responseMessage %}
+              <tr>
+                <td colspan=8>
+                  <div class="alert alert-danger" style="font-size:17px;">
+                    {{ responseMessage }}
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          {% endif %}
+          
+        </table>
+      </div>
+
+        <div class="row">
+          <div class="form-group col-md-12" style="padding-left: 25px;">
+            <a type="button" class="btn btn-primary" href="./rhadd">Agregar</a>
+          </div>
+        </div>
+
+        {% if numeroDePaginas%}
+          {% if numeroDePaginas > 1 %}
+            <nav aria-label="Page navigation example">
+              <ul class="pagination" style="padding-left: 10px;">
+                {% for i in 1..numeroDePaginas %}
+                  {% if paginaActual == i %}
+                    <li class="page-item active"><a class="page-link" href="./rhlist?pag={{i}}">{{i}}</a></li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="./rhlist?pag={{i}}">{{i}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}
+        {% endif %}
+
+       </form>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+    
+
+{% endblock %}

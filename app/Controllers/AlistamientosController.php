@@ -152,14 +152,15 @@ class AlistamientosController extends BaseController{
 			}
 		}
 		
-		$paginador = $this->paginador();
-		$numeroDePaginas=$paginador['numeroDePaginas'];
-		$alistamientos=$paginador['alistamientos'];
+		if ($responseMessage=='Registrado') {
+			$paginador = $this->paginador();
+			$numeroDePaginas=$paginador['numeroDePaginas'];
+			$alistamientos=$paginador['alistamientos'];
+		}
 
 		return $this->renderHTML($ruta,[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
-				'prevMessage' => $prevMessage,
 				'numeroDePaginas' => $numeroDePaginas,
 				'alistamientos' => $alistamientos,
 				'infoAlistamientoRegistrado' => $infoAlistamientoRegistrado,
@@ -527,11 +528,10 @@ class AlistamientosController extends BaseController{
 					$persona->telefono = $postData['telefono'];
 					$persona->celular = $postData['celular'];
 					$persona->rolid = $postData['rolid'];
-					$persona->iduserregister = $_SESSION['userId'];
 					$persona->iduserupdate = $_SESSION['userId'];
 					$persona->save();
 
-					$responseMessage .= 'Editado.';
+					$responseMessage = 'Editado.';
 				}catch(\Exception $exception){
 					$prevMessage = substr($exception->getMessage(), 0, 25);
 
@@ -558,9 +558,11 @@ class AlistamientosController extends BaseController{
 			}
 		}
 
-		$paginador = $this->paginador();
-		$numeroDePaginas=$paginador['numeroDePaginas'];
-		$personas=$paginador['personas'];
+		if ($responseMessage=='Editado.') {
+			$paginador = $this->paginador();
+			$numeroDePaginas=$paginador['numeroDePaginas'];
+			$personas=$paginador['personas'];
+		}
 
 		return $this->renderHTML('alistamientosList.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,

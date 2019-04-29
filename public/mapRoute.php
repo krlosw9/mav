@@ -141,6 +141,43 @@ $map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
 ]);
 
 
+//Rutas PersonaRh
+$map->get('getAddRh', $subdomain.'/rhadd', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'getAddRh',
+        'auth' => true,
+        'license' => [$admin]
+]);
+$map->post('postAddRh', $subdomain.'/rhadd', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'postAddRh',
+        'auth' => true
+]);
+$map->get('getListRh', $subdomain.'/rhlist', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'getListRh',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postBuscarRh', $subdomain.'/rhsearch', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'postBusquedaRh',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postDelRh', $subdomain.'/rhdel', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'postUpdDelRh',
+        'auth' => true
+]);
+$map->post('postUpdateRh', $subdomain.'/rhupdate', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'postUpdateRh',
+        'auth' => true
+]);
+
+
+
 
 
 //Rutas Alistamientos
