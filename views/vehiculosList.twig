@@ -3,12 +3,12 @@
 {% block content %}
 
 <h1>
-    Vehiculos
+    Vehículos
     <small>Listado</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./peoplelist">Personas</a></li>
+    <li><a href="./vehiclelist">Vehiculos</a></li>
     <li class="active">Listado</li>
   </ol>
 </section>
@@ -18,10 +18,10 @@
     <div class="col-xs-12">
      <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Buscar personas </h3>
+        <h3 class="box-title">Buscar vehiculos</h3>
       </div>
       <div class="box-body">
-       <form action="peoplesearch" method="post" role="form">
+       <form action="vehiclesearch" method="post" role="form">
           <div class="row" style="padding-left: 15px;">
             <div class="form-group col-xs-6 col-sm-4 col-md-4">
               <label>Buscar:</label>
@@ -37,14 +37,14 @@
           <div class="form-group col-xs-6 col-sm-4 col-md-4">
             
             <select class="form-control select-picker" name="criterio">
-              <option value="1">Documento de identidad</option>
-              <option value="2">Nombre</option>
-              <option value="3">Apellido</option>
+              <option value="1">Placa</option>
+              <option value="2">Número interno</option>
+              <option value="3">Licencia de tránsito</option>
             </select>
           </div>
           <div class="form-group col-xs-12 col-sm-4 col-md-4">
               <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
-              <a type="button" class="btn btn-primary" href="./peopleadd">Agregar</a>
+              <a type="button" class="btn btn-primary" href="./vehicleadd">Agregar</a>
           </div>
         </div>
        </form>
@@ -52,34 +52,34 @@
      <hr noshade="noshade" size="4" width="95%" />
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="peopledel" method="post" role="form">
+       <form action="vehicledel" method="post" role="form">
         <div class="table-responsive">
           <table class="table table-striped table-sm" >
 
           <tr>
             <th style="width: 10px">#</th>
-            <th style="width: 100px">Tipo/Doc</th>
-            <th style="width: 100px">Documento</th>
-            <th style="width: 100px">Nombre</th>
-            <th style="width: 100px">Apellido</th>
-            <th style="width: 50px">Rh</th>
-            <th style="width: 100px">Celular</th>
+            <th style="width: 100px">Placa</th>
+            <th style="width: 70px">Interno</th>
+            <th style="width: 50px">Capacidad</th>
+            <th style="width: 100px">Servicio</th>
+            <th style="width: 70px">Modelo</th>
+            <th style="width: 100px">Vinculación</th>
             <th style="width: 130px">Acción</th>
           </tr>
           {% set ciclo = false %}
-          {% for persona in personas %}
+          {% for vehiculo in query %}
           <tr>
               <input type="hidden" name="ruta" value="listar">
-              <td><input type="radio" name="id" value="{{ persona.id }}"></td>
-              <td>{{ persona.tiposdocumento }}</td>
-              <td>{{ persona.numerodocumento }}</td>
-              <td>{{ persona.nombre }}</td>
-              <td>{{ persona.apellido }}</td>
-              <td>{{ persona.rh }}</td>
-              <td>{{ persona.celular }}</td>
+              <td><input type="radio" name="id" value="{{ vehiculo.id }}"></td>
+              <td>{{ vehiculo.placa }}</td>
+              <td>{{ vehiculo.interno }}</td>
+              <td>{{ vehiculo.capacidad }}</td>
+              <td>{{ vehiculo.servicio }}</td>
+              <td>{{ vehiculo.modelo }}</td>
+              <td>{{ vehiculo.vinculacion }}</td>
               <td>
-                <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                <button type="submit" class="btn btn-success" value="upd|{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                <button type="submit" class="btn btn-danger" value="del|{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
               </td>
           </tr>
           {% set ciclo = true %}
@@ -132,7 +132,8 @@
         <div class="row">
           <div class="form-group col-md-12" style="padding-left: 25px;">
             <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
-            <button type="submit" name="btnDocumentos" value="lic" class="btn btn-primary">Licencias</button>
+            <button type="submit" name="btnDocumentos" value="pro" class="btn btn-primary">Propietario</button>
+            <button type="submit" name="btnDocumentos" value="cond" class="btn btn-primary">Conductores</button>
           </div>
         </div>
 
@@ -142,9 +143,9 @@
               <ul class="pagination" style="padding-left: 10px;">
                 {% for i in 1..numeroDePaginas %}
                   {% if paginaActual == i %}
-                    <li class="page-item active"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
+                    <li class="page-item active"><a class="page-link" href="./vehiclelist?pag={{i}}">{{i}}</a></li>
                   {% else %}
-                    <li class="page-item"><a class="page-link" href="./peoplelist?pag={{i}}">{{i}}</a></li>
+                    <li class="page-item"><a class="page-link" href="./vehiclelist?pag={{i}}">{{i}}</a></li>
                   {% endif %}
                 {% endfor %}
               </ul>
@@ -156,9 +157,9 @@
               <ul class="pagination" style="padding-left: 10px;">
                 {% for i in 1..numeroDePaginasBusqueda %}
                   {% if paginaActual == i %}
-                    <li class="page-item active"><a class="page-link" href="./peoplesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                    <li class="page-item active"><a class="page-link" href="./vehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
                   {% else %}
-                    <li class="page-item"><a class="page-link" href="./peoplesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                    <li class="page-item"><a class="page-link" href="./vehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
                   {% endif %}
                 {% endfor %}
               </ul>

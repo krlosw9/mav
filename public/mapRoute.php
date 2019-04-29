@@ -229,6 +229,49 @@ $map->post('postUpdateAlistamientos', $subdomain.'/checkupdate', [
 
 
 
+//Rutas Vehiculos
+$map->get('getAddVehiculos', $subdomain.'/vehicleadd', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'getAddVehiculos',
+        'auth' => true,
+        'license' => [$admin, $secretary]
+]);
+$map->post('postAddVehiculos', $subdomain.'/vehicleadd', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'postAddVehiculos',
+        'auth' => true
+]);
+$map->get('getListVehiculos', $subdomain.'/vehiclelist', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'getListVehiculos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postBuscarVehiculos', $subdomain.'/vehiclesearch', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'postBusquedaVehiculos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->get('getBuscarVehiculos', $subdomain.'/vehiclesearch', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'postBusquedaVehiculos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postDelVehiculos', $subdomain.'/vehicledel', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'postUpdDelVehiculos',
+        'auth' => true
+]);
+$map->post('postUpdateVehiculos', $subdomain.'/vehicleupdate', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'postUpdateVehiculos',
+        'auth' => true
+]);
+
+
+
 
 
 //Prueba de Vistas
