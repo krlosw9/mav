@@ -289,13 +289,14 @@ class PersonaLicenciasController extends BaseController{
 			if ($textBuscar) {
 
 				if ($criterio==1) {
-					$personaValidator = v::key('textBuscar', v::numeric()->positive()->length(1, 50)->notEmpty());
+					$personaValidator = v::key('textBuscar', v::stringType()->length(1, 15)->notEmpty());
 					try{
 						$personaValidator->assert($postData);
 						$postData = $request->getParsedBody();
 						
 						$criterioQuery="persona.licencias.numero"; $comparador='ilike';
-						$textBuscarModificado='%'.$textBuscar.'%';
+						//$textBuscarModificado='%'.$textBuscar.'%';
+						$textBuscarModificado=$textBuscar;
 						$paginador = $this->paginadorWhere($idPer,$paginaActual, $criterioQuery,$comparador, $textBuscarModificado);
 						$licencias=$paginador['licencias'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
@@ -325,7 +326,8 @@ class PersonaLicenciasController extends BaseController{
 						$postData = $request->getParsedBody();
 
 						$criterioQuery="persona.licencias.fechaexpedicion"; $comparador='ilike'; $orden='orderBy';
-						$textBuscarModificado='%'.$textBuscar.'%';
+						//$textBuscarModificado='%'.$textBuscar.'%';
+						$textBuscarModificado=$textBuscar;
 						$paginador = $this->paginadorWhere($idPer,$paginaActual, $criterioQuery, $comparador, $textBuscarModificado,$orden, $criterioQuery);
 						$licencias=$paginador['licencias'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];

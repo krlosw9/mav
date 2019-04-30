@@ -111,7 +111,7 @@ class VehiculosController extends BaseController{
 					$prevMessage = substr($exception->getMessage(), 0, 25);
 
 					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
-						$responseMessage = 'Error, El numero del documento ya esta registrado';
+						$responseMessage = 'Error, El numero interno, licencia de transito, numero de chasis, numero de motor, numero de serie, placa o vin deben ser unicos y alguno ya esta registrado';
 					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
@@ -270,7 +270,8 @@ class VehiculosController extends BaseController{
 						$postData = $request->getParsedBody();
 						
 						$criterioQuery="vehiculo.vehiculos.placa"; $comparador='ilike';
-						$textBuscarModificado='%'.$textBuscar.'%';
+						//$textBuscarModificado='%'.$textBuscar.'%';
+						$textBuscarModificado=$textBuscar;
 						$paginador = $this->paginadorWhere($paginaActual, $criterioQuery,$comparador, $textBuscarModificado);
 						$query=$paginador['query'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
@@ -297,7 +298,8 @@ class VehiculosController extends BaseController{
 						$postData = $request->getParsedBody();
 
 						$criterioQuery="vehiculo.vehiculos.interno"; $comparador='ilike'; $orden='orderBy';
-						$textBuscarModificado='%'.$textBuscar.'%';
+						//$textBuscarModificado='%'.$textBuscar.'%';
+						$textBuscarModificado=$textBuscar;
 						$paginador = $this->paginadorWhere($paginaActual, $criterioQuery, $comparador, $textBuscarModificado,$orden, $criterioQuery);
 						$query=$paginador['query'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
@@ -325,7 +327,8 @@ class VehiculosController extends BaseController{
 						$postData = $request->getParsedBody();
 
 						$criterioQuery="vehiculo.vehiculos.licenciatransito"; $comparador='ilike'; $orden='orderBy';
-						$textBuscarModificado='%'.$textBuscar.'%';
+						//$textBuscarModificado='%'.$textBuscar.'%';
+						$textBuscarModificado=$textBuscar;
 						$paginador = $this->paginadorWhere($paginaActual, $criterioQuery, $comparador, $textBuscarModificado, $orden, $criterioQuery);
 						$query=$paginador['query'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
@@ -539,7 +542,7 @@ class VehiculosController extends BaseController{
 					$prevMessage = substr($exception->getMessage(), 0, 25);
 
 					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
-						$responseMessage = 'Error, El numero del documento ya esta registrado';
+						$responseMessage = 'Error, El numero interno, licencia de transito, numero de chasis, numero de motor, numero de serie, placa o vin deben ser unicos y alguno ya esta registrado';
 					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
