@@ -93,6 +93,12 @@ $map->post('postBuscarDocumentos', $subdomain.'/documentssearch', [
         'auth' => true,
         'license' => [$admin,$secretary]
 ]);
+$map->get('getBuscarDocumentos', $subdomain.'/documentssearch', [
+        'controller' => 'App\Controllers\PersonaDocumentosController',
+        'action' => 'postBusquedaDocumentos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
 $map->post('postDelDocumentos', $subdomain.'/documentsdel', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postUpdDelDocumentos',
@@ -124,6 +130,12 @@ $map->get('getListLicencias', $subdomain.'/licenselist', [
         'license' => [$admin,$secretary]
 ]);
 $map->post('postBuscarLicencias', $subdomain.'/licensesearch', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'postBusquedaLicencias',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->get('getBuscarLicencias', $subdomain.'/licensesearch', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postBusquedaLicencias',
         'auth' => true,
@@ -269,6 +281,51 @@ $map->post('postUpdateVehiculos', $subdomain.'/vehicleupdate', [
         'action' => 'postUpdateVehiculos',
         'auth' => true
 ]);
+
+
+//Rutas vehiculoDocumentos
+$map->get('getAddVehiculoDocumentos', $subdomain.'/vehicledocadd', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'getAddDocumentos',
+        'auth' => true,
+        'license' => [$admin]
+]);
+$map->post('postAddVehiculoDocumentos', $subdomain.'/vehicledocadd', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'postAddDocumentos',
+        'auth' => true
+]);
+$map->get('getListVehiculoDocumentos', $subdomain.'/vehicledoclist', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'getListDocumentos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postBuscarVehiculoDocumentos', $subdomain.'/vehicledocsearch', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'postBusquedaDocumentos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->get('getBuscarVehiculoDocumentos', $subdomain.'/vehicledocsearch', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'postBusquedaDocumentos',
+        'auth' => true,
+        'license' => [$admin,$secretary]
+]);
+$map->post('postDelVehiculoDocumentos', $subdomain.'/vehicledocdel', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'postUpdDelDocumentos',
+        'auth' => true
+]);
+$map->post('postUpdateVehiculoDocumentos', $subdomain.'/vehicledocupdate', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'postUpdateDocumentos',
+        'auth' => true
+]);
+
+
+
 
 
 

@@ -86,7 +86,7 @@ class PersonaDocumentosController extends BaseController{
 						$responseMessage = 'Registrado';
 					}catch(\Exception $exception){
 						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 100);
+						$prevMessage = substr($exception->getMessage(), 0, 25);
 						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 							$responseMessage = 'Error, La referencia ya esta registrada';
 						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
