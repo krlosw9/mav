@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Personas,PersonaDocumentos, PersonaTiposDocumentosPer};
+use App\Models\{Vehiculos,VehiculoDocumentosVeh, VehiculoTipoDocumentosVeh};
 use App\Controllers\{FilesValidatorController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -13,16 +13,16 @@ class VehiculoDocumentosController extends BaseController{
 	//estos dos valores son los que se cambian, para modificar la cantidad de registros listados por pagina y el maximo numero en paginacion
 	private $articulosPorPagina=10;
 	private $limitePaginacion=20;
-	private $mensajePersonaNoDefinida="Persona no definida, por favor seleccione una persona y luego presione el botón documentos";
+	private $mensajePersonaNoDefinida="Vehículo no definido, por favor seleccione un vehículo y luego presione el botón documentos";
 
 
 	public function getAddDocumentos(){
 		$responseMessage=null; $ruta='vehiculoDocumentosAdd.twig'; $tiposdocumentos=null;
 
-		$idPer = $_GET['?'] ?? null;
+		$idVeh = $_GET['?'] ?? null;
 
-		if ($idPer) {
-			$tiposdocumentos = PersonaTiposDocumentosPer::orderBy('nombre')->get();
+		if ($idVeh) {
+			$tiposdocumentos = VehiculoTipoDocumentosVeh::orderBy('nombre')->get();
 		}else{
 			$responseMessage = $this->mensajePersonaNoDefinida;
 			$ruta='vehiculoDocumentosList.twig';
@@ -30,7 +30,7 @@ class VehiculoDocumentosController extends BaseController{
 
 		return $this->renderHTML($ruta,[
 				'responseMessage' => $responseMessage,
-				'idPer' => $idPer,
+				'idVeh' => $idVeh,
 				'tiposdocumentos' => $tiposdocumentos,
 		]);
 	}
@@ -38,29 +38,36 @@ class VehiculoDocumentosController extends BaseController{
 	//Registra el Documento
 	public function postAddDocumentos($request){
 		$responseMessage = null; $registrationErrorMessage=null; $fileName=null;
-		$documentos = null; $numeroDePaginas=null; $idPer=0; $persona=null;
+		$documentos = null; $numeroDePaginas=null; $idVeh=0; $vehiculo=null; $ruta='vehiculoDocumentosList.twig';
 
 
 		if($request->getMethod()=='POST'){
 			//crea el array $postData pasando las variables POST como indices de este array
 			$postData = $request->getParsedBody();
-			
+
 			/*En la variable $files se almacena el $request del file y en $fileComprobante se
 			*almacena el array con todas las propiedades de este file*/
-			$files = $request->getUploadedFiles(); 
-			$fileComprobante = $files['urlcomprobante']; 
-			$temporaryFileName = 'docp'.$postData['referencia'];
+			$files = $request->getUploadedFiles();
+			if ($files) {
+				$fileComprobante = $files['urlcomprobante'];
+				$temporaryFileName = 'docv'.$postData['referencia'];
+				
+				/*Se hace llamado al metodo que se creo para validar las imagenes */
+				$FilesValidatorController = new FilesValidatorController();
+				$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);	
+			}else{
+				$validadorComprobante['error']=1;
+				$validadorComprobante['message']="Error, el comprobante no puede pesar mas de 2MB, seleccione nuevamente el vehículo y agregué un comprobante valido";
+				$ruta='vehiculosList.twig';
+			}
 			
-			/*Se hace llamado al metodo que se creo para validar las imagenes */
-			$FilesValidatorController = new FilesValidatorController();
-			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
+			$idVeh = $postData['idVeh'] ?? null;
 
 			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
 					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
 					->key('fechainicio', v::date())
 					->key('fechafinal', v::date())
-					->key('tdpid', v::numeric()->positive()->notEmpty());
-			$idPer = $postData['idPer'];
+					->key('tdvid', v::numeric()->positive()->notEmpty());
 			
 			if($_SESSION['userId']){
 				if ($validadorComprobante['error'] == 0) {
@@ -70,15 +77,15 @@ class VehiculoDocumentosController extends BaseController{
 						$documentoValidator->assert($postData);
 						$postData = $request->getParsedBody();
 
-						$documento = new PersonaDocumentos();
+						$documento = new VehiculoDocumentosVeh();
 						$documento->referencia=$postData['referencia'];
 						$documento->emisor = $postData['emisor'];
 						$documento->fechainicio = $postData['fechainicio'];
 						$documento->fechafinal = $postData['fechafinal'];
 						$fileComprobante->moveTo("uploads/$fileName");
 						$documento->urlcomprobante = $fileName;
-						$documento->perid = $idPer;
-						$documento->tdpid = $postData['tdpid'];
+						$documento->vehid = $idVeh;
+						$documento->tdvid = $postData['tdvid'];
 						$documento->iduserregister = $_SESSION['userId'];
 						$documento->iduserupdate = $_SESSION['userId'];
 						$documento->save();
@@ -86,11 +93,11 @@ class VehiculoDocumentosController extends BaseController{
 						$responseMessage = 'Registrado';
 					}catch(\Exception $exception){
 						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 100);
+						$prevMessage = substr($exception->getMessage(), 0, 25);
 						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 							$responseMessage = 'Error, La referencia ya esta registrada';
 						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
-							$responseMessage = 'Error, El ID de esta persona no esta registrado';
+							$responseMessage = 'Error, El ID de este vehiculo no esta registrado';
 						}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 							$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
@@ -113,29 +120,29 @@ class VehiculoDocumentosController extends BaseController{
 
 			}
 		}
-		$paginador = $this->paginador($idPer);
-		$persona = $paginador['persona'];
+		$paginador = $this->paginador($idVeh);
+		$vehiculo = $paginador['vehiculo'];
 		if ($responseMessage=='Registrado') {
 			$documentos = $paginador['documentos'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];	
 		}
 
-		return $this->renderHTML('vehiculoDocumentosList.twig',[
-				'idPer' => $idPer,
+		return $this->renderHTML($ruta,[
+				'idVeh' => $idVeh,
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'documentos' => $documentos,
 				'numeroDePaginas' => $numeroDePaginas,
-				'persona' => $persona
+				'vehiculo' => $vehiculo
 		]);
 	}
 
  
 	//Lista todas los modelos Ordenando por posicion
-	public function paginador($idPer=0, $paginaActual=0){
-		$retorno = array(); $iniciar=0; $documentos=null; $persona=null;
+	public function paginador($idVeh=0, $paginaActual=0){
+		$retorno = array(); $iniciar=0; $documentos=null; $vehiculo=null;
 		
-		$numeroDeFilas = PersonaDocumentos::selectRaw('count(*) as query_count')
+		$numeroDeFilas = VehiculoDocumentosVeh::selectRaw('count(*) as query_count')
 		->first();
 		
 		$totalFilasDb = $numeroDeFilas->query_count;
@@ -154,31 +161,31 @@ class VehiculoDocumentosController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 		
-		$documentos = PersonaDocumentos::Join("persona.tiposdocumentosper","persona.documentosper.tdpid","=","persona.tiposdocumentosper.id")
-		->where("persona.documentosper.perid","=",$idPer)
-		->select('persona.documentosper.*', 'persona.tiposdocumentosper.nombre As tipoDocumento')
-		->latest('persona.documentosper.id')
+		$documentos = VehiculoDocumentosVeh::Join("vehiculo.tipodocumentosveh","vehiculo.documentosveh.tdvid","=","vehiculo.tipodocumentosveh.id")
+		->where("vehiculo.documentosveh.vehid","=",$idVeh)
+		->select('vehiculo.documentosveh.*', 'vehiculo.tipodocumentosveh.nombre As tipoDocumento')
+		->latest('vehiculo.documentosveh.id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();
 
-		/* Consulta toda la informacion de la persona a la cual se le estan buscando los Documentos */
-		$persona = Personas::find($idPer);
+		/* Consulta toda la informacion de la vehiculo a la cual se le estan buscando los Documentos */
+		$vehiculo = Vehiculos::find($idVeh);
 
 		$retorno = [
 			'iniciar' => $iniciar,
 			'numeroDePaginas' => $numeroDePaginas,
 			'documentos' => $documentos,
-			'persona' => $persona
+			'vehiculo' => $vehiculo
 		];
 
 		return $retorno;
 		
 	}
 
-	public function paginadorWhere($idPer=null, $paginaActual=null, $criterio=null, $comparador='=', $textBuscar=null, $orden='latest', $criterioOrden='id'){
-		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $documentos=null; $persona=null;
+	public function paginadorWhere($idVeh=null, $paginaActual=null, $criterio=null, $comparador='=', $textBuscar=null, $orden='latest', $criterioOrden='id'){
+		$retorno = array(); $iniciar=0; $numeroDePaginas=1; $documentos=null; $vehiculo=null;
 		
-		$numeroDeFilas = PersonaDocumentos::where($criterio, $comparador ,$textBuscar)->selectRaw('count(*) as query_count')
+		$numeroDeFilas = VehiculoDocumentosVeh::where($criterio, $comparador ,$textBuscar)->selectRaw('count(*) as query_count')
 		->first();
 		
 		$totalFilasDb = $numeroDeFilas->query_count;
@@ -197,22 +204,23 @@ class VehiculoDocumentosController extends BaseController{
 			$iniciar = ($paginaActual-1)*$this->articulosPorPagina;
 		}
 
-		$documentos = PersonaDocumentos::Join("persona.tiposdocumentosper","persona.documentosper.tdpid","=","persona.tiposdocumentosper.id")
-		->where("persona.documentosper.perid","=",$idPer)
+		$documentos = VehiculoDocumentosVeh::Join("vehiculo.tipodocumentosveh","vehiculo.documentosveh.tdvid","=","vehiculo.tipodocumentosveh.id")
+		->where("vehiculo.documentosveh.vehid","=",$idVeh)
 		->where($criterio,$comparador,$textBuscar)
-		->select('persona.documentosper.*', 'persona.tiposdocumentosper.nombre As tipoDocumento')
-		->latest('persona.documentosper.id')
+		->select('vehiculo.documentosveh.*', 'vehiculo.tipodocumentosveh.nombre As tipoDocumento')
+		->$orden($criterioOrden)
+		//->latest('vehiculo.documentosveh.id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();	
 
 		/* Consulta toda la informacion de la persona a la cual se le estan buscando los Documentos */
-		$persona = Personas::find($idPer);		
+		$vehiculo = Vehiculos::find($idVeh);		
 
 		$retorno = [
 			'iniciar' => $iniciar,
 			'numeroDePaginas' => $numeroDePaginas,
 			'documentos' => $documentos,
-			'persona' => $persona
+			'vehiculo' => $vehiculo
 
 		];
 		
@@ -220,35 +228,35 @@ class VehiculoDocumentosController extends BaseController{
 	}
 
 	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton documentos en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus documentos)
-	public function listPersonasDocumentos($idPer=null){
-		$numeroDePaginas=null; $documentos=null; $persona=null;
+	public function listVehiculosDocumentos($idVeh=null){
+		$numeroDePaginas=null; $documentos=null; $vehiculo=null;
 
-		$paginador = $this->paginador($idPer);
+		$paginador = $this->paginador($idVeh);
 		
 		$documentos = $paginador['documentos'];
 		$numeroDePaginas = $paginador['numeroDePaginas'];
-		$persona = $paginador['persona'];
+		$vehiculo = $paginador['vehiculo'];
 		
 		return $this->renderHTML('vehiculoDocumentosList.twig', [
-			'idPer' => $idPer,
+			'idVeh' => $idVeh,
 			'documentos' => $documentos,
 			'numeroDePaginas' => $numeroDePaginas,
-			'persona' => $persona
+			'vehiculo' => $vehiculo
 		]);
 	}
 
 	public function getListDocumentos(){
-		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $persona=null;
+		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $vehiculo=null;
 		
-		$idPer = $_GET['?'] ?? null;
+		$idVeh = $_GET['?'] ?? null;
 		$paginaActual = $_GET['pag'] ?? null;
 
-		if ($idPer) {
-			$paginador = $this->paginador($idPer, $paginaActual);
+		if ($idVeh) {
+			$paginador = $this->paginador($idVeh, $paginaActual);
 		
 			$documentos = $paginador['documentos'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];	
-			$persona = $paginador['persona'];
+			$vehiculo = $paginador['vehiculo'];
 
 		}else{
 			$responseMessage = $this->mensajePersonaNoDefinida;
@@ -256,32 +264,32 @@ class VehiculoDocumentosController extends BaseController{
 		
 		
 		return $this->renderHTML('vehiculoDocumentosList.twig', [
-			'idPer' => $idPer,
+			'idVeh' => $idVeh,
 			'responseMessage' => $responseMessage,
 			'documentos' => $documentos,
 			'numeroDePaginas' => $numeroDePaginas,
 			'paginaActual' => $paginaActual,
-			'persona' => $persona
+			'vehiculo' => $vehiculo
 		]);
 	}
 
 
 	public function postBusquedaDocumentos($request){
 		$prevMessage = null; $responseMessage=null; $iniciar=0; $documentos=null; $queryErrorMessage=null; $error=false;
-		$numeroDePaginas=null; $paginaActual=null; $criterio=null; $textBuscar=null; $idPer=null; $persona=null;
+		$numeroDePaginas=null; $paginaActual=null; $criterio=null; $textBuscar=null; $idVeh=null; $vehiculo=null;
 
 		//if($request->getMethod()=='POST'){
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			$textBuscar = $postData['textBuscar'] ?? null;
 			$criterio = $postData['criterio'] ?? null;
-			$idPer = $postData['idPer'] ?? null;
+			$idVeh = $postData['idVeh'] ?? null;
 		}elseif ($request->getMethod()=='GET') {
 			$getData = $request->getQueryParams();
 			$paginaActual = $getData['pag'] ?? null;
 			$criterio = $getData['?'] ?? null;
 			$textBuscar = $getData['??'] ?? null;
-			$idPer = $getData['%'] ?? null;
+			$idVeh = $getData['%'] ?? null;
 
 			//el textBuscar que llega por GET lo paso al array $postData para de esta forma usar el validador
 			$postData['textBuscar'] = $textBuscar;
@@ -296,13 +304,13 @@ class VehiculoDocumentosController extends BaseController{
 						$personaValidator->assert($postData);
 						$postData = $request->getParsedBody();
 						
-						$criterioQuery="persona.documentosper.referencia"; $comparador='ilike';
+						$criterioQuery="vehiculo.documentosveh.referencia"; $comparador='ilike';
 						//$textBuscarModificado='%'.$textBuscar.'%';
 						$textBuscarModificado=$textBuscar;
-						$paginador = $this->paginadorWhere($idPer,$paginaActual, $criterioQuery,$comparador, $textBuscarModificado);
+						$paginador = $this->paginadorWhere($idVeh,$paginaActual, $criterioQuery,$comparador, $textBuscarModificado);
 						$documentos=$paginador['documentos'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
-						$persona=$paginador['persona'];
+						$vehiculo=$paginador['vehiculo'];
 
 					}catch(\Exception $exception){
 						$error=true;
@@ -327,13 +335,13 @@ class VehiculoDocumentosController extends BaseController{
 						$personaValidator->assert($postData);
 						$postData = $request->getParsedBody();
 
-						$criterioQuery="persona.documentosper.emisor"; $comparador='ilike'; $orden='orderBy';
+						$criterioQuery="vehiculo.documentosveh.emisor"; $comparador='ilike'; $orden='orderBy';
 						//$textBuscarModificado='%'.$textBuscar.'%';
 						$textBuscarModificado=$textBuscar;
-						$paginador = $this->paginadorWhere($idPer,$paginaActual, $criterioQuery, $comparador, $textBuscarModificado,$orden, $criterioQuery);
+						$paginador = $this->paginadorWhere($idVeh,$paginaActual, $criterioQuery, $comparador, $textBuscarModificado,$orden, $criterioQuery);
 						$documentos=$paginador['documentos'];
 						$numeroDePaginas=$paginador['numeroDePaginas'];
-						$persona=$paginador['persona'];
+						$vehiculo=$paginador['vehiculo'];
 
 					}catch(\Exception $exception){
 						$error=true;
@@ -360,14 +368,14 @@ class VehiculoDocumentosController extends BaseController{
 			}
 			
 			if ($error) {
-				$paginador = $this->paginador($idPer, $paginaActual);
+				$paginador = $this->paginador($idVeh, $paginaActual);
 		
-				$persona = $paginador['persona'];
+				$vehiculo = $paginador['vehiculo'];
 			}
 		//}
 	
 		return $this->renderHTML('vehiculoDocumentosList.twig', [
-			'idPer' => $idPer,
+			'idVeh' => $idVeh,
 			'numeroDePaginasBusqueda' => $numeroDePaginas,
 			'documentos' => $documentos,
 			'prevMessage' => $prevMessage,
@@ -376,7 +384,7 @@ class VehiculoDocumentosController extends BaseController{
 			'paginaActual' => $paginaActual,
 			'textBuscar' => $textBuscar,
 			'criterio' => $criterio,
-			'persona' => $persona
+			'vehiculo' => $vehiculo
 		]);
 		
 	}
@@ -386,12 +394,12 @@ class VehiculoDocumentosController extends BaseController{
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postUpdDelDocumentos($request){
 		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='vehiculoDocumentosList.twig'; $numeroDePaginas=null; $persona=null;
+		$quiereActualizar = false; $ruta='vehiculoDocumentosList.twig'; $numeroDePaginas=null; $vehiculo=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 			$btnDelUpd = $postData['btnDelUpd'] ?? null;
-			$idPer = $postData['idPer'] ?? null;
+			$idVeh = $postData['idVeh'] ?? null;
 			
 			if ($btnDelUpd) {
 				$divideCadena = explode("|", $btnDelUpd);
@@ -401,7 +409,7 @@ class VehiculoDocumentosController extends BaseController{
 			if ($id) {
 				if($boton == 'del'){
 				  try{
-					$people = new PersonaDocumentos();
+					$people = new VehiculoDocumentosVeh();
 					$people->destroy($id);
 					$responseMessage = "Se elimino el documento";
 				  }catch(\Exception $e){
@@ -423,51 +431,59 @@ class VehiculoDocumentosController extends BaseController{
 		
 		if ($quiereActualizar){
 			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$documentos = PersonaDocumentos::find($id);
-			$tiposdocumentos = PersonaTiposDocumentosPer::orderBy('nombre')->get();
+			$documentos = VehiculoDocumentosVeh::find($id);
+			$tiposdocumentos = VehiculoTipoDocumentosVeh::orderBy('nombre')->get();
 
 			$ruta='vehiculoDocumentosUpdate.twig';
 		}else{
-			$paginador = $this->paginador($idPer);
+			$paginador = $this->paginador($idVeh);
 
 			$documentos = $paginador['documentos'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];
-			$persona = $paginador['persona'];
+			$vehiculo = $paginador['vehiculo'];
 		}
 		return $this->renderHTML($ruta, [
 			'documentos' => $documentos,
 			'tiposdocumentos' => $tiposdocumentos,
 			'responseMessage' => $responseMessage,
 			'numeroDePaginas' => $numeroDePaginas,
-			'idPer' => $idPer,
-			'persona' => $persona
+			'idVeh' => $idVeh,
+			'vehiculo' => $vehiculo
 		]);
 	}
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdateDocumentos($request){
-		$responseMessage = null; $registrationErrorMessage=null; $documentos=null; $numeroDePaginas=null; $persona=null;
-				
+		$responseMessage = null; $registrationErrorMessage=null; $documentos=null; $numeroDePaginas=null; $vehiculo=null;
+		$ruta='vehiculoDocumentosList.twig';
+
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
 			/*En la variable $files se almacena el $request del file y en $fileComprobante se
 			*almacena el array con todas las propiedades de este file*/
 			$files = $request->getUploadedFiles();
-			$fileComprobante = $files['urlcomprobante'];
-			$temporaryFileName = 'docp'.$postData['referencia'];
+			if ($files) {
+				$fileComprobante = $files['urlcomprobante'];
+				$temporaryFileName = 'docv'.$postData['referencia'];
+				
+				/*Se hace llamado al metodo que se creo para validar las imagenes */
+				$FilesValidatorController = new FilesValidatorController();
+				$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);	
+			}else{
+				$validadorComprobante['error']=1;
+				$validadorComprobante['message']="Error, el comprobante no puede pesar mas de 2MB, seleccione nuevamente el vehículo y agregué un comprobante valido";
+				$ruta='vehiculosList.twig';
+			}
 			
-			/*Se hace llamado al metodo que se creo para validar las imagenes */
-			$FilesValidatorController = new FilesValidatorController();
-			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
 
-			$idPer = $postData['idPer'] ?? null;
+			$idVeh = $postData['idVeh'] ?? null;
 
 			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
 					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
 					->key('fechainicio', v::date())
 					->key('fechafinal', v::date())
-					->key('tdpid', v::numeric()->positive()->notEmpty());
+					->key('tdvid', v::numeric()->positive()->notEmpty());
 
 			
 			if($_SESSION['userId']){
@@ -481,7 +497,7 @@ class VehiculoDocumentosController extends BaseController{
 
 						//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
 						$idDocumento = $postData['id'];
-						$documento = PersonaDocumentos::find($idDocumento);
+						$documento = VehiculoDocumentosVeh::find($idDocumento);
 						
 						$documento->referencia=$postData['referencia'];
 						$documento->emisor = $postData['emisor'];
@@ -491,7 +507,7 @@ class VehiculoDocumentosController extends BaseController{
 							$fileComprobante->moveTo("uploads/$fileName");	
 							$documento->urlcomprobante = $fileName;
 						}
-						$documento->tdpid = $postData['tdpid'];
+						$documento->tdvid = $postData['tdvid'];
 						$documento->iduserupdate = $_SESSION['userId'];
 						$documento->save();
 
@@ -502,7 +518,7 @@ class VehiculoDocumentosController extends BaseController{
 						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 							$responseMessage = 'Error, La referencia ya esta registrada';
 						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
-							$responseMessage = 'Error, El ID de esta persona no esta registrado';
+							$responseMessage = 'Error, El ID de este vehiculo no esta registrado';
 						}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
 							$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
 						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
@@ -526,21 +542,21 @@ class VehiculoDocumentosController extends BaseController{
 			}
 		}
 
-		$paginador = $this->paginador($idPer);
-		$persona = $paginador['persona'];
+		$paginador = $this->paginador($idVeh);
+		$vehiculo = $paginador['vehiculo'];
 		if ($responseMessage == 'Editado.') {
 			$documentos = $paginador['documentos'];
 			$numeroDePaginas = $paginador['numeroDePaginas'];
 		}
 		
 
-		return $this->renderHTML('vehiculoDocumentosList.twig',[
-				'idPer' => $idPer,
+		return $this->renderHTML($ruta,[
+				'idVeh' => $idVeh,
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'documentos' => $documentos,
 				'numeroDePaginas' => $numeroDePaginas,
-				'persona' => $persona
+				'vehiculo' => $vehiculo
 		]);
 	}
 }

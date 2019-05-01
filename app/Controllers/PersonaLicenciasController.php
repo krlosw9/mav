@@ -38,7 +38,7 @@ class PersonaLicenciasController extends BaseController{
 	//Registra la Licencia
 	public function postAddLicencias($request){
 		$responseMessage = null; $registrationErrorMessage=null; $fileName=null;
-		$licencias = null; $numeroDePaginas=null; $idPer=0; $persona=null;
+		$licencias = null; $numeroDePaginas=null; $idPer=0; $persona=null; $ruta='personaLicenciasList.twig';
 
 
 		if($request->getMethod()=='POST'){
@@ -48,18 +48,25 @@ class PersonaLicenciasController extends BaseController{
 			/*En la variable $files se almacena el $request del file y en $fileComprobante se
 			*almacena el array con todas las propiedades de este file*/
 			$files = $request->getUploadedFiles(); 
-			$fileComprobante = $files['urlcomprobante']; 
-			$temporaryFileName = 'licp'.$postData['numero'].$postData['catid'];
+			if ($files) {
+				$fileComprobante = $files['urlcomprobante']; 
+				$temporaryFileName = 'licp'.$postData['numero'].$postData['catid'];
+				
+				/*Se hace llamado al metodo que se creo para validar las imagenes */
+				$FilesValidatorController = new FilesValidatorController();
+				$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
+			}else{
+				$validadorComprobante['error']=1;
+				$validadorComprobante['message']="Error, el comprobante no puede pesar mas de 2MB, seleccione nuevamente la persona y agregué un comprobante valido";
+				$ruta='personasList.twig';
+			}
 			
-			/*Se hace llamado al metodo que se creo para validar las imagenes */
-			$FilesValidatorController = new FilesValidatorController();
-			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
 
 			$documentoValidator = v::key('numero', v::stringType()->length(1, 50)->notEmpty())
 					->key('fechaexpedicion', v::date())
 					->key('fechavencimiento', v::date())
 					->key('catid', v::numeric()->positive()->notEmpty());
-			$idPer = $postData['idPer'];
+			$idPer = $postData['idPer'] ?? null;
 			
 			if($_SESSION['userId']){
 				if ($validadorComprobante['error'] == 0) {
@@ -118,7 +125,7 @@ class PersonaLicenciasController extends BaseController{
 			$numeroDePaginas = $paginador['numeroDePaginas'];	
 		}
 
-		return $this->renderHTML('personaLicenciasList.twig',[
+		return $this->renderHTML($ruta,[
 				'idPer' => $idPer,
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
@@ -199,6 +206,7 @@ class PersonaLicenciasController extends BaseController{
 		->where("persona.licencias.perid","=",$idPer)
 		->where($criterio,$comparador,$textBuscar)
 		->select('persona.licencias.*', 'persona.categoriaslicencias.descripcion As categoria')
+		//->$orden($criterioOrden)
 		->latest('persona.licencias.id')
 		->limit($this->articulosPorPagina)->offset($iniciar)
 		->get();	
@@ -445,19 +453,27 @@ class PersonaLicenciasController extends BaseController{
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdateLicencias($request){
 		$responseMessage = null; $registrationErrorMessage=null; $licencias=null; $numeroDePaginas=null; $persona=null;
-				
+		$ruta='personaLicenciasList.twig';
+
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
 			/*En la variable $files se almacena el $request del file y en $fileComprobante se
 			*almacena el array con todas las propiedades de este file*/
 			$files = $request->getUploadedFiles();
-			$fileComprobante = $files['urlcomprobante'];
-			$temporaryFileName = 'licp'.$postData['numero'].$postData['catid'];
+			if ($files) {
+				$fileComprobante = $files['urlcomprobante'];
+				$temporaryFileName = 'licp'.$postData['numero'].$postData['catid'];
+				
+				/*Se hace llamado al metodo que se creo para validar las imagenes */
+				$FilesValidatorController = new FilesValidatorController();
+				$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
+			}else{
+				$validadorComprobante['error']=1;
+				$validadorComprobante['message']="Error, el comprobante no puede pesar mas de 2MB, seleccione nuevamente la persona y agregué un comprobante valido";
+				$ruta='personasList.twig';
+			}
 			
-			/*Se hace llamado al metodo que se creo para validar las imagenes */
-			$FilesValidatorController = new FilesValidatorController();
-			$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
 
 			$idPer = $postData['idPer'] ?? null;
 
@@ -530,7 +546,7 @@ class PersonaLicenciasController extends BaseController{
 		}
 		
 
-		return $this->renderHTML('personaLicenciasList.twig',[
+		return $this->renderHTML($ruta,[
 				'idPer' => $idPer,
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,

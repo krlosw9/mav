@@ -9,7 +9,7 @@
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
     <li><a href="./vehiclelist">Vehículos</a></li>
-    <li><a href="./vehicledoclist??={{idPer}}">Documentos</a></li>
+    <li><a href="./vehicledoclist??={{idVeh}}">Documentos</a></li>
     <li class="active">Registro</li>
   </ol>
 </section>
@@ -26,7 +26,7 @@
         <!-- form start -->
         <form action="vehicledocadd" method="post" role="form" enctype="multipart/form-data">
           <div class="box-body">
-            <input type="hidden" name="idPer" value="{{idPer}}">
+            <input type="hidden" name="idVeh" value="{{idVeh}}">
             <div class="form-group col-xs-12 col-sm-6 col-md-3">
               <label for="">Fecha expedición (*):</label>
               <div class="input-group date">
@@ -41,7 +41,7 @@
             </div>
             <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Tipo de Documento (*):</label>
-              <select class="form-control select-picker" name="tdpid" required>
+              <select class="form-control select-picker" name="tdvid" required>
                 {% for tipo in tiposdocumentos %}
                   <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
                 {% endfor %}
@@ -64,7 +64,7 @@
           <!-- /.box-body -->
           <div class="box-footer col-xs-12 col-sm-12 col-md-12" >
             <button type="submit" class="btn btn-primary">Registrar</button>
-            <a type="button" class="btn btn-default" href="./vehicledoclist??={{idPer}}">Cancelar</a>
+            <a type="button" class="btn btn-default" href="./vehicledoclist??={{idVeh}}">Cancelar</a>
           </div>
 
           <div class="alert alert-primary" role="alert" style="color:#FF0000; font-size:25px;">

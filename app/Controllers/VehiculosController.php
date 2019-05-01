@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\{Vehiculos,VehiculoTiposVinculacion,VehiculoMarcas,VehiculoLineas, VehiculoColores, VehiculoServicios, VehiculoClases, VehiculoCarrocerias, VehiculoCombustibles, VehiculoOrganimosTransito};
-use App\Controllers\{DocumentosController};
+use App\Controllers\{VehiculoDocumentosController, VehiculoPropietarioController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Zend\Diactoros\Response\RedirectResponse;
@@ -391,14 +391,14 @@ class VehiculosController extends BaseController{
 				if ($id) {
 					if ($btnDocumentos == 'doc') {
 						$DocumentosController = new VehiculoDocumentosController();
-						return $DocumentosController->listVehiculoDocumentos($id);
+						return $DocumentosController->listVehiculosDocumentos($id);
 
 					}elseif ($btnDocumentos == 'pro') {
 						$LicenciasController = new VehiculoPropietarioController();
-						return $LicenciasController->listVehiculoPropietario($id);
+						return $LicenciasController->listVehiculosPropietario($id);
 					}elseif ($btnDocumentos == 'cond') {
 						$LicenciasController = new VehiculoPropietarioController();
-						return $LicenciasController->listVehiculoPropietario($id);
+						return $LicenciasController->listVehiculosPropietario($id);
 					}else{
 						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
 					}
