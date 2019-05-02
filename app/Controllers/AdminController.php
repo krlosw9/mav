@@ -10,8 +10,13 @@ class AdminController extends BaseController{
 
 	}
 
-	public function getSecrerary(){
-		return $this->renderHTML('secretary.twig');
+	public function getSupervisor(){
+		return $this->renderHTML('supervisor.twig');
+
+	}
+
+	public function getManager(){
+		return $this->renderHTML('supervisor.twig');
 
 	}
 }

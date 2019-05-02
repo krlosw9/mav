@@ -16,7 +16,7 @@ $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(
     $_FILES
 );
 
-$admin=1; $secretary=2; $conductor=3;
+$admin=1; $manager=2; $secretary=3; $checking=4; $conductor=5;
 $subdomain='/mav';
 
 $map = $routerContainer->getMap();
@@ -360,12 +360,20 @@ $map->post('auth', $subdomain.'/auth', [
 $map->get('admin', $subdomain.'/admin', [
         'controller' => 'App\Controllers\AdminController',
         'action' => 'getIndex',
-        'auth' => true
+        'auth' => true,
+        'license' => [$admin]
 ]);
-$map->get('secretary', $subdomain.'/secretary', [
+$map->get('supervisor', $subdomain.'/supervisor', [
         'controller' => 'App\Controllers\AdminController',
-        'action' => 'getSecrerary',
-        'auth' => true
+        'action' => 'getSupervisor',
+        'auth' => true,
+        'license' => [$secretary]
+]);
+$map->get('manager', $subdomain.'/manager', [
+        'controller' => 'App\Controllers\AdminController',
+        'action' => 'getManager',
+        'auth' => true,
+        'license' => [$manager]
 ]);
 $map->get('logout', $subdomain.'/logout', [
         'controller' => 'App\Controllers\AuthController',

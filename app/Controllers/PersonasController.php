@@ -77,6 +77,7 @@ class PersonasController extends BaseController{
 					$persona->telefono = $postData['telefono'];
 					$persona->celular = $postData['celular'];
 					$persona->rolid = $postData['rolid'];
+					$persona->activocheck = 1;
 					$persona->iduserregister = $_SESSION['userId'];
 					$persona->iduserupdate = $_SESSION['userId'];
 					$persona->save();
@@ -444,7 +445,7 @@ class PersonasController extends BaseController{
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdatePersonas($request){
 		$responseMessage = null; $registrationErrorMessage=null; $personas=null; $numeroDePaginas=null;
-				
+		$activoCheck=1;
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
@@ -466,6 +467,13 @@ class PersonasController extends BaseController{
 					$personaValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
+					$postActivoCheck = $postData['activocheck'] ?? null;
+					if ($postActivoCheck) {
+						$activoCheck = 1;
+					}else{
+						$activoCheck = 0;
+					}
+					
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en persona y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
 					$idPersona = $postData['id'];
 					$persona = Personas::find($idPersona);
@@ -485,6 +493,7 @@ class PersonasController extends BaseController{
 					$persona->telefono = $postData['telefono'];
 					$persona->celular = $postData['celular'];
 					$persona->rolid = $postData['rolid'];
+					$persona->activocheck = $activoCheck;
 					$persona->iduserupdate = $_SESSION['userId'];
 					$persona->save();
 

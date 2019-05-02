@@ -22,7 +22,7 @@ class AuthController extends BaseController{
 			//$user = User::where('nombre',$postData['email'])->first();
 			$user = PersonaContrasenas::Join("persona.personas","persona.contrasenas.perid","=","persona.personas.id")
 			->select('persona.contrasenas.*', 'persona.personas.nombre', 'persona.personas.apellido', 'persona.personas.numerodocumento', 'persona.personas.rolid')
-			->where('activocheck',1)
+			->where("persona.contrasenas.activocheck","=",1)
 			->where('numerodocumento',$postData['numerodocumento'])
 			->first();
 
@@ -57,7 +57,7 @@ class AuthController extends BaseController{
 				$responseMessage = 'Error.';
 			}else{
 				$responseMessage = substr($e->getMessage(), 0, 47);
-				//$responseMessage = $e->getMessage();
+				$responseMessage = $e->getMessage();
 			}
 		}
 		return $this->renderHTML('login.twig',[

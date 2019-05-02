@@ -102,6 +102,7 @@ class VehiculosController extends BaseController{
 					$vehiculo->fechamatricula = $postData['fechamatricula'];
 					$vehiculo->fechaexpedicion = $postData['fechaexpedicion'];
 					$vehiculo->orgtransitoid = $postData['orgtransitoid'];
+					$vehiculo->activocheck = 1;
 					$vehiculo->iduserregister = $_SESSION['userId'];
 					$vehiculo->iduserupdate = $_SESSION['userId'];
 					$vehiculo->save();
@@ -505,6 +506,13 @@ class VehiculosController extends BaseController{
 				try{
 					$personaValidator->assert($postData);
 					$postData = $request->getParsedBody();
+					
+					$postActivoCheck = $postData['activocheck'] ?? null;
+					if ($postActivoCheck) {
+						$activoCheck = 1;
+					}else{
+						$activoCheck = 0;
+					}
 
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en persona y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
 					$id = $postData['id'];
@@ -534,6 +542,7 @@ class VehiculosController extends BaseController{
 					$vehiculo->fechamatricula = $postData['fechamatricula'];
 					$vehiculo->fechaexpedicion = $postData['fechaexpedicion'];
 					$vehiculo->orgtransitoid = $postData['orgtransitoid'];
+					$vehiculo->activocheck = $activoCheck;
 					$vehiculo->iduserupdate = $_SESSION['userId'];
 					$vehiculo->save();
 
