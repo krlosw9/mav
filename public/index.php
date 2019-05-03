@@ -46,23 +46,32 @@ if(!$route){
     $actionName = $handlerData['action'];
     $needsAuth = $handlerData['auth'] ?? false;
     $sessionUserId = $_SESSION['userId'] ?? null;
-    $sessionUserRolId = $_SESSION['userRolId'] ?? null;
-    $permission = $handlerData['license'] ?? null;
+    $sessionUserPermission = $_SESSION['userLicense'] ?? null;
+    $permissions = $handlerData['license'] ?? null;
+    $getLogout = false; 
+    $thereIsPermission=false;
 
     if ($needsAuth && !$sessionUserId) {
       //si la pagina que quiere acceder solo pueden ingresar usuarios logeados y ademas No hay una session activa entonces lo redirecciona al login
       $controllerName = 'App\Controllers\AuthController';
       $actionName = 'getLogout';
+      $getLogout=true; 
     }
 
     /*Primero evalua si ese mapRoute tiene permisos especiificos y luego evalua si rolId del usuario es uno de esos permisos permitidos y si el usuario no tiene uno de esos roles, lo lleva para el index donde evalua el rol que tiene y le da su backoffice adecuado a su permiso*/
-    if ($permission) {
-        if (in_array($sessionUserRolId, $permission)) {
-            
-        }else{
+    
+    if ($permissions and !$getLogout) {
+
+        foreach ($permissions as $permission) {
+            if (in_array($permission, $sessionUserPermission)) {
+                $thereIsPermission = true;
+            }    
+        }
+        if (!$thereIsPermission) {
             $controllerName = 'App\Controllers\IndexController';
             $actionName = 'indexAction';
-        }
+        }   
+        
     }
 
 

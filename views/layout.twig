@@ -25,6 +25,25 @@
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
+  
+
+ <!-- Iniciliaza variables booleans permisos -->
+  {% set checklist = false %}
+  {% set vehiclelist = false %}
+  {% set peoplelist = false %}
+
+  <!-- Ciclo que recorre el vector con los permisos de ese usuario -->
+  {% for permission in arrayPermissions %}
+    {% if permission == 'checklist' %}
+      {% set checklist = true %}
+    {% endif %}
+    {% if permission == 'vehiclelist' %}
+      {% set vehiclelist = true %}
+    {% endif %}
+    {% if permission == 'peoplelist' %}
+      {% set peoplelist = true %}
+    {% endif %}
+  {% endfor %}
   <div class="wrapper">
 
   <header class="main-header">
@@ -67,7 +86,7 @@
               <!-- Menu Footer Del perfil de usuario-->
               <li class="user-footer">
                 <div class="pull-left">
-                  <a href="./usersupdate" class="btn btn-default btn-flat">Perfil</a>
+                  <a href="#" class="btn btn-default btn-flat">Perfil</a>
                 </div>
                 <div class="pull-right">
                   <a href="./logout" class="btn btn-default btn-flat">Cerrar sesión</a>
@@ -80,7 +99,7 @@
 
           <!-- Control Sidebar Toggle Button -->
           <li>
-            <a href="./usersadd" ><i class="fa fa-gears"></i></a>
+            <a href="#" ><i class="fa fa-gears"></i></a>
           </li>
           <!-- Boton superior derecho Configuracion  -->
         </ul>
@@ -101,6 +120,8 @@
           <a href="./"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
+
+
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MENU DE ADMINISTRACION</li>
@@ -109,41 +130,52 @@
             <i class="fa fa-home"></i> <span>Escritorio</span>
           </a>
         </li>
-        <li>
-          <a href="./checklist">
-            <i class="fa fa-check"></i> <span>Alistamientos</span>
-          </a>
-        </li>
+        {% if checklist %}
+          <li>
+            <a href="./checklist">
+              <i class="fa fa-check"></i> <span>Alistamientos</span>
+            </a>
+          </li>
+        {% endif %}
+        {% if vehiclelist %}
         <li>
           <a href="./vehiclelist">
             <i class="fa fa-car"></i> <span>Vehículos</span>
           </a>
         </li>
+        {% endif %}
+
         <li>
           <a href="#">
             <i class="fa fa-steam"></i> <span>Manteniemientos</span>
           </a>
         </li>
+        
         <li>
           <a href="#">
             <i class="fa fa-list"></i> <span>Accidentes/Incidentes</span>
           </a>
         </li>
+        
         <li>
           <a href="#">
             <i class="fa fa-clipboard"></i> <span>Comparendos</span>
           </a>
         </li>
+        
         <li>
           <a href="#">
             <i class="fa fa-gear"></i> <span>Talleres</span>
           </a>
         </li>
+        {% if peoplelist %}
         <li>
           <a href="./peoplelist">
             <i class="fa fa-user"></i> <span>Personas</span>
           </a>
         </li>
+        {% endif %}
+
         <li class="treeview">
           <a href="#">
             <i class="fa fa-book"></i> <span>Reportes</span>
@@ -157,7 +189,9 @@
             <li><a href="#"><i class="fa fa-circle-o"></i>Documentos proximos a vencer</a></li>
           </ul>
         </li>
+        
         <li class="header">Configuracion</li>
+        
         <li class="treeview">
           <a href="#">
             <i class="fa fa-gear"></i> <span>Persona</span>
@@ -173,6 +207,7 @@
             <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Tipo Documento</a></li>
           </ul>
         </li>
+        
         <li><a href="#"><i class="fa fa-circle-o text-blue"></i> <span>Documentos vehiculos</span></a></li>
         <li><a href="#"><i class="fa fa-circle-o text-blue"></i> <span>Alistamientos</span></a></li>
         <li><a href="#"><i class="fa fa-circle-o text-blue"></i> <span>Mantenimientos / Actividades</span></a></li>

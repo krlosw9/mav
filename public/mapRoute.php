@@ -33,40 +33,43 @@ $map->get('getAddPersonas', $subdomain.'/peopleadd', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'getAddPersonas',
         'auth' => true,
-        'license' => [$admin, $secretary]
+        'license' => ['peopleadd']
 ]);
 $map->post('postAddPersonas', $subdomain.'/peopleadd', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'postAddPersonas',
-        'auth' => true
+        'auth' => true,
+        'license' => ['peopleadd']
 ]);
 $map->get('getListPersonas', $subdomain.'/peoplelist', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'getListPersonas',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['peoplelist']
 ]);
 $map->post('postBuscarPersonas', $subdomain.'/peoplesearch', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'postBusquedaPersonas',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['peoplelist']
 ]);
 $map->get('getBuscarPersonas', $subdomain.'/peoplesearch', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'postBusquedaPersonas',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['peoplelist']
 ]);
 $map->post('postDelPersonas', $subdomain.'/peopledel', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'postUpdDelPersonas',
-        'auth' => true
+        'auth' => true,
+        'license' => ['peopleupd', 'peopledel']
 ]);
 $map->post('postUpdatePersonas', $subdomain.'/peopleupdate', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'postUpdatePersonas',
-        'auth' => true
+        'auth' => true,
+        'license' => ['peopleupd']
 ]);
 
 //Rutas PersonaDocumentos
@@ -74,40 +77,43 @@ $map->get('getAddDocumentos', $subdomain.'/documentsadd', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'getAddDocumentos',
         'auth' => true,
-        'license' => [$admin]
+        'license' => ['documentsadd']
 ]);
 $map->post('postAddDocumentos', $subdomain.'/documentsadd', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postAddDocumentos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['documentsadd']
 ]);
 $map->get('getListDocumentos', $subdomain.'/documentslist', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'getListDocumentos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['documentslist']
 ]);
 $map->post('postBuscarDocumentos', $subdomain.'/documentssearch', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postBusquedaDocumentos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['documentslist']
 ]);
 $map->get('getBuscarDocumentos', $subdomain.'/documentssearch', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postBusquedaDocumentos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['documentslist']
 ]);
 $map->post('postDelDocumentos', $subdomain.'/documentsdel', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postUpdDelDocumentos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['documentsdel', 'documentsupdate']
 ]);
 $map->post('postUpdateDocumentos', $subdomain.'/documentsupdate', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postUpdateDocumentos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['documentsupdate']
 ]);
 
 
@@ -116,40 +122,43 @@ $map->get('getAddLicencias', $subdomain.'/licenseadd', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'getAddLicencias',
         'auth' => true,
-        'license' => [$admin]
+        'license' => ['licenseadd']
 ]);
 $map->post('postAddLicencias', $subdomain.'/licenseadd', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postAddLicencias',
-        'auth' => true
+        'auth' => true,
+        'license' => ['licenseadd']
 ]);
 $map->get('getListLicencias', $subdomain.'/licenselist', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'getListLicencias',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['licenselist']
 ]);
 $map->post('postBuscarLicencias', $subdomain.'/licensesearch', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postBusquedaLicencias',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['licenselist']
 ]);
 $map->get('getBuscarLicencias', $subdomain.'/licensesearch', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postBusquedaLicencias',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['licenselist']
 ]);
 $map->post('postDelLicencias', $subdomain.'/licensedel', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postUpdDelLicencias',
-        'auth' => true
+        'auth' => true,
+        'license' => ['licensedel']
 ]);
 $map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postUpdateLicencias',
-        'auth' => true
+        'auth' => true,
+        'license' => ['licenseupdate']
 ]);
 
 
@@ -158,34 +167,37 @@ $map->get('getAddRh', $subdomain.'/rhadd', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'getAddRh',
         'auth' => true,
-        'license' => [$admin]
+        'license' => ['rhadd']
 ]);
 $map->post('postAddRh', $subdomain.'/rhadd', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'postAddRh',
-        'auth' => true
+        'auth' => true,
+        'license' => ['rhadd']
 ]);
 $map->get('getListRh', $subdomain.'/rhlist', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'getListRh',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['rhlist']
 ]);
 $map->post('postBuscarRh', $subdomain.'/rhsearch', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'postBusquedaRh',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['rhlist']
 ]);
 $map->post('postDelRh', $subdomain.'/rhdel', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'postUpdDelRh',
-        'auth' => true
+        'auth' => true,
+        'license' => ['rhdel']
 ]);
 $map->post('postUpdateRh', $subdomain.'/rhupdate', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'postUpdateRh',
-        'auth' => true
+        'auth' => true,
+        'license' => ['rhupdate']
 ]);
 
 
@@ -197,46 +209,43 @@ $map->get('getAddAlistamientos', $subdomain.'/checkadd', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'getAddAlistamientos',
         'auth' => true,
-        'license' => [$admin]
-]);
-$map->get('getAddAlistamientos2', $subdomain.'/checkadd2', [
-        'controller' => 'App\Controllers\AlistamientosController',
-        'action' => 'getAddAlistamientos2',
-        'auth' => true,
-        'license' => [$admin]
+        'license' => ['checkadd']
 ]);
 $map->post('postAddAlistamientos', $subdomain.'/checkadd', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postAddAlistamientos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['checkadd']
 ]);
 $map->get('getListAlistamientos', $subdomain.'/checklist', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'getListAlistamientos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['checklist']
 ]);
 $map->post('postBuscarAlistamientos', $subdomain.'/checksearch', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postBusquedaAlistamientos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['checklist']
 ]);
 $map->get('getBuscarAlistamientos', $subdomain.'/checksearch', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postBusquedaAlistamientos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['checklist']
 ]);
 $map->post('postDelAlistamientos', $subdomain.'/checkdel', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postUpdDelAlistamientos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['checkdel']
 ]);
 $map->post('postUpdateAlistamientos', $subdomain.'/checkupdate', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postUpdateAlistamientos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['checkupdate']
 ]);
 
 
@@ -246,40 +255,43 @@ $map->get('getAddVehiculos', $subdomain.'/vehicleadd', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'getAddVehiculos',
         'auth' => true,
-        'license' => [$admin, $secretary]
+        'license' => ['vehicleadd']
 ]);
 $map->post('postAddVehiculos', $subdomain.'/vehicleadd', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'postAddVehiculos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['vehicleadd']
 ]);
 $map->get('getListVehiculos', $subdomain.'/vehiclelist', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'getListVehiculos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['vehiclelist']
 ]);
 $map->post('postBuscarVehiculos', $subdomain.'/vehiclesearch', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'postBusquedaVehiculos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['vehiclelist']
 ]);
 $map->get('getBuscarVehiculos', $subdomain.'/vehiclesearch', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'postBusquedaVehiculos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['vehiclelist']
 ]);
 $map->post('postDelVehiculos', $subdomain.'/vehicledel', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'postUpdDelVehiculos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['vehicledel']
 ]);
 $map->post('postUpdateVehiculos', $subdomain.'/vehicleupdate', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'postUpdateVehiculos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['vehicleupdate']
 ]);
 
 
@@ -288,40 +300,43 @@ $map->get('getAddVehiculoDocumentos', $subdomain.'/vehicledocadd', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'getAddDocumentos',
         'auth' => true,
-        'license' => [$admin]
+        'license' => ['vehicledocadd']
 ]);
 $map->post('postAddVehiculoDocumentos', $subdomain.'/vehicledocadd', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postAddDocumentos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['vehicledocadd']
 ]);
 $map->get('getListVehiculoDocumentos', $subdomain.'/vehicledoclist', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'getListDocumentos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['vehicledoclist']
 ]);
 $map->post('postBuscarVehiculoDocumentos', $subdomain.'/vehicledocsearch', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postBusquedaDocumentos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['vehicledoclist']
 ]);
 $map->get('getBuscarVehiculoDocumentos', $subdomain.'/vehicledocsearch', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postBusquedaDocumentos',
         'auth' => true,
-        'license' => [$admin,$secretary]
+        'license' => ['vehicledoclist']
 ]);
 $map->post('postDelVehiculoDocumentos', $subdomain.'/vehicledocdel', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postUpdDelDocumentos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['vehicledocdel']
 ]);
 $map->post('postUpdateVehiculoDocumentos', $subdomain.'/vehicledocupdate', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postUpdateDocumentos',
-        'auth' => true
+        'auth' => true,
+        'license' => ['vehicledocupdate']
 ]);
 
 
@@ -361,19 +376,7 @@ $map->get('admin', $subdomain.'/admin', [
         'controller' => 'App\Controllers\AdminController',
         'action' => 'getIndex',
         'auth' => true,
-        'license' => [$admin]
-]);
-$map->get('supervisor', $subdomain.'/supervisor', [
-        'controller' => 'App\Controllers\AdminController',
-        'action' => 'getSupervisor',
-        'auth' => true,
-        'license' => [$secretary]
-]);
-$map->get('manager', $subdomain.'/manager', [
-        'controller' => 'App\Controllers\AdminController',
-        'action' => 'getManager',
-        'auth' => true,
-        'license' => [$manager]
+        'license' => ['admin']
 ]);
 $map->get('logout', $subdomain.'/logout', [
         'controller' => 'App\Controllers\AuthController',

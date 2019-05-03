@@ -21,6 +21,29 @@
         <h3 class="box-title">Buscar personas </h3>
       </div>
       <div class="box-body">
+        {% set btnAdd = false %}
+        {% set btnUpd = false %}
+        {% set btnDel = false %}
+        {% set btnDocumentos = false %}
+        {% set btnLicencias = false %}
+
+       {% for permission in arrayPermissions %}
+        {% if permission == 'peopleadd' %}
+          {% set btnAdd = true %}
+        {% endif %}
+        {% if permission == 'peopleupd' %}
+          {% set btnUpd = true %}
+        {% endif %}
+        {% if permission == 'peopledel' %}
+          {% set btnDel = true %}
+        {% endif %}
+        {% if permission == 'documentslist' %}
+          {% set btnDocumentos = true %}
+        {% endif %}
+        {% if permission == 'licenselist' %}
+          {% set btnLicencias = true %}
+        {% endif %}
+      {% endfor %}
        <form action="peoplesearch" method="post" role="form">
           <div class="row" style="padding-left: 15px;">
             <div class="form-group col-xs-6 col-sm-4 col-md-4">
@@ -44,7 +67,9 @@
           </div>
           <div class="form-group col-xs-12 col-sm-4 col-md-4">
               <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
-              <a type="button" class="btn btn-primary" href="./peopleadd">Agregar</a>
+              {% if btnAdd %}
+                <a type="button" class="btn btn-primary" href="./peopleadd">Agregar</a>
+              {% endif %}
           </div>
         </div>
        </form>
@@ -64,7 +89,9 @@
             <th style="width: 100px">Apellido</th>
             <th style="width: 50px">Rh</th>
             <th style="width: 100px">Celular</th>
-            <th style="width: 130px">Acción</th>
+            {% if btnUpd or btnDel %}
+              <th style="width: 130px">Acción</th>
+            {% endif %}
           </tr>
           {% set ciclo = false %}
           {% for persona in personas %}
@@ -78,8 +105,12 @@
               <td>{{ persona.rh }}</td>
               <td>{{ persona.celular }}</td>
               <td>
-                <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                {% if btnUpd %}
+                  <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                {% endif %}
+                {% if btnDel %}
+                  <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                {% endif %}
               </td>
           </tr>
           {% set ciclo = true %}
@@ -131,8 +162,13 @@
 
         <div class="row">
           <div class="form-group col-md-12" style="padding-left: 25px;">
-            <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
-            <button type="submit" name="btnDocumentos" value="lic" class="btn btn-primary">Licencias</button>
+            
+            {% if btnDoc %}
+              <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
+            {% endif %}
+            {% if btnLic %}
+              <button type="submit" name="btnDocumentos" value="lic" class="btn btn-primary">Licencias</button>
+            {% endif %}
           </div>
         </div>
 
@@ -165,7 +201,6 @@
             </nav>
           {% endif %}  
         {% endif %}
-
        </form>
       </div>
       <!-- /.box-body -->

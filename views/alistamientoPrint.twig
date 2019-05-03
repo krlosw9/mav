@@ -2,59 +2,85 @@
 <html>
 <head>
   <title>Alistamiento</title>
-  <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css' integrity='sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS' crossorigin='anonymous'>
+  <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
 </head>
-<body>
-  {#<body onload='window.print();'>#}
-  <div class='col-md-12' style='margin-left: 35px; margin-top: 25px; margin-right: 20px;'>
-    <div class="row" style="padding-left: 5px;">
-      
-
-
-    <div class='row'>
-      <div class="form-group col-xs-6 col-sm-4 col-md-4" style="font-size:17px; font-weight: bold;">
-        Elementos a inspeccionar
-      </div>
-      <div class="form-group col-xs-4 col-sm-2 col-md-2" style="font-size:17px; font-weight: bold;">
-        Cumple
-      </div>
-      <div class="form-group col-xs-12 col-sm-6 col-md-6" style="font-size:17px; font-weight: bold;">
-        Observaciones
-      </div>
-      {% for grupoAlis in gruposalistamiento %}
-        <div class="form-group col-xs-12 col-sm-12 col-md-12" style="font-size:17px; padding-left: 60px; font-weight: bold;">
-          {{ grupoAlis.nombre }} 
+{#<body>#}
+<body onload='window.print();'>
+    <!-- left column -->
+    <div class="col-md-12" style='margin-left: 20px; margin-top: 25px; margin-right: 20px;'>
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table table-striped" border="0">
+            <thead>
+              <tr>
+                <th colspan="2" style="text-align:center;"><img src="uploads/logo.jpg" width="70" class="img-fluid" alt="Responsive image"></th>
+                <th colspan="2" style="text-align:center;">INSPECCION PREOPERACIONAL <BR>ALISTAMIENTO No. 1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th colspan="1" style="text-align:center;">PLACA</th>
+                <th colspan="1" style="text-align:center;">KILOMETRAJE</th>
+                <th colspan="1" style="text-align:center;">FECHA</th>
+                <th colspan="1" style="text-align:center;">CIUDAD</th>
+              </tr>
+              <tr>
+                <td colspan="1" style="text-align:center;">AAA111</td>
+                <td colspan="1" style="text-align:center;">10.0000</td>
+                <td colspan="1" style="text-align:center;">11-11-2019</td>
+                <td colspan="1" style="text-align:center;">PAMPLONA</td>
+              </tr>
+              <tr>
+                <th colspan="2" style="text-align:center;">CONDUCTOR</th>
+                <th colspan="2" style="text-align:center;">RESPONSABLE</th>
+              </tr>
+              <tr>
+                <td colspan="2" style="text-align:center;">JULIAN CASTRO</td>
+                <td colspan="2" style="text-align:center;">CARLOS WALDO</td>
+              </tr>
+              <tr>
+                <th colspan="1" style="text-align:center;">ELEMENTOS INSPECCIONADOS</th>
+                <th colspan="1" style="text-align:center;">CUMPLE</th>
+                <th colspan="2" style="text-align:center;">OBSERVACIONES</th>
+              </tr>
+              {% for grupoAlis in gruposalistamiento %}
+              <tr>
+                <th colspan="4">
+                  {{ grupoAlis.nombre }} 
+                </th>
+              </tr>
+              {% for alistamiento in alistamientosRegistrados %}
+                {% if grupoAlis.id == alistamiento.gaid %}
+                  <tr>
+                    <td colspan="1" scope="col">
+                      {{ alistamiento.nombre }}
+                      <input type="hidden" name="taid[]" value="{{ alistamiento.id }}">
+                      <input type="hidden" name="calificacionTipoAlis{{ alistamiento.id }}" value="{{ alistamiento.calificacion }}">
+                    </td>
+                    <td colspan="1" style="text-align:center;">
+                      {{ alistamiento.ccheck }}{#<input type="checkbox" checked name="check{{ alistamiento.id }}">#}
+                    </td>
+                    <td colspan="2">
+                      {{ alistamiento.observacion }}
+                      {#<input type="text" name="obs{{ alistamiento.id }}" placeholder="Observación" style="width:90%;">#}
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+              {% endfor %}
+              <tr>
+                <th colspan="4">
+                  Observaciones generales:
+                </th>
+              </tr>
+              <tr>
+                <td colspan="4" style='border: 1px black solid; word-wrap: break-word; width: 400px; height: 147px; font-size: 20px;'>{{infoAlistamientoRegistrado.observaciongeneral}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <hr align="center" noshade="noshade" size="4" width="80%"/>
-        {% for alistamiento in alistamientosRegistrados %}
-          {% if grupoAlis.id == alistamiento.gaid %}
-            <div class="form-group col-xs-6 col-sm-4 col-md-4" style="font-size:15px;">
-              {{ alistamiento.nombre }}
-              <input type="hidden" name="taid[]" value="{{ alistamiento.id }}">
-              <input type="hidden" name="calificacionTipoAlis{{ alistamiento.id }}" value="{{ alistamiento.calificacion }}">
-            </div>
-            <div class="form-group col-xs-4 col-sm-2 col-md-2" style="padding-left: 35px;">
-              {{ alistamiento.ccheck }}{#<input type="checkbox" checked name="check{{ alistamiento.id }}">#}
-            </div>
-            <div class="form-group col-xs-12 col-sm-6 col-md-6" >
-              {{ alistamiento.observacion }}
-              {#<input type="text" name="obs{{ alistamiento.id }}" placeholder="Observación" style="width:90%;">#}
-            </div>
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
+      </div>
     </div>
-      <div class='row'>
-        <div class="form-group col-md-12">
-          <label><strong>Observaciones generales:</strong></label>
-        </div>
-        <div class="form-group col-md-12" style='border: 1px black solid; word-wrap: break-word; width: 400px; height: 147px; font-size: 20px;'>{{infoAlistamientoRegistrado.observaciongeneral}}
-        </div>
-      </div>
-
-    </div>
-  </div>
-<!-- ./wrapper -->
-</body>
-</body>
+  </body>
 </html>

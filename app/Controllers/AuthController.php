@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{User, Personas, PersonaRoles, PersonaContrasenas};
+use App\Models\{User, Personas, PersonaRoles, PersonaContrasenas, PersonaPermisosRoles};
 use Respect\Validation\Validator as v;
 use Zend\Diactoros\Response\RedirectResponse;
 
@@ -12,6 +12,7 @@ class AuthController extends BaseController{
 	}
 
 	public function postLogin($request){
+		$i=0; $arrayPermisos = array();
 		$postData = $request->getParsedBody();
 
 		$responseMessage = null;
@@ -29,6 +30,16 @@ class AuthController extends BaseController{
 			if ($user) {
 				if(\password_verify($postData['pass'], $user->pass)){
 					
+					$permisos = PersonaPermisosRoles::Join("persona.permisos","persona.permisosroles.idpermiso","=","persona.permisos.id")
+					->select('persona.permisosroles.*', 'persona.permisos.identificadorpermiso')
+					->where("persona.permisosroles.idrol","=",$user->rolid)
+					->get();
+
+					foreach ($permisos as $permiso) {
+						$arrayPermisos[$i] = $permiso->identificadorpermiso;
+						$i++;
+					}
+
 					$userRol = PersonaRoles::where("id","=",$user->rolid)->first();					
 
 					$_SESSION['userId'] = $user->perid;
@@ -36,13 +47,14 @@ class AuthController extends BaseController{
 					$_SESSION['userName'] = $user->nombre.' '.$user->apellido;
 					$_SESSION['userRol'] = $userRol->nombrerol;
 					$_SESSION['userRolId'] = $user->rolid;
+					$_SESSION['userLicense'] = $arrayPermisos;
 
 					/*$people = Personas::Join("persona.roles","persona.personas.rolid","=","persona.roles.id")
 					->select('persona.personas.*', 'persona.roles.nombrerol')
 					->where('numerodocumento',$postData['numerodocumento'])
 					->first();*/
 
-						return new RedirectResponse($userRol->ruta);
+						return new RedirectResponse('admin');
 
 					
 				}else{
@@ -72,6 +84,8 @@ class AuthController extends BaseController{
 		unset($_SESSION['userName']);
 		unset($_SESSION['userRol']);
 		unset($_SESSION['userRolId']);
+		unset($_SESSION['userLicense']);
+		
 		return new RedirectResponse('login');
 	}
 }

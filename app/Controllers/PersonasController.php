@@ -358,6 +358,9 @@ class PersonasController extends BaseController{
 		$roles = null; $tiposdocumentos=null; $personas=null; $numeroDePaginas=null; $id=null; $boton=null;
 		$quiereActualizar = false; $ruta='personasList.twig'; $responseMessage = null;
 		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
+		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
+
+		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -369,12 +372,19 @@ class PersonasController extends BaseController{
 				$id = $postData['id'] ?? null;				
 				if ($id) {
 					if ($btnDocumentos == 'doc') {
+					  if (in_array('documentslist', $sessionUserPermission)) {
 						$DocumentosController = new PersonaDocumentosController();
 						return $DocumentosController->listPersonasDocumentos($id);
-
+					  }else{
+					  	$responseMessage=$mensajeNoPermisos;
+					  }
 					}elseif ($btnDocumentos == 'lic') {
+					  if (in_array('licenselist', $sessionUserPermission)) {
 						$LicenciasController = new PersonaLicenciasController();
 						return $LicenciasController->listPersonasLicencias($id);
+					  }else{
+					  	$responseMessage=$mensajeNoPermisos;
+					  }
 					}else{
 						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
 					}	
@@ -390,6 +400,7 @@ class PersonasController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
+				 if (in_array('peopledel', $sessionUserPermission)) {
 				  try{
 					$people = new Personas();
 					$people->destroy($id);
@@ -403,8 +414,15 @@ class PersonasController extends BaseController{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
 				  }
+				 }else{
+				 	$responseMessage=$mensajeNoPermisos;
+				 }
 				}elseif ($boton == 'upd') {
+				  if (in_array('peopleupd', $sessionUserPermission)) {
 					$quiereActualizar=true;
+				  }else{
+				  	$responseMessage=$mensajeNoPermisos;
+				  }
 				}
 			}else{
 				$responseMessage = 'Debe Seleccionar una persona';

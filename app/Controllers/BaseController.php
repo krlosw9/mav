@@ -20,10 +20,12 @@ class BaseController{
 		$userName = $_SESSION['userName'] ?? null;
 		$userRol = $_SESSION['userRol'] ?? null;
 		$companyName = $_SESSION['companyName'] ?? null;
+		$arrayPermissions = $_SESSION['userLicense'] ?? null;
 
 		$this->templateEngine->addGlobal('userName', $userName);
 		$this->templateEngine->addGlobal('userRol', $userRol);
 		$this->templateEngine->addGlobal('companyName', $companyName);
+		$this->templateEngine->addGlobal('arrayPermissions', $arrayPermissions);
 		return new HtmlResponse($this->templateEngine->render($fileName, $data));
 	}
 }

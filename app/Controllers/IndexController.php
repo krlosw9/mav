@@ -9,7 +9,8 @@ use Zend\Diactoros\Response\RedirectResponse;
 
 class IndexController extends BaseController{
 	public function indexAction(){
-
+		$responseMessage=null;
+		/*
 		try{
 			$userRol = PersonaRoles::where("id","=",$_SESSION['userRolId'])->first();
 			if ($_SESSION['userRolId']) {
@@ -27,6 +28,7 @@ class IndexController extends BaseController{
 		} catch (\Exception $e) {
 			$responseMessage = 'Error, '.substr($e->getMessage(), 0, 33);
 		}
+		*/
 		return $this->renderHTML('index.twig',[
 			'responseMessage' => $responseMessage
 		]);
