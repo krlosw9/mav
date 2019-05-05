@@ -69,7 +69,7 @@ class AlistamientosController extends BaseController{
 					$personaValidator->assert($postData);
 					$postData = $request->getParsedBody();
 
-					$calificacion = 'Aprovado';
+					$calificacion = 'APROBADO';
 					/* Consulta el ultimo id de InfoAlistamiento */
 					$queryInfoAlis = AlistamientosInformacionAlistamiento::all();
 					$ultimoInfoAlis = $queryInfoAlis->last();
@@ -113,15 +113,21 @@ class AlistamientosController extends BaseController{
 
 					if ($puntosMalos >= $this->maximoPuntosMalos) {
 						$infoAlistamientoUpd = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
-						$infoAlistamientoUpd->calificacion = 'Reprobado';
+						$infoAlistamientoUpd->calificacion = 'RECHAZADO';
 						$infoAlistamientoUpd->save();	
 					}
 					
-					$infoAlistamientoRegistrado = AlistamientosInformacionAlistamiento::find($ultimoIdInfoAlis);
+					$infoAlistamientoRegistrado = AlistamientosInformacionAlistamiento::Join("vehiculo.vehiculos","alistamiento.informacionalistamiento.vehplacaid","=","vehiculo.vehiculos.id")
+					->Join("persona.personas","alistamiento.informacionalistamiento.perinspectorid","=","persona.personas.id")
+					->Join("persona.personas","alistamiento.informacionalistamiento.perconductorid","=","persona.personas.id")
+					->select('alistamiento.informacionalistamiento.*', 'persona.personas.nombre', 'vehiculo.vehiculos.placa')
+					->find($ultimoIdInfoAlis);
+
 					$alistamientosRegistrados=Alistamientos::Join("alistamiento.tiposalistamiento","alistamiento.alistamientos.taid","=","alistamiento.tiposalistamiento.id")
 					->where("alistamiento.alistamientos.infoalisid","=",$ultimoIdInfoAlis)->orderBy('alistamiento.alistamientos.id')
 					->select('alistamiento.alistamientos.*', 'alistamiento.tiposalistamiento.nombre', 'alistamiento.tiposalistamiento.gaid')
 					->get();
+
 					$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
 
 					$ruta='alistamientoPrint.twig';
