@@ -137,6 +137,9 @@ class PersonasRhController extends BaseController{
 	public function postUpdDelRh($request){
 		$rh=null; $numeroDePaginas=null; $id=null; $boton=null;
 		$quiereActualizar = false; $ruta='personaRhList.twig'; $responseMessage = null;
+		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
+
+		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -151,6 +154,7 @@ class PersonasRhController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
+				 if (in_array('rhdel', $sessionUserPermission)) {
 				  try{
 					$people = new PersonaRh();
 					$people->destroy($id);
@@ -164,8 +168,15 @@ class PersonasRhController extends BaseController{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
 				  }
+				 }else{
+				 	$responseMessage=$mensajeNoPermisos;
+				 }
 				}elseif ($boton == 'upd') {
+				  if (in_array('rhupdate', $sessionUserPermission)) {
 					$quiereActualizar=true;
+				  }else{
+				  	$responseMessage=$mensajeNoPermisos;
+				  }
 				}
 			}else{
 				$responseMessage = 'Debe Seleccionar una persona';

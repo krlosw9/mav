@@ -32,6 +32,8 @@
   {% set checklist = false %}
   {% set vehiclelist = false %}
   {% set peoplelist = false %}
+  {% set rhlist = false %}
+  {% set algunPermisoFuturo = false %}
 
   <!-- Ciclo que recorre el vector con los permisos de ese usuario -->
   {% for permission in arrayPermissions %}
@@ -44,7 +46,14 @@
     {% if permission == 'peoplelist' %}
       {% set peoplelist = true %}
     {% endif %}
+    {% if permission == 'rhlist' %}
+      {% set rhlist = true %}
+    {% endif %}
+    {% if permission == 'algunPermisoFuturo' %}
+      {% set algunPermisoFuturo = true %}
+    {% endif %}
   {% endfor %}
+  
   <div class="wrapper">
 
   <header class="main-header">
@@ -131,6 +140,7 @@
             <i class="fa fa-home"></i> <span>Escritorio</span>
           </a>
         </li>
+        
         {% if checklist %}
           <li>
             <a href="./checklist">
@@ -138,80 +148,156 @@
             </a>
           </li>
         {% endif %}
+        
         {% if vehiclelist %}
-        <li>
-          <a href="./vehiclelist">
-            <i class="fa fa-car"></i> <span>Vehículos</span>
-          </a>
-        </li>
+          <li>
+            <a href="./vehiclelist">
+              <i class="fa fa-car"></i> <span>Vehículos</span>
+            </a>
+          </li>
         {% endif %}
 
-        <li>
-          <a href="#">
-            <i class="fa fa-steam"></i> <span>Manteniemientos</span>
-          </a>
-        </li>
+        {% if algunPermisoFuturo %}
+          <li>
+            <a href="#">
+              <i class="fa fa-steam"></i> <span>Manteniemientos</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% if algunPermisoFuturo %}
+          <li>
+            <a href="#">
+              <i class="fa fa-list"></i> <span>Accidentes/Incidentes</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% if algunPermisoFuturo %}
+          <li>
+            <a href="#">
+              <i class="fa fa-clipboard"></i> <span>Comparendos</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% if algunPermisoFuturo %}  
+          <li>
+            <a href="#">
+              <i class="fa fa-gear"></i> <span>Talleres</span>
+            </a>
+          </li>
+        {% endif %}
         
-        <li>
-          <a href="#">
-            <i class="fa fa-list"></i> <span>Accidentes/Incidentes</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="#">
-            <i class="fa fa-clipboard"></i> <span>Comparendos</span>
-          </a>
-        </li>
-        
-        <li>
-          <a href="#">
-            <i class="fa fa-gear"></i> <span>Talleres</span>
-          </a>
-        </li>
         {% if peoplelist %}
-        <li>
-          <a href="./peoplelist">
-            <i class="fa fa-user"></i> <span>Personas</span>
-          </a>
-        </li>
+          <li>
+            <a href="./peoplelist">
+              <i class="fa fa-user"></i> <span>Personas</span>
+            </a>
+          </li>
         {% endif %}
 
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-book"></i> <span>Reportes</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li><a href="#"><i class="fa fa-circle-o"></i>Mantenimientos por vehiculo</a></li>
-            <li><a href="#"><i class="fa fa-circle-o"></i>Documentos vencidos</a></li>
-            <li><a href="#"><i class="fa fa-circle-o"></i>Documentos proximos a vencer</a></li>
-          </ul>
-        </li>
-        
-        <li class="header">Configuracion</li>
-        
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-gear"></i> <span>Persona</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li><a href="./rhlist"><i class="fa fa-circle-o text-blue"></i>Rh</a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Genero</a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Estado civil</a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Nivel educativo</a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Tipo Documento</a></li>
-          </ul>
-        </li>
-        
-        <li><a href="#"><i class="fa fa-circle-o text-blue"></i> <span>Documentos vehiculos</span></a></li>
-        <li><a href="#"><i class="fa fa-circle-o text-blue"></i> <span>Alistamientos</span></a></li>
-        <li><a href="#"><i class="fa fa-circle-o text-blue"></i> <span>Mantenimientos / Actividades</span></a></li>
+        {% if report1 or report2 or report3 %}
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-book"></i> <span>Reportes</span>
+              <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+              </span>
+            </a>
+            <ul class="treeview-menu">
+              {% if report1 %}
+                <li><a href="#"><i class="fa fa-circle-o"></i>Mantenimientos por vehiculo</a></li>
+              {% endif %}
+              {% if report2 %}
+                <li><a href="#"><i class="fa fa-circle-o"></i>Documentos vencidos</a></li>
+              {% endif %}
+              {% if report3 %}
+                <li><a href="#"><i class="fa fa-circle-o"></i>Documentos proximos a vencer</a></li>
+              {% endif %}
+            </ul>
+          </li>
+        {% endif %}
+
+        {% if rhlist or carrocerias or grupoAlistamiento or tipoAListamiento %}
+          <li class="header">Configuracion</li>
+          
+          {% if rhlist or genero or estadocivil or niveleducativo or tipoDocumento %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-gear"></i> <span>Persona</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% if rhlist %}
+                  <li><a href="./rhlist"><i class="fa fa-circle-o text-blue"></i>Rh</a></li>
+                {% endif %}
+                {% if genero %}  
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Genero</a></li>
+                {% endif %}
+                {% if estadocivil %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Estado civil</a></li>
+                {% endif %}
+                {% if niveleducativo %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Nivel educativo</a></li>
+                {% endif %}
+                {% if tipoDocumento %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Tipo Documento</a></li>
+                {% endif %}
+              </ul>
+            </li>
+          {% endif %}
+          
+          {% if carrocerias or clases or colores or combustibles or lineas %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-gear"></i> <span>Vehículo</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% if carrocerias %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Carrocerias</a></li>
+                {% endif %}
+                {% if clases %}  
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Clases</a></li>
+                {% endif %}
+                {% if colores %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Colores</a></li>
+                {% endif %}
+                {% if combustibles %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Combustibles</a></li>
+                {% endif %}
+                {% if lineas %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Lineas</a></li>
+                {% endif %}
+              </ul>
+            </li>
+          {% endif %}
+
+          {% if grupoAlistamiento or tipoAListamiento %}
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-gear"></i> <span>Alistamiento</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                {% if grupoAlistamiento %}
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Grupo Alistamiento</a></li>
+                {% endif %}
+                {% if tipoAListamiento %}  
+                  <li><a href="#"><i class="fa fa-circle-o text-blue"></i>Tipo AListamiento</a></li>
+                {% endif %}
+              </ul>
+            </li>
+          {% endif %}
+
+        {% endif %}
       </ul>
     </section>
     <!-- /.sidebar -->

@@ -21,6 +21,29 @@
         <h3 class="box-title">Buscar vehiculos</h3>
       </div>
       <div class="box-body">
+        {% set btnAdd = false %}
+        {% set btnUpd = false %}
+        {% set btnDel = false %}
+        {% set btnDocumentos = false %}
+        {% set btnPersonas = false %}
+
+       {% for permission in arrayPermissions %}
+        {% if permission == 'vehicleadd' %}
+          {% set btnAdd = true %}
+        {% endif %}
+        {% if permission == 'vehicleupdate' %}
+          {% set btnUpd = true %}
+        {% endif %}
+        {% if permission == 'vehicledel' %}
+          {% set btnDel = true %}
+        {% endif %}
+        {% if permission == 'vehicledoclist' %}
+          {% set btnDocumentos = true %}
+        {% endif %}
+        {% if permission == 'vehiclepeoplelist' %}
+          {% set btnPersonas = true %}
+        {% endif %}
+      {% endfor %}
        <form action="vehiclesearch" method="post" role="form">
           <div class="row" style="padding-left: 15px;">
             <div class="form-group col-xs-6 col-sm-4 col-md-4">
@@ -44,7 +67,9 @@
           </div>
           <div class="form-group col-xs-12 col-sm-4 col-md-4">
               <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
-              <a type="button" class="btn btn-primary" href="./vehicleadd">Agregar</a>
+              {% if btnAdd %}
+                <a type="button" class="btn btn-primary" href="./vehicleadd">Agregar</a>
+              {% endif %}
           </div>
         </div>
        </form>
@@ -64,7 +89,9 @@
             <th style="width: 100px">Servicio</th>
             <th style="width: 70px">Modelo</th>
             <th style="width: 100px">Vinculación</th>
-            <th style="width: 130px">Acción</th>
+            {% if btnUpd or btnDel %}
+              <th style="width: 130px">Acción</th>
+            {% endif %}
           </tr>
           {% set ciclo = false %}
           {% for vehiculo in query %}
@@ -77,10 +104,16 @@
               <td>{{ vehiculo.servicio }}</td>
               <td>{{ vehiculo.modelo }}</td>
               <td>{{ vehiculo.vinculacion }}</td>
-              <td>
-                <button type="submit" class="btn btn-success" value="upd|{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                <button type="submit" class="btn btn-danger" value="del|{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-              </td>
+              {% if btnUpd or btnDel %}
+                <td>
+                  {% if btnUpd %}
+                    <button type="submit" class="btn btn-success" value="upd|{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                  {% if btnDel %}
+                    <button type="submit" class="btn btn-danger" value="del|{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                </td>
+              {% endif %}
           </tr>
           {% set ciclo = true %}
           {% endfor %}
@@ -131,9 +164,13 @@
 
         <div class="row">
           <div class="form-group col-md-12" style="padding-left: 25px;">
-            <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
-            <button type="submit" name="btnDocumentos" value="pro" class="btn btn-primary">Propietario</button>
-            <button type="submit" name="btnDocumentos" value="cond" class="btn btn-primary">Conductores</button>
+
+            {% if btnDocumentos %}
+              <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
+            {% endif %}
+            {% if btnPersonas %}
+              <button type="submit" name="btnDocumentos" value="per" class="btn btn-primary">Personas</button>
+            {% endif %}
           </div>
         </div>
 

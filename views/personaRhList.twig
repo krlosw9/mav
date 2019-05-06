@@ -22,22 +22,45 @@
       </div>
       <!-- /.box-header -->
       <div class="box-body">
+        {% set btnAdd = false %}
+        {% set btnUpd = false %}
+        {% set btnDel = false %}
+
+       {% for permission in arrayPermissions %}
+        {% if permission == 'rhadd' %}
+          {% set btnAdd = true %}
+        {% endif %}
+        {% if permission == 'rhupdate' %}
+          {% set btnUpd = true %}
+        {% endif %}
+        {% if permission == 'rhdel' %}
+          {% set btnDel = true %}
+        {% endif %}
+      {% endfor %}
        <form action="rhdel" method="post" role="form">
         <div class="table-responsive">
         <table class="table table-striped table-sm" >
 
           <tr>
             <th>Nombre</th>
-            <th>Acción</th>
+            {% if btnUpd or btnDel %}
+              <th>Acción</th>
+            {% endif %}
           </tr>
           {% set ciclo = false %}
           {% for rh in rhs %}
           <tr>
               <td>{{ rh.nombre }}</td>
-              <td>
-                <button type="submit" class="btn btn-success" value="upd|{{ rh.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                <button type="submit" class="btn btn-danger" value="del|{{ rh.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-              </td>
+              {% if btnUpd or btnDel %}
+                <td>
+                  {% if btnUpd %}
+                    <button type="submit" class="btn btn-success" value="upd|{{ rh.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                  {% if btnDel %}
+                    <button type="submit" class="btn btn-danger" value="del|{{ rh.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                </td>
+              {% endif %}
           </tr>
           {% set ciclo = true %}
           {% endfor %}
@@ -79,7 +102,9 @@
 
         <div class="row">
           <div class="form-group col-md-12" style="padding-left: 25px;">
-            <a type="button" class="btn btn-primary" href="./rhadd">Agregar</a>
+            {% if btnAdd %}
+              <a type="button" class="btn btn-primary" href="./rhadd">Agregar</a>
+            {% endif %}
           </div>
         </div>
 

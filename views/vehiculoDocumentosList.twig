@@ -1,4 +1,4 @@
-{% extends "layout.twig" %} 
+{% extends "layout.twig" %}
 
 {% block content %}
 
@@ -22,6 +22,21 @@
         <h3 class="box-title">Documentos {{vehiculo.placa}} - {{vehiculo.interno}}</h3>
       </div>
       <div class="box-body">
+        {% set btnAdd = false %}
+        {% set btnUpd = false %}
+        {% set btnDel = false %}
+
+       {% for permission in arrayPermissions %}
+        {% if permission == 'peopleadd' %}
+          {% set btnAdd = true %}
+        {% endif %}
+        {% if permission == 'peopleupd' %}
+          {% set btnUpd = true %}
+        {% endif %}
+        {% if permission == 'peopledel' %}
+          {% set btnDel = true %}
+        {% endif %}
+      {% endfor %}
        <form action="vehicledocsearch" method="post" role="form">
           <div class="row" style="padding-left: 15px;">
             <div class="form-group col-xs-6 col-sm-4 col-md-4">
@@ -44,7 +59,9 @@
           </div>
           <div class="form-group col-xs-12 col-sm-4 col-md-4">
               <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
-              <a type="button" class="btn btn-primary" href="./vehicledocadd??={{idVeh}}">Agregar</a>
+              {% if btnAdd %}
+                <a type="button" class="btn btn-primary" href="./vehicledocadd??={{idVeh}}">Agregar</a>
+              {% endif %}
           </div>
         </div>
        </form>
@@ -61,7 +78,9 @@
             <th style="width: 100px">Emisor</th>
             <th style="width: 100px">Fecha/Inicio</th>
             <th style="width: 100px">Fecha/Final</th>
-            <th style="width: 120px">Acción</th>
+            {% if btnUpd or btnDel %}
+              <th style="width: 120px">Acción</th>
+            {% endif %}
           </tr>
           <input type="hidden" name="idVeh" value="{{idVeh}}">
           {% set ciclo = false %}
@@ -72,10 +91,16 @@
               <td>{{ documento.emisor }}</td>
               <td>{{ documento.fechainicio }}</td>
               <td>{{ documento.fechafinal }}</td>
-              <td>
-                <button type="submit" class="btn btn-success" value="upd|{{ documento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                <button type="submit" class="btn btn-danger" value="del|{{ documento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-              </td>
+              {% if btnUpd or btnDel %}
+                <td>
+                  {% if btnUpd %}
+                    <button type="submit" class="btn btn-success" value="upd|{{ documento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                  {% if btnDel %}
+                    <button type="submit" class="btn btn-danger" value="del|{{ documento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                </td>
+              {% endif %}
           </tr>
           {% set ciclo = true %}
           {% endfor %}

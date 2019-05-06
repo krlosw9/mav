@@ -380,6 +380,9 @@ class VehiculosController extends BaseController{
 		$quiereActualizar = false; $ruta='vehiculosList.twig'; $responseMessage = null; $query=null;
 		$lineas=null; $colores=null; $servicios=null; $clases=null; $carrocerias=null; $combustibles=null;
 		$organimostransito=null; $maximumYearModel=null;
+		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
+
+		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -391,12 +394,20 @@ class VehiculosController extends BaseController{
 				$id = $postData['id'] ?? null;				
 				if ($id) {
 					if ($btnDocumentos == 'doc') {
+					  if (in_array('vehicledoclist', $sessionUserPermission)) {
 						$DocumentosController = new VehiculoDocumentosController();
 						return $DocumentosController->listVehiculosDocumentos($id);
-
-					}elseif ($btnDocumentos == 'pro') {
-						$LicenciasController = new VehiculoPropietarioController();
-						return $LicenciasController->listVehiculosPropietario($id);
+					  }else{
+					  	$responseMessage=$mensajeNoPermisos;
+					  }
+					}elseif ($btnDocumentos == 'per') {
+					  if (in_array('vehiclepeoplelist', $sessionUserPermission)) {
+						$responseMessage='Se esta desarrollando este controlador';
+						//$LicenciasController = new VehiculoPersonaController();
+						//return $LicenciasController->listVehiculosPersona($id);
+					  }else{
+					  	$responseMessage=$mensajeNoPermisos;
+					  }
 					}elseif ($btnDocumentos == 'cond') {
 						$LicenciasController = new VehiculoPropietarioController();
 						return $LicenciasController->listVehiculosPropietario($id);
@@ -415,6 +426,7 @@ class VehiculosController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
+				 if (in_array('peopledel', $sessionUserPermission)) {
 				  try{
 					$vehicle = new Vehiculos();
 					$vehicle->destroy($id);
@@ -428,8 +440,15 @@ class VehiculosController extends BaseController{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
 				  }
+				 }else{
+				 	$responseMessage=$mensajeNoPermisos;
+				 }
 				}elseif ($boton == 'upd') {
+				  if (in_array('peopleupd', $sessionUserPermission)) {
 					$quiereActualizar=true;
+				  }else{
+				  	$responseMessage=$mensajeNoPermisos;
+				  }
 				}
 			}else{
 				$responseMessage = 'Debe Seleccionar un vehículo';

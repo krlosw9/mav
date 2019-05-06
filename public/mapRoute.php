@@ -63,7 +63,7 @@ $map->post('postDelPersonas', $subdomain.'/peopledel', [
         'controller' => 'App\Controllers\PersonasController',
         'action' => 'postUpdDelPersonas',
         'auth' => true,
-        'license' => ['peopleupd', 'peopledel']
+        'license' => ['peopleupd', 'peopledel', 'documentslist', 'licenselist']
 ]);
 $map->post('postUpdatePersonas', $subdomain.'/peopleupdate', [
         'controller' => 'App\Controllers\PersonasController',
@@ -152,7 +152,7 @@ $map->post('postDelLicencias', $subdomain.'/licensedel', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postUpdDelLicencias',
         'auth' => true,
-        'license' => ['licensedel']
+        'license' => ['licensedel','licenseupdate']
 ]);
 $map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
@@ -191,7 +191,7 @@ $map->post('postDelRh', $subdomain.'/rhdel', [
         'controller' => 'App\Controllers\PersonasRhController',
         'action' => 'postUpdDelRh',
         'auth' => true,
-        'license' => ['rhdel']
+        'license' => ['rhdel','rhupdate']
 ]);
 $map->post('postUpdateRh', $subdomain.'/rhupdate', [
         'controller' => 'App\Controllers\PersonasRhController',
@@ -239,7 +239,7 @@ $map->post('postDelAlistamientos', $subdomain.'/checkdel', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postUpdDelAlistamientos',
         'auth' => true,
-        'license' => ['checkdel']
+        'license' => ['checkdel','checkupdate']
 ]);
 $map->post('postUpdateAlistamientos', $subdomain.'/checkupdate', [
         'controller' => 'App\Controllers\AlistamientosController',
@@ -285,7 +285,7 @@ $map->post('postDelVehiculos', $subdomain.'/vehicledel', [
         'controller' => 'App\Controllers\VehiculosController',
         'action' => 'postUpdDelVehiculos',
         'auth' => true,
-        'license' => ['vehicledel']
+        'license' => ['vehicledel', 'vehicleupdate', 'vehicledoclist', 'vehiclepeoplelist']
 ]);
 $map->post('postUpdateVehiculos', $subdomain.'/vehicleupdate', [
         'controller' => 'App\Controllers\VehiculosController',
@@ -330,7 +330,7 @@ $map->post('postDelVehiculoDocumentos', $subdomain.'/vehicledocdel', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postUpdDelDocumentos',
         'auth' => true,
-        'license' => ['vehicledocdel']
+        'license' => ['vehicledocdel','vehicledocupdate']
 ]);
 $map->post('postUpdateVehiculoDocumentos', $subdomain.'/vehicledocupdate', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
@@ -375,8 +375,7 @@ $map->post('auth', $subdomain.'/auth', [
 $map->get('admin', $subdomain.'/admin', [
         'controller' => 'App\Controllers\AdminController',
         'action' => 'getIndex',
-        'auth' => true,
-        'license' => ['admin']
+        'auth' => true
 ]);
 $map->get('logout', $subdomain.'/logout', [
         'controller' => 'App\Controllers\AuthController',

@@ -430,7 +430,7 @@ class PersonasController extends BaseController{
 		}
 		
 		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
+			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml 
 			$personas = Personas::find($id);
 
 			$roles = PersonaRoles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();

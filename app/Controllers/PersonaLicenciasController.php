@@ -393,6 +393,9 @@ class PersonaLicenciasController extends BaseController{
 	public function postUpdDelLicencias($request){
 		$categoriaslicencias=null; $licencias=null; $responseMessage = null; $id=null; $boton=null;
 		$quiereActualizar = false; $ruta='personaLicenciasList.twig'; $numeroDePaginas=null; $persona=null;
+		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
+
+		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -406,6 +409,7 @@ class PersonaLicenciasController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
+				 if (in_array('peopledel', $sessionUserPermission)) {
 				  try{
 					$people = new PersonaLicencias();
 					$people->destroy($id);
@@ -419,8 +423,15 @@ class PersonaLicenciasController extends BaseController{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
 				  }
+				 }else{
+				 	$responseMessage=$mensajeNoPermisos;
+				 }
 				}elseif ($boton == 'upd') {
+				  if (in_array('peopleupd', $sessionUserPermission)) {
 					$quiereActualizar=true;
+				  }else{
+				  	$responseMessage=$mensajeNoPermisos;
+				  }
 				}
 			}else{
 				$responseMessage = 'Debe Seleccionar una licencia';

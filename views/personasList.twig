@@ -104,14 +104,16 @@
               <td>{{ persona.apellido }}</td>
               <td>{{ persona.rh }}</td>
               <td>{{ persona.celular }}</td>
-              <td>
-                {% if btnUpd %}
-                  <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                {% endif %}
-                {% if btnDel %}
-                  <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                {% endif %}
-              </td>
+              {% if btnUpd or btnDel %}
+                <td>
+                  {% if btnUpd %}
+                    <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                  {% if btnDel %}
+                    <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                </td>
+              {% endif %}
           </tr>
           {% set ciclo = true %}
           {% endfor %}
@@ -163,10 +165,10 @@
         <div class="row">
           <div class="form-group col-md-12" style="padding-left: 25px;">
             
-            {% if btnDoc %}
+            {% if btnDocumentos %}
               <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
             {% endif %}
-            {% if btnLic %}
+            {% if btnLicencias %}
               <button type="submit" name="btnDocumentos" value="lic" class="btn btn-primary">Licencias</button>
             {% endif %}
           </div>

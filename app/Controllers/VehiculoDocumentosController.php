@@ -395,6 +395,9 @@ class VehiculoDocumentosController extends BaseController{
 	public function postUpdDelDocumentos($request){
 		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; $boton=null;
 		$quiereActualizar = false; $ruta='vehiculoDocumentosList.twig'; $numeroDePaginas=null; $vehiculo=null;
+		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
+
+		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -408,6 +411,7 @@ class VehiculoDocumentosController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
+				 if (in_array('peopledel', $sessionUserPermission)) {
 				  try{
 					$people = new VehiculoDocumentosVeh();
 					$people->destroy($id);
@@ -421,8 +425,15 @@ class VehiculoDocumentosController extends BaseController{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
 				  }
+				 }else{
+				 	$responseMessage=$mensajeNoPermisos;
+				 }
 				}elseif ($boton == 'upd') {
+				  if (in_array('peopleupd', $sessionUserPermission)) {
 					$quiereActualizar=true;
+				  }else{
+				  	$responseMessage=$mensajeNoPermisos;
+				  }
 				}
 			}else{
 				$responseMessage = 'Debe Seleccionar un documento';
