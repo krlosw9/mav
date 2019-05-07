@@ -409,7 +409,7 @@ class PersonaLicenciasController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
-				 if (in_array('peopledel', $sessionUserPermission)) {
+				 if (in_array('licensedel', $sessionUserPermission)) {
 				  try{
 					$people = new PersonaLicencias();
 					$people->destroy($id);
@@ -427,7 +427,7 @@ class PersonaLicenciasController extends BaseController{
 				 	$responseMessage=$mensajeNoPermisos;
 				 }
 				}elseif ($boton == 'upd') {
-				  if (in_array('peopleupd', $sessionUserPermission)) {
+				  if (in_array('licenseupdate', $sessionUserPermission)) {
 					$quiereActualizar=true;
 				  }else{
 				  	$responseMessage=$mensajeNoPermisos;

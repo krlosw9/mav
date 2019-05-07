@@ -27,13 +27,13 @@
         {% set btnDel = false %}
 
        {% for permission in arrayPermissions %}
-        {% if permission == 'peopleadd' %}
+        {% if permission == 'vehicledocadd' %}
           {% set btnAdd = true %}
         {% endif %}
-        {% if permission == 'peopleupd' %}
+        {% if permission == 'vehicledocupdate' %}
           {% set btnUpd = true %}
         {% endif %}
-        {% if permission == 'peopledel' %}
+        {% if permission == 'vehicledocdel' %}
           {% set btnDel = true %}
         {% endif %}
       {% endfor %}

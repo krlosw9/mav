@@ -412,7 +412,7 @@ class PersonaDocumentosController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
-				 if (in_array('peopledel', $sessionUserPermission)) {
+				 if (in_array('documentsdel', $sessionUserPermission)) {
 				  try{
 					$people = new PersonaDocumentos();
 					$people->destroy($id);
@@ -430,7 +430,7 @@ class PersonaDocumentosController extends BaseController{
 				 	$responseMessage=$mensajeNoPermisos;
 				 }
 				}elseif ($boton == 'upd') {
-				  if (in_array('peopleupd', $sessionUserPermission)) {
+				  if (in_array('documentsupdate', $sessionUserPermission)) {
 					$quiereActualizar=true;
 				  }else{
 				  	$responseMessage=$mensajeNoPermisos;

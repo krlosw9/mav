@@ -411,7 +411,7 @@ class VehiculoDocumentosController extends BaseController{
 			}
 			if ($id) {
 				if($boton == 'del'){
-				 if (in_array('peopledel', $sessionUserPermission)) {
+				 if (in_array('vehicledocdel', $sessionUserPermission)) {
 				  try{
 					$people = new VehiculoDocumentosVeh();
 					$people->destroy($id);
@@ -429,7 +429,7 @@ class VehiculoDocumentosController extends BaseController{
 				 	$responseMessage=$mensajeNoPermisos;
 				 }
 				}elseif ($boton == 'upd') {
-				  if (in_array('peopleupd', $sessionUserPermission)) {
+				  if (in_array('vehicledocupdate', $sessionUserPermission)) {
 					$quiereActualizar=true;
 				  }else{
 				  	$responseMessage=$mensajeNoPermisos;

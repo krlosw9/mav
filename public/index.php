@@ -68,9 +68,9 @@ if(!$route){
             }    
         }
         if (!$thereIsPermission) {
-            var_dump($sessionUserPermission);
-            echo " el permiso requerido es: ";
-            var_dump($permissions);
+            //var_dump($sessionUserPermission);
+            //echo " el permiso requerido es: ";
+            //var_dump($permissions);
             $controllerName = 'App\Controllers\IndexController';
             $actionName = 'indexAction';
         }   
