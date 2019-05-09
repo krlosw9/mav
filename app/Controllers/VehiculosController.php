@@ -402,15 +402,12 @@ class VehiculosController extends BaseController{
 					  }
 					}elseif ($btnDocumentos == 'per') {
 					  if (in_array('vehiclepeoplelist', $sessionUserPermission)) {
-						$responseMessage='Se esta desarrollando este controlador';
-						//$LicenciasController = new VehiculoPersonaController();
-						//return $LicenciasController->listVehiculosPersona($id);
+						//$responseMessage='Se esta desarrollando este controlador';
+						$LicenciasController = new VehiculoVehiculosPersonasController();
+						return $LicenciasController->listVehiculoVehiculosPersonas($id);
 					  }else{
 					  	$responseMessage=$mensajeNoPermisos;
 					  }
-					}elseif ($btnDocumentos == 'cond') {
-						$LicenciasController = new VehiculoPropietarioController();
-						return $LicenciasController->listVehiculosPropietario($id);
 					}else{
 						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
 					}

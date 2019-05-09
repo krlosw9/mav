@@ -339,6 +339,38 @@ $map->post('postUpdateVehiculoDocumentos', $subdomain.'/vehicledocupdate', [
         'license' => ['vehicledocupdate']
 ]);
 
+//Rutas vehiculoPersonas
+$map->get('getAddVehiculoPersonas', $subdomain.'/vehiclepeopleadd', [
+        'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
+        'action' => 'getAddVehiculosPersonas',
+        'auth' => true,
+        'license' => ['vehiclepeopleadd']
+]);
+$map->post('postAddVehiculoPersonas', $subdomain.'/vehiclepeopleadd', [
+        'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
+        'action' => 'postAddVehiculosPersonas',
+        'auth' => true,
+        'license' => ['vehiclepeopleadd']
+]);
+$map->get('getListVehiculoPersonas', $subdomain.'/vehiclepeoplelist', [
+        'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
+        'action' => 'getListVehiculosPersonas',
+        'auth' => true,
+        'license' => ['vehiclepeoplelist']
+]);
+$map->post('postDelVehiculoPersonas', $subdomain.'/vehiclepeopledel', [
+        'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
+        'action' => 'postUpdDelVehiculosPersonas',
+        'auth' => true,
+        'license' => ['vehiclepeopledel','vehiclepeopleupdate']
+]);
+$map->post('postUpdateVehiculoPersonas', $subdomain.'/vehiclepeopleupdate', [
+        'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
+        'action' => 'postUpdateVehiculosPersonas',
+        'auth' => true,
+        'license' => ['vehiclepeopleupdate
+        ']
+]);
 
 
 
