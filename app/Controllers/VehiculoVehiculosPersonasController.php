@@ -41,87 +41,56 @@ class VehiculoVehiculosPersonasController extends BaseController{
 
 	//Registra el Documento
 	public function postAddVehiculosPersonas($request){
-		$responseMessage = null; $registrationErrorMessage=null; $fileName=null;
-		$documentos = null; $numeroDePaginas=null; $idVeh=0; $vehiculo=null; $ruta='vehiculoVehiculosPersonasList.twig';
+		$responseMessage = null; $registrationErrorMessage=null; $ruta='vehiculoVehiculosPersonasList.twig';
+		$documentos = null; $numeroDePaginas=null; $idVeh=0; $vehiculo=null; 
 
 
 		if($request->getMethod()=='POST'){
 			//crea el array $postData pasando las variables POST como indices de este array
 			$postData = $request->getParsedBody();
 			
-			/*En la variable $files se almacena el $request del file y en $fileComprobante se
-			*almacena el array con todas las propiedades de este file*/
-			$files = $request->getUploadedFiles(); 
-			if ($files) {
-				$fileComprobante = $files['urlcomprobante']; 
-				$temporaryFileName = 'docv'.$postData['referencia'];
-				
-				/*Se hace llamado al metodo que se creo para validar las imagenes */
-				$FilesValidatorController = new FilesValidatorController();
-				$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);
-			}else{
-				$validadorComprobante['error']=1;
-				$validadorComprobante['message']="Error, el comprobante no puede pesar mas de 2MB, seleccione nuevamente el vehículo y agregué un comprobante valido";
-				$ruta='vehiculosVehiculosPersonasList.twig';
-			}
-			
 
-			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
-					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
-					->key('fechainicio', v::date())
-					->key('fechafinal', v::date())
-					->key('tdvid', v::numeric()->positive()->notEmpty());
+			$documentoValidator = v::key('idVeh', v::numeric()->positive()->notEmpty())
+					->key('perid', v::numeric()->positive()->notEmpty())
+					->key('idrolpersonavehiculo', v::numeric()->positive()->notEmpty());
 			
 			$idVeh = $postData['idVeh'] ?? null;
 			
 			if($_SESSION['userId']){
-				if ($validadorComprobante['error'] == 0) {
-					$fileName = $validadorComprobante['fileName'];
+				
+				try{
+					$documentoValidator->assert($postData);
+					$postData = $request->getParsedBody();
 
-					try{
-						$documentoValidator->assert($postData);
-						$postData = $request->getParsedBody();
+					$documento = new VehiculoVehiculosPersonas();
+					$documento->vehid=$postData['idVeh'];
+					$documento->perid = $postData['perid'];
+					$documento->idrolpersonavehiculo = $postData['idrolpersonavehiculo'];
+					$documento->iduserregister = $_SESSION['userId'];
+					$documento->iduserupdate = $_SESSION['userId'];
+					$documento->save();
 
-						$documento = new VehiculoVehiculosPersonas();
-						$documento->referencia=$postData['referencia'];
-						$documento->emisor = $postData['emisor'];
-						$documento->fechainicio = $postData['fechainicio'];
-						$documento->fechafinal = $postData['fechafinal'];
-						$fileComprobante->moveTo("uploads/$fileName");
-						$documento->urlcomprobante = $fileName;
-						$documento->vehid = $idVeh;
-						$documento->tdvid = $postData['tdvid'];
-						$documento->iduserregister = $_SESSION['userId'];
-						$documento->iduserupdate = $_SESSION['userId'];
-						$documento->save();
-
-						$responseMessage = 'Registrado';
-					}catch(\Exception $exception){
-						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 25);
-						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
-							$responseMessage = 'Error, La referencia ya esta registrada';
-						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
-							$responseMessage = 'Error, El ID de este vehiculo no esta registrado';
-						}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
-							$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
-						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
-							$registrationErrorMessage = $exception->findMessages([
-							'notEmpty' => '- Los campos con (*) no pueden estar vacios',
-							'length' => '- Tiene una longitud no permitida',
-							'stringType' => '- Solo puede contener numeros y letras',
-							'date' => '- Formato de fecha no valido',
-							'numeric' => '- Solo puede contener numeros', 
-							'positive' => '- Solo puede contener numeros mayores a cero'
-							]);
-						}else{
-							$responseMessage = $prevMessage;
-						}
+					$responseMessage = 'Registrado';
+				}catch(\Exception $exception){
+					//$responseMessage = $exception->getMessage();
+					$prevMessage = substr($exception->getMessage(), 0, 25);
+					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
+						$responseMessage = 'Error, La referencia ya esta registrada';
+					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
+						$responseMessage = 'Error, El ID de este vehiculo no esta registrado';
+					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
+						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
+					}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
+						$registrationErrorMessage = $exception->findMessages([
+						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
+						'numeric' => '- Error relacional de base de datos', 
+						'positive' => '- Valores que no pertenecen a la entidad relacion'
+						]);
+					}else{
+						$responseMessage = $prevMessage;
 					}
-				}else{
-					//si la validacion del $file da error, se guarda en la variable $responseMessage el mensaje de error
-					$responseMessage = $validadorComprobante['message'];
 				}
+				
 
 			}
 		}
@@ -262,14 +231,14 @@ class VehiculoVehiculosPersonasController extends BaseController{
 				  try{
 					$people = new VehiculoVehiculosPersonas();
 					$people->destroy($id);
-					$responseMessage = "Se elimino el documento";
+					$responseMessage = "se desvinculo la persona del vehículo";
 				  }catch(\Exception $e){
 				  	//$responseMessage = $e->getMessage();
 				  	$prevMessage = substr($e->getMessage(), 0, 38);
 					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, este documento esta en uso.';
+						$responseMessage = 'Error, No se puede desvincular, esta persona esta en uso.';
 					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
+						$responseMessage= 'Error, No se puede desvincular, '.$prevMessage;
 					}
 				  }
 				 }else{
