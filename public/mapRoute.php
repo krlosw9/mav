@@ -360,16 +360,21 @@ $map->get('getListVehiculoPersonas', $subdomain.'/vehiclepeoplelist', [
 ]);
 $map->post('postDelVehiculoPersonas', $subdomain.'/vehiclepeopledel', [
         'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
-        'action' => 'postUpdDelVehiculosPersonas',
+        'action' => 'postDelVehiculosPersonas',
         'auth' => true,
-        'license' => ['vehiclepeopledel','vehiclepeopleupdate']
+        'license' => ['vehiclepeopledel']
+]);
+$map->post('postUpdVehiculoPersonas', $subdomain.'/vehiclepeopleupd', [
+        'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
+        'action' => 'postUpdVehiculosPersonas',
+        'auth' => true,
+        'license' => ['vehiclepeopleupdate']
 ]);
 $map->post('postUpdateVehiculoPersonas', $subdomain.'/vehiclepeopleupdate', [
         'controller' => 'App\Controllers\VehiculoVehiculosPersonasController',
         'action' => 'postUpdateVehiculosPersonas',
         'auth' => true,
-        'license' => ['vehiclepeopleupdate
-        ']
+        'license' => ['vehiclepeopleupdate']
 ]);
 
 

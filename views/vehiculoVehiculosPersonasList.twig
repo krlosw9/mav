@@ -66,10 +66,10 @@
               {% if btnUpd or btnDel %}
                 <td>
                   {% if btnUpd %}
-                    <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-success" formaction="vehiclepeopleupd" value="{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                   {% if btnDel %}
-                    <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-danger" value="{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                 </td>
               {% endif %}

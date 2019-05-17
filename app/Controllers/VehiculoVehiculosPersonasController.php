@@ -208,74 +208,86 @@ class VehiculoVehiculosPersonasController extends BaseController{
 
 	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
 	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelVehiculosPersonas($request){
-		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='vehiculoVehiculosPersonasList.twig'; $numeroDePaginas=null; $vehiculo=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelVehiculosPersonas($request){
+		$documentos=null; $responseMessage = null; $id=null; $numeroDePaginas=null; $vehiculo=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			$id = $postData['btnDelUpd'] ?? null;
 			$idVeh = $postData['idVeh'] ?? null;
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
 			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('vehiclepeopledel', $sessionUserPermission)) {
-				  try{
+				try{
 					$people = new VehiculoVehiculosPersonas();
 					$people->destroy($id);
 					$responseMessage = "se desvinculo la persona del vehículo";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
+				}catch(\Exception $e){
+					//$responseMessage = $e->getMessage();
+					$prevMessage = substr($e->getMessage(), 0, 38);
 					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
 						$responseMessage = 'Error, No se puede desvincular, esta persona esta en uso.';
 					}else{
 						$responseMessage= 'Error, No se puede desvincular, '.$prevMessage;
 					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('vehiclepeopleupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
 				}
 			}else{
-				$responseMessage = 'Debe Seleccionar un documento';
+				$responseMessage = 'Debe Seleccionar una persona';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$documentos = VehiculoVehiculosPersonas::find($id);
-			$tiposdocumentos = VehiculoRolPersonaVehiculo::orderBy('nombre')->get();
+		$paginador = $this->paginador($idVeh);
 
-			$ruta='vehiculoVehiculosPersonasUpdate.twig';
-		}else{
-			$paginador = $this->paginador($idVeh);
-
-			$documentos = $paginador['documentos'];
-			$numeroDePaginas = $paginador['numeroDePaginas'];
-			$vehiculo = $paginador['vehiculo'];
-		}
-		return $this->renderHTML($ruta, [
-			'documentos' => $documentos,
-			'tiposdocumentos' => $tiposdocumentos,
+		$documentos = $paginador['documentos'];
+		$numeroDePaginas = $paginador['numeroDePaginas'];
+		$vehiculo = $paginador['vehiculo'];
+		
+		return $this->renderHTML('vehiculoVehiculosPersonasList.twig', [
 			'responseMessage' => $responseMessage,
 			'numeroDePaginas' => $numeroDePaginas,
+			'documentos' => $documentos,
 			'idVeh' => $idVeh,
 			'vehiculo' => $vehiculo
+		]);
+	}
+
+
+	public function postUpdVehiculosPersonas($request){	
+		$vehiculoPersona=null; $personas=null; $roles=null; $responseMessage = null; $id=null; 
+		$numeroDePaginas=null; $vehiculo=null;
+
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$idVeh = $postData['idVeh'] ?? null;
+			//Este es el ID del registro a editar
+			$id = $postData['btnDelUpd'] ?? null;
+			
+			
+			if ($id) {
+				$vehiculoPersona = VehiculoVehiculosPersonas::find($id);
+			  	$vehiculo = Vehiculos::find($vehiculoPersona->vehid);
+			  	$personas = Personas::orderBy('nombre')->get();
+				$roles = VehiculoRolPersonaVehiculo::orderBy('nombre')->get();
+			  
+			}else{
+				$paginador = $this->paginador($idVeh);
+
+				$vehiculoPersona = $paginador['documentos'];
+				$numeroDePaginas = $paginador['numeroDePaginas'];
+				$vehiculo = $paginador['vehiculo'];
+
+				$responseMessage = 'Debe Seleccionar una persona';
+			}
+		}
+		
+		return $this->renderHTML('vehiculoVehiculosPersonasUpdate.twig', [
+			'vehiculoPersona' => $vehiculoPersona,
+			'vehiculo' => $vehiculo,
+			'personas' => $personas,
+			'roles' => $roles,
+			'responseMessage' => $responseMessage,
+			'numeroDePaginas' => $numeroDePaginas,
+			'idVeh' => $idVeh
 		]);
 	}
 
@@ -287,85 +299,48 @@ class VehiculoVehiculosPersonasController extends BaseController{
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			/*En la variable $files se almacena el $request del file y en $fileComprobante se
-			*almacena el array con todas las propiedades de este file*/
-			$files = $request->getUploadedFiles();
-			if ($files) {
-				$fileComprobante = $files['urlcomprobante'];
-				$temporaryFileName = 'docv'.$postData['referencia'];
-				
-				/*Se hace llamado al metodo que se creo para validar las imagenes */
-				$FilesValidatorController = new FilesValidatorController();
-				$validadorComprobante = $FilesValidatorController->filesValidator($fileComprobante, $temporaryFileName);	
-			}else{
-				$validadorComprobante['error']=1;
-				$validadorComprobante['message']="Error, el comprobante no puede pesar mas de 2MB, seleccione nuevamente el vehículo y agregué un comprobante valido";
-				$ruta='vehiculoVehiculosPersonasList.twig';
-			}
-			
-
 			$idVeh = $postData['idVeh'] ?? null;
 
-			$documentoValidator = v::key('referencia', v::stringType()->length(1, 50)->notEmpty())
-					->key('emisor', v::stringType()->length(1, 100)->notEmpty())
-					->key('fechainicio', v::date())
-					->key('fechafinal', v::date())
-					->key('tdvid', v::numeric()->positive()->notEmpty());
-
+			$documentoValidator = v::key('idVeh', v::numeric()->positive()->notEmpty())
+					->key('perid', v::numeric()->positive()->notEmpty())
+					->key('idrolpersonavehiculo', v::numeric()->positive()->notEmpty());
 			
 			if($_SESSION['userId']){
 
-				//Si no ocurrio error en la validacion del file 
-				if ($validadorComprobante['error'] == 0 or $validadorComprobante['error'] == 4) {
-					$fileName = $validadorComprobante['fileName'];
-					try{
-						$documentoValidator->assert($postData);
-						$postData = $request->getParsedBody();
+				try{
+					$documentoValidator->assert($postData);
+					$postData = $request->getParsedBody();
 
-						//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-						$idDocumento = $postData['id'];
-						$documento = VehiculoVehiculosPersonas::find($idDocumento);
-						
-						$documento->referencia=$postData['referencia'];
-						$documento->emisor = $postData['emisor'];
-						$documento->fechainicio = $postData['fechainicio'];
-						$documento->fechafinal = $postData['fechafinal'];
-						if ($validadorComprobante['error'] == 0) {
-							$fileComprobante->moveTo("uploads/$fileName");	
-							$documento->urlcomprobante = $fileName;
-						}
-						$documento->tdvid = $postData['tdvid'];
-						$documento->iduserupdate = $_SESSION['userId'];
-						$documento->save();
+					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
+					$idDocumento = $postData['id'];
+					$documento = VehiculoVehiculosPersonas::find($idDocumento);
+					
+					$documento->vehid=$postData['idVeh'];
+					$documento->perid = $postData['perid'];
+					$documento->idrolpersonavehiculo = $postData['idrolpersonavehiculo'];
+					$documento->iduserupdate = $_SESSION['userId'];
+					$documento->save();
 
-						$responseMessage = 'Editado.';
-					}catch(\Exception $exception){
-						//$responseMessage = $exception->getMessage();
-						$prevMessage = substr($exception->getMessage(), 0, 25);
-						if ($prevMessage == "SQLSTATE[23505]: Unique v") {
-							$responseMessage = 'Error, La referencia ya esta registrada';
-						}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
-							$responseMessage = 'Error, El ID de este vehiculo no esta registrado';
-						}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
-							$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
-						}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
-							$registrationErrorMessage = $exception->findMessages([
-							'notEmpty' => '- Los campos con (*) no pueden estar vacios',
-							'length' => '- Tiene una longitud no permitida',
-							'stringType' => '- Solo puede contener numeros y letras',
-							'date' => '- Formato de fecha no valido',
-							'numeric' => '- Solo puede contener numeros', 
-							'positive' => '- Solo puede contener numeros mayores a cero'
-							]);
-						}else{
-							$responseMessage = $prevMessage;
-						}
+					$responseMessage = 'Editado.';
+				}catch(\Exception $exception){
+					//$responseMessage = $exception->getMessage();
+					$prevMessage = substr($exception->getMessage(), 0, 25);
+					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
+						$responseMessage = 'Error, La referencia ya esta registrada';
+					}elseif ($prevMessage == "SQLSTATE[23503]: Foreign ") {
+						$responseMessage = 'Error, El ID de este vehiculo no esta registrado';
+					}elseif ($prevMessage == "SQLSTATE[42703]: Undefine") {
+						$responseMessage = 'Error interno de base de datos, en el pie de pagina esta toda la información de contacto, por favor contáctenos para darle una rápida solución.';
+					}elseif($prevMessage == 'These rules must pass for' or $prevMessage == 'All of the required rules') {
+						$registrationErrorMessage = $exception->findMessages([
+						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
+						'numeric' => '- Solo puede contener numeros', 
+						'positive' => '- Solo puede contener numeros mayores a cero'
+						]);
+					}else{
+						$responseMessage = $prevMessage;
 					}
-				}else{
-					//si la validacion del $file da error, se guarda en la variable $responseMessage el mensaje de error
-					$responseMessage = $validadorComprobante['message'];
 				}
-
 			}
 		}
 
