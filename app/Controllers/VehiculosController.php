@@ -373,107 +373,80 @@ class VehiculosController extends BaseController{
 	}
 
 
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelVehiculos($request){
-		$tiposvinculacion = null; $marcas=null; $vehiculos=null; $numeroDePaginas=null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='vehiculosList.twig'; $responseMessage = null; $query=null;
-		$lineas=null; $colores=null; $servicios=null; $clases=null; $carrocerias=null; $combustibles=null;
-		$organimostransito=null; $maximumYearModel=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelVehiculos($request){
+		$vehiculos=null; $numeroDePaginas=null; $id=null; $responseMessage = null; $query=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
-			$btnDocumentos = $postData['btnDocumentos'] ?? null;			
-
-			/*En este if verifica que boton se presiono si el de documentos o licencia y crea una instancia de la clase que corresponde, ejemplo si presiono documentos crea una instancia de la clase PersonaDocumentosController y llama al metodo listPersonasDocumentos(parametro el ID de la persona)*/
-			if ($btnDocumentos) {
-				$id = $postData['id'] ?? null;				
-				if ($id) {
-					if ($btnDocumentos == 'doc') {
-					  if (in_array('vehicledoclist', $sessionUserPermission)) {
-						$DocumentosController = new VehiculoDocumentosController();
-						return $DocumentosController->listVehiculosDocumentos($id);
-					  }else{
-					  	$responseMessage=$mensajeNoPermisos;
-					  }
-					}elseif ($btnDocumentos == 'per') {
-					  if (in_array('vehiclepeoplelist', $sessionUserPermission)) {
-						//$responseMessage='Se esta desarrollando este controlador';
-						$LicenciasController = new VehiculoVehiculosPersonasController();
-						return $LicenciasController->listVehiculoVehiculosPersonas($id);
-					  }else{
-					  	$responseMessage=$mensajeNoPermisos;
-					  }
-					}else{
-						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
-					}
-				}else{
-					$responseMessage = 'Debe Seleccionar un vehiculo';
-				}
-			}
+			$id = $postData['btnDelUpd'] ?? null;			
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
 			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('vehicledel', $sessionUserPermission)) {
-				  try{
-					$vehicle = new Vehiculos();
-					$vehicle->destroy($id);
-					$responseMessage = "Se elimino el vehículo";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
-					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, este vehículo esta en uso.';
-					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
-					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('vehicleupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
+			  try{
+				$vehicle = new Vehiculos();
+				$vehicle->destroy($id);
+				$responseMessage = "Se elimino el vehículo";
+			  }catch(\Exception $e){
+			  	//$responseMessage = $e->getMessage();
+			  	$prevMessage = substr($e->getMessage(), 0, 38);
+				if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
+					$responseMessage = 'Error, No se puede eliminar, este vehículo esta en uso.';
+				}else{
+					$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 				}
+			  }
 			}else{
 				$responseMessage = 'Debe Seleccionar un vehículo';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$vehiculos = Vehiculos::find($id);
+		$paginador = $this->paginador();
+		$numeroDePaginas=$paginador['numeroDePaginas'];
+		$query=$paginador['query'];
+		
+		return $this->renderHTML('vehiculosList.twig', [
+			'numeroDePaginas' => $numeroDePaginas,
+			'query' => $query,
+			'vehiculos' => $vehiculos,
+			'responseMessage' => $responseMessage
+		]);
+	}
 
-			$tiposvinculacion = VehiculoTiposVinculacion::orderBy('nombre')->get();
-			$marcas = VehiculoMarcas::orderBy('nombre')->get();
-			$lineas = VehiculoLineas::orderBy('nombre')->get();
-			$colores = VehiculoColores::orderBy('nombre')->get();
-			$servicios = VehiculoServicios::orderBy('nombre')->get();
-			$clases = VehiculoClases::orderBy('nombre')->get();
-			$carrocerias = VehiculoCarrocerias::orderBy('nombre')->get();
-			$combustibles = VehiculoCombustibles::orderBy('nombre')->get();
-			$organimostransito = VehiculoOrganimosTransito::orderBy('nombre')->get();
-			$maximumYearModel = Date('Y'); 
-			$maximumYearModel++;
-			$ruta='vehiculosUpdate.twig';
-		}else{
-			$paginador = $this->paginador();
-			$numeroDePaginas=$paginador['numeroDePaginas'];
-			$query=$paginador['query'];
+
+	public function postUpdVehiculos($request){
+		$tiposvinculacion = null; $marcas=null; $vehiculos=null; $numeroDePaginas=null; $id=null;
+		$responseMessage = null; $query=null; $organimostransito=null; $maximumYearModel=null;
+		$lineas=null; $colores=null; $servicios=null; $clases=null; $carrocerias=null; $combustibles=null;
+		
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+			
+			if ($id) {
+				//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
+				$vehiculos = Vehiculos::find($id);
+
+				$tiposvinculacion = VehiculoTiposVinculacion::orderBy('nombre')->get();
+				$marcas = VehiculoMarcas::orderBy('nombre')->get();
+				$lineas = VehiculoLineas::orderBy('nombre')->get();
+				$colores = VehiculoColores::orderBy('nombre')->get();
+				$servicios = VehiculoServicios::orderBy('nombre')->get();
+				$clases = VehiculoClases::orderBy('nombre')->get();
+				$carrocerias = VehiculoCarrocerias::orderBy('nombre')->get();
+				$combustibles = VehiculoCombustibles::orderBy('nombre')->get();
+				$organimostransito = VehiculoOrganimosTransito::orderBy('nombre')->get();
+				$maximumYearModel = Date('Y'); 
+				$maximumYearModel++;
+			}else{
+				$paginador = $this->paginador();
+				$numeroDePaginas=$paginador['numeroDePaginas'];
+				$query=$paginador['query'];
+
+				$responseMessage = 'Debe Seleccionar un vehículo';
+			}
 		}
-		return $this->renderHTML($ruta, [
+		
+		return $this->renderHTML('vehiculosUpdate.twig', [
 			'numeroDePaginas' => $numeroDePaginas,
 			'query' => $query,
 			'vehiculos' => $vehiculos,

@@ -283,9 +283,15 @@ $map->get('getBuscarVehiculos', $subdomain.'/vehiclesearch', [
 ]);
 $map->post('postDelVehiculos', $subdomain.'/vehicledel', [
         'controller' => 'App\Controllers\VehiculosController',
-        'action' => 'postUpdDelVehiculos',
+        'action' => 'postDelVehiculos',
         'auth' => true,
-        'license' => ['vehicledel', 'vehicleupdate', 'vehicledoclist', 'vehiclepeoplelist']
+        'license' => ['vehicledel']
+]);
+$map->post('postUpdVehiculos', $subdomain.'/vehicleupd', [
+        'controller' => 'App\Controllers\VehiculosController',
+        'action' => 'postUpdVehiculos',
+        'auth' => true,
+        'license' => ['vehicleupdate']
 ]);
 $map->post('postUpdateVehiculos', $subdomain.'/vehicleupdate', [
         'controller' => 'App\Controllers\VehiculosController',
