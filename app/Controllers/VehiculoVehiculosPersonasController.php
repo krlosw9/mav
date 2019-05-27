@@ -158,29 +158,18 @@ class VehiculoVehiculosPersonasController extends BaseController{
 		
 	}
 
-
-	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton documentos en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus documentos)
-	public function listVehiculoVehiculosPersonas($idVeh=null){
-		$numeroDePaginas=null; $documentos=null; $vehiculo=null;
-
-		$paginador = $this->paginador($idVeh);
-		
-		$documentos = $paginador['documentos'];
-		$numeroDePaginas = $paginador['numeroDePaginas'];
-		$vehiculo = $paginador['vehiculo'];
-		
-		return $this->renderHTML('vehiculoVehiculosPersonasList.twig', [
-			'idVeh' => $idVeh,
-			'documentos' => $documentos,
-			'numeroDePaginas' => $numeroDePaginas,
-			'vehiculo' => $vehiculo
-		]);
-	}
-
 	public function getListVehiculosPersonas(){
 		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $vehiculo=null;
 		
+		//Se utiliza esta linea Si este metodo es invocado por el metodo get desde vehiculoVehiculosPersonasList.twig
 		$idVeh = $_GET['?'] ?? null;
+
+		//Se utiliza esta linea si el metodo es invocado desde vehiculosList.twig, cuando el usuario seleccionar un vehiculo y le da en el boton personas
+		if (!$idVeh) {
+			$idVeh = $_POST['id'] ?? null;
+			
+		}
+
 		$paginaActual = $_GET['pag'] ?? null;
 
 		if ($idVeh) {
@@ -312,7 +301,7 @@ class VehiculoVehiculosPersonasController extends BaseController{
 					$postData = $request->getParsedBody();
 
 					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en documento y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$idDocumento = $postData['id'];
+					$idDocumento = $postData['id'] ?? null;
 					$documento = VehiculoVehiculosPersonas::find($idDocumento);
 					
 					$documento->vehid=$postData['idVeh'];
