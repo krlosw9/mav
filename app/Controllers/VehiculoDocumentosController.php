@@ -227,28 +227,18 @@ class VehiculoDocumentosController extends BaseController{
 		return $retorno;
 	}
 
-	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton documentos en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus documentos)
-	public function listVehiculosDocumentos($idVeh=null){
-		$numeroDePaginas=null; $documentos=null; $vehiculo=null;
-
-		$paginador = $this->paginador($idVeh);
-		
-		$documentos = $paginador['documentos'];
-		$numeroDePaginas = $paginador['numeroDePaginas'];
-		$vehiculo = $paginador['vehiculo'];
-		
-		return $this->renderHTML('vehiculoDocumentosList.twig', [
-			'idVeh' => $idVeh,
-			'documentos' => $documentos,
-			'numeroDePaginas' => $numeroDePaginas,
-			'vehiculo' => $vehiculo
-		]);
-	}
-
 	public function getListDocumentos(){
 		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $vehiculo=null;
 		
+		//Se utiliza esta linea Si este metodo es invocado por el metodo get desde vehiculoVehiculosPersonasList.twig
 		$idVeh = $_GET['?'] ?? null;
+
+		//Se utiliza esta linea si el metodo es invocado desde vehiculosList.twig, cuando el usuario seleccionar un vehiculo y le da en el boton personas
+		if (!$idVeh) {
+			$idVeh = $_POST['id'] ?? null;
+			
+		}
+
 		$paginaActual = $_GET['pag'] ?? null;
 
 		if ($idVeh) {
@@ -390,70 +380,73 @@ class VehiculoDocumentosController extends BaseController{
 	}
 
 
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelDocumentos($request){
-		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='vehiculoDocumentosList.twig'; $numeroDePaginas=null; $vehiculo=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelDocumentos($request){
+		$documentos=null; $responseMessage = null; $id=null; $numeroDePaginas=null; $vehiculo=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			$id = $postData['btnDelUpd'] ?? null;
 			$idVeh = $postData['idVeh'] ?? null;
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
 			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('vehicledocdel', $sessionUserPermission)) {
-				  try{
+				try{
 					$people = new VehiculoDocumentosVeh();
 					$people->destroy($id);
 					$responseMessage = "Se elimino el documento";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
+				}catch(\Exception $e){
+					//$responseMessage = $e->getMessage();
+					$prevMessage = substr($e->getMessage(), 0, 38);
 					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
 						$responseMessage = 'Error, No se puede eliminar, este documento esta en uso.';
 					}else{
 						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('vehicledocupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
 				}
 			}else{
 				$responseMessage = 'Debe Seleccionar un documento';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$documentos = VehiculoDocumentosVeh::find($id);
-			$tiposdocumentos = VehiculoTipoDocumentosVeh::orderBy('nombre')->get();
+		$paginador = $this->paginador($idVeh);
 
-			$ruta='vehiculoDocumentosUpdate.twig';
-		}else{
-			$paginador = $this->paginador($idVeh);
+		$documentos = $paginador['documentos'];
+		$numeroDePaginas = $paginador['numeroDePaginas'];
+		$vehiculo = $paginador['vehiculo'];
 
-			$documentos = $paginador['documentos'];
-			$numeroDePaginas = $paginador['numeroDePaginas'];
-			$vehiculo = $paginador['vehiculo'];
+		return $this->renderHTML('vehiculoDocumentosList.twig', [
+			'documentos' => $documentos,
+			'responseMessage' => $responseMessage,
+			'numeroDePaginas' => $numeroDePaginas,
+			'idVeh' => $idVeh,
+			'vehiculo' => $vehiculo
+		]);
+	}
+
+
+	public function postUpdDocumentos($request){
+		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; 
+		$numeroDePaginas=null; $vehiculo=null;
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+			$idVeh = $postData['idVeh'] ?? null;
+			
+			if ($id) {
+				$documentos = VehiculoDocumentosVeh::find($id);
+				$tiposdocumentos = VehiculoTipoDocumentosVeh::orderBy('nombre')->get();
+			}else{
+				$paginador = $this->paginador($idVeh);
+
+				$documentos = $paginador['documentos'];
+				$numeroDePaginas = $paginador['numeroDePaginas'];
+				$vehiculo = $paginador['vehiculo'];
+
+				$responseMessage = 'Debe Seleccionar un documento';
+			}
 		}
-		return $this->renderHTML($ruta, [
+		
+		return $this->renderHTML('vehiculoDocumentosUpdate.twig', [
 			'documentos' => $documentos,
 			'tiposdocumentos' => $tiposdocumentos,
 			'responseMessage' => $responseMessage,
@@ -462,6 +455,7 @@ class VehiculoDocumentosController extends BaseController{
 			'vehiculo' => $vehiculo
 		]);
 	}
+
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdateDocumentos($request){

@@ -161,10 +161,10 @@ class VehiculoVehiculosPersonasController extends BaseController{
 	public function getListVehiculosPersonas(){
 		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $vehiculo=null;
 		
-		//Se utiliza esta linea Si este metodo es invocado por el metodo get desde vehiculoVehiculosPersonasList.twig
+		//Se utiliza esta linea Si este metodo es invocado por el metodo get desde vehiculoDocumentosList.twig
 		$idVeh = $_GET['?'] ?? null;
 
-		//Se utiliza esta linea si el metodo es invocado desde vehiculosList.twig, cuando el usuario seleccionar un vehiculo y le da en el boton personas
+		//Se utiliza esta linea si el metodo es invocado desde vehiculosList.twig, cuando el usuario seleccionar un vehiculo y le da en el boton documentos
 		if (!$idVeh) {
 			$idVeh = $_POST['id'] ?? null;
 			
@@ -194,9 +194,6 @@ class VehiculoVehiculosPersonasController extends BaseController{
 		]);
 	}
 
-
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
 	public function postDelVehiculosPersonas($request){
 		$documentos=null; $responseMessage = null; $id=null; $numeroDePaginas=null; $vehiculo=null;
 
@@ -250,7 +247,6 @@ class VehiculoVehiculosPersonasController extends BaseController{
 			$idVeh = $postData['idVeh'] ?? null;
 			//Este es el ID del registro a editar
 			$id = $postData['btnDelUpd'] ?? null;
-			
 			
 			if ($id) {
 				$vehiculoPersona = VehiculoVehiculosPersonas::find($id);

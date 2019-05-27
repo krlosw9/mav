@@ -314,6 +314,12 @@ $map->get('getListVehiculoDocumentos', $subdomain.'/vehicledoclist', [
         'auth' => true,
         'license' => ['vehicledoclist']
 ]);
+$map->post('postListVehiculoDocumentos', $subdomain.'/vehicledoclist', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'getListDocumentos',
+        'auth' => true,
+        'license' => ['vehicledoclist']
+]);
 $map->post('postBuscarVehiculoDocumentos', $subdomain.'/vehicledocsearch', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
         'action' => 'postBusquedaDocumentos',
@@ -328,9 +334,15 @@ $map->get('getBuscarVehiculoDocumentos', $subdomain.'/vehicledocsearch', [
 ]);
 $map->post('postDelVehiculoDocumentos', $subdomain.'/vehicledocdel', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
-        'action' => 'postUpdDelDocumentos',
+        'action' => 'postDelDocumentos',
         'auth' => true,
-        'license' => ['vehicledocdel','vehicledocupdate']
+        'license' => ['vehicledocdel']
+]);
+$map->post('postUpdVehiculoDocumentos', $subdomain.'/vehicledocupd', [
+        'controller' => 'App\Controllers\VehiculoDocumentosController',
+        'action' => 'postUpdDocumentos',
+        'auth' => true,
+        'license' => ['vehicledocupdate']
 ]);
 $map->post('postUpdateVehiculoDocumentos', $subdomain.'/vehicledocupdate', [
         'controller' => 'App\Controllers\VehiculoDocumentosController',
