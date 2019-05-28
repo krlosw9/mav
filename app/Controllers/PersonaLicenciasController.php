@@ -225,28 +225,18 @@ class PersonaLicenciasController extends BaseController{
 		return $retorno;
 	}
 
-	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton licencias en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus licencias)
-	public function listPersonasLicencias($idPer=null){
-		$numeroDePaginas=null; $licencias=null; $persona=null;
-
-		$paginador = $this->paginador($idPer);
-		
-		$licencias = $paginador['licencias'];
-		$numeroDePaginas = $paginador['numeroDePaginas'];
-		$persona = $paginador['persona'];
-		
-		return $this->renderHTML('personaLicenciasList.twig', [
-			'idPer' => $idPer,
-			'licencias' => $licencias,
-			'numeroDePaginas' => $numeroDePaginas,
-			'persona' => $persona
-		]);
-	}
-
 	public function getListLicencias(){
 		$responseMessage=null; $numeroDePaginas=null; $licencias=null; $numeroDePaginas=null; $persona=null;
 		
+		//Se utiliza esta linea Si este metodo es invocado por el metodo get desde personaDocumentosList.twig 
 		$idPer = $_GET['?'] ?? null;
+
+		//Se utiliza esta linea si el metodo es invocado desde personasList.twig, cuando el usuario seleccionar una persona y le da en el boton documentos
+		if (!$idPer) {
+			$idPer = $_POST['id'] ?? null;
+			
+		}
+
 		$paginaActual = $_GET['pag'] ?? null;
 
 		if ($idPer) {
@@ -387,70 +377,74 @@ class PersonaLicenciasController extends BaseController{
 		
 	}
 
-
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelLicencias($request){
-		$categoriaslicencias=null; $licencias=null; $responseMessage = null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='personaLicenciasList.twig'; $numeroDePaginas=null; $persona=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelLicencias($request){
+		$responseMessage = null; $id=null; $numeroDePaginas=null; $persona=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			$id = $postData['btnDelUpd'] ?? null;
 			$idPer = $postData['idPer'] ?? null;
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
 			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('licensedel', $sessionUserPermission)) {
-				  try{
-					$people = new PersonaLicencias();
-					$people->destroy($id);
-					$responseMessage = "Se elimino la licencias";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
-					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, esta licencia esta en uso.';
-					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
-					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('licenseupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
+			  try{
+				$people = new PersonaLicencias();
+				$people->destroy($id);
+				$responseMessage = "Se elimino la licencia";
+			  }catch(\Exception $e){
+			  	//$responseMessage = $e->getMessage();
+			  	$prevMessage = substr($e->getMessage(), 0, 38);
+				if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
+					$responseMessage = 'Error, No se puede eliminar, esta licencia esta en uso.';
+				}else{
+					$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 				}
+			  }
 			}else{
 				$responseMessage = 'Debe Seleccionar una licencia';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$licencias = PersonaLicencias::find($id);
-			$categoriaslicencias = PersonaCategoriasLicencias::orderBy('descripcion')->get();
+		$paginador = $this->paginador($idPer);
 
-			$ruta='personaLicenciasUpdate.twig';
-		}else{
-			$paginador = $this->paginador($idPer);
+		$licencias = $paginador['licencias'];
+		$numeroDePaginas = $paginador['numeroDePaginas'];
+		$persona = $paginador['persona'];
+		
+		return $this->renderHTML('personaLicenciasList.twig', [
+			'licencias' => $licencias,
+			'responseMessage' => $responseMessage,
+			'numeroDePaginas' => $numeroDePaginas,
+			'idPer' => $idPer,
+			'persona' => $persona
+		]);
+	}
 
-			$licencias = $paginador['licencias'];
-			$numeroDePaginas = $paginador['numeroDePaginas'];
-			$persona = $paginador['persona'];
+
+	public function postUpdLicencias($request){
+		$categoriaslicencias=null; $licencias=null; $responseMessage = null; $id=null;
+		$ruta='personaLicenciasUpdate.twig'; $numeroDePaginas=null; $persona=null;
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+			$idPer = $postData['idPer'] ?? null;
+			
+			if ($id) {
+				$licencias = PersonaLicencias::find($id);
+				$categoriaslicencias = PersonaCategoriasLicencias::orderBy('descripcion')->get();	
+			}else{
+				$ruta='personaLicenciasList.twig';
+
+				$paginador = $this->paginador($idPer);
+
+				$licencias = $paginador['licencias'];
+				$numeroDePaginas = $paginador['numeroDePaginas'];
+				$persona = $paginador['persona'];
+
+				$responseMessage = 'Debe Seleccionar una licencia';
+			}
 		}
+		
 		return $this->renderHTML($ruta, [
 			'licencias' => $licencias,
 			'categoriaslicencias' => $categoriaslicencias,

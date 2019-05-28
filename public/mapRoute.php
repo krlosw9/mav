@@ -61,9 +61,15 @@ $map->get('getBuscarPersonas', $subdomain.'/peoplesearch', [
 ]);
 $map->post('postDelPersonas', $subdomain.'/peopledel', [
         'controller' => 'App\Controllers\PersonasController',
-        'action' => 'postUpdDelPersonas',
+        'action' => 'postDelPersonas',
         'auth' => true,
-        'license' => ['peopleupd', 'peopledel', 'documentslist', 'licenselist']
+        'license' => ['peopledel']
+]);
+$map->post('postUpdPersonas', $subdomain.'/peopleupd', [
+        'controller' => 'App\Controllers\PersonasController',
+        'action' => 'postUpdPersonas',
+        'auth' => true,
+        'license' => ['peopleupd']
 ]);
 $map->post('postUpdatePersonas', $subdomain.'/peopleupdate', [
         'controller' => 'App\Controllers\PersonasController',
@@ -91,6 +97,12 @@ $map->get('getListDocumentos', $subdomain.'/documentslist', [
         'auth' => true,
         'license' => ['documentslist']
 ]);
+$map->post('postListDocumentos', $subdomain.'/documentslist', [
+        'controller' => 'App\Controllers\PersonaDocumentosController',
+        'action' => 'getListDocumentos',
+        'auth' => true,
+        'license' => ['documentslist']
+]);
 $map->post('postBuscarDocumentos', $subdomain.'/documentssearch', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
         'action' => 'postBusquedaDocumentos',
@@ -105,9 +117,15 @@ $map->get('getBuscarDocumentos', $subdomain.'/documentssearch', [
 ]);
 $map->post('postDelDocumentos', $subdomain.'/documentsdel', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
-        'action' => 'postUpdDelDocumentos',
+        'action' => 'postDelDocumentos',
         'auth' => true,
-        'license' => ['documentsdel', 'documentsupdate']
+        'license' => ['documentsdel']
+]);
+$map->post('postUpdDocumentos', $subdomain.'/documentsupd', [
+        'controller' => 'App\Controllers\PersonaDocumentosController',
+        'action' => 'postUpdDocumentos',
+        'auth' => true,
+        'license' => ['documentsupdate']
 ]);
 $map->post('postUpdateDocumentos', $subdomain.'/documentsupdate', [
         'controller' => 'App\Controllers\PersonaDocumentosController',
@@ -136,6 +154,12 @@ $map->get('getListLicencias', $subdomain.'/licenselist', [
         'auth' => true,
         'license' => ['licenselist']
 ]);
+$map->post('postListLicencias', $subdomain.'/licenselist', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'getListLicencias',
+        'auth' => true,
+        'license' => ['licenselist']
+]);
 $map->post('postBuscarLicencias', $subdomain.'/licensesearch', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
         'action' => 'postBusquedaLicencias',
@@ -150,9 +174,15 @@ $map->get('getBuscarLicencias', $subdomain.'/licensesearch', [
 ]);
 $map->post('postDelLicencias', $subdomain.'/licensedel', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
-        'action' => 'postUpdDelLicencias',
+        'action' => 'postDelLicencias',
         'auth' => true,
-        'license' => ['licensedel','licenseupdate']
+        'license' => ['licensedel']
+]);
+$map->post('postUpdLicencias', $subdomain.'/licenseupd', [
+        'controller' => 'App\Controllers\PersonaLicenciasController',
+        'action' => 'postUpdLicencias',
+        'auth' => true,
+        'license' => ['licenseupdate']
 ]);
 $map->post('postUpdateLicencias', $subdomain.'/licenseupdate', [
         'controller' => 'App\Controllers\PersonaLicenciasController',
@@ -189,9 +219,15 @@ $map->post('postBuscarRh', $subdomain.'/rhsearch', [
 ]);
 $map->post('postDelRh', $subdomain.'/rhdel', [
         'controller' => 'App\Controllers\PersonasRhController',
-        'action' => 'postUpdDelRh',
+        'action' => 'postDelRh',
         'auth' => true,
-        'license' => ['rhdel','rhupdate']
+        'license' => ['rhdel']
+]);
+$map->post('postUpdRh', $subdomain.'/rhupd', [
+        'controller' => 'App\Controllers\PersonasRhController',
+        'action' => 'postUpdRh',
+        'auth' => true,
+        'license' => ['rhupdate']
 ]);
 $map->post('postUpdateRh', $subdomain.'/rhupdate', [
         'controller' => 'App\Controllers\PersonasRhController',

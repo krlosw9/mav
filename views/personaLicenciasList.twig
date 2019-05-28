@@ -91,10 +91,10 @@
               {% if btnUpd or btnDel %}
                 <td>
                   {% if btnUpd %}
-                    <button type="submit" class="btn btn-success" value="upd|{{ licencia.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-success" formaction="licenseupd" value="{{ licencia.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                   {% if btnDel %}
-                    <button type="submit" class="btn btn-danger" value="del|{{ licencia.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-danger" value="{{ licencia.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                 </td>
               {% endif %}

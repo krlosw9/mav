@@ -352,101 +352,73 @@ class PersonasController extends BaseController{
 	}
 
 
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelPersonas($request){
-		$roles = null; $tiposdocumentos=null; $personas=null; $numeroDePaginas=null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='personasList.twig'; $responseMessage = null;
-		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelPersonas($request){
+		$personas=null; $numeroDePaginas=null; $id=null; $responseMessage = null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
-			$btnDocumentos = $postData['btnDocumentos'] ?? null;			
-
-			/*En este if verifica que boton se presiono si el de documentos o licencia y crea una instancia de la clase que corresponde, ejemplo si presiono documentos crea una instancia de la clase PersonaDocumentosController y llama al metodo listPersonasDocumentos(parametro el ID de la persona)*/
-			if ($btnDocumentos) {
-				$id = $postData['id'] ?? null;				
-				if ($id) {
-					if ($btnDocumentos == 'doc') {
-					  if (in_array('documentslist', $sessionUserPermission)) {
-						$DocumentosController = new PersonaDocumentosController();
-						return $DocumentosController->listPersonasDocumentos($id);
-					  }else{
-					  	$responseMessage=$mensajeNoPermisos;
-					  }
-					}elseif ($btnDocumentos == 'lic') {
-					  if (in_array('licenselist', $sessionUserPermission)) {
-						$LicenciasController = new PersonaLicenciasController();
-						return $LicenciasController->listPersonasLicencias($id);
-					  }else{
-					  	$responseMessage=$mensajeNoPermisos;
-					  }
-					}else{
-						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
-					}	
-				}else{
-					$responseMessage = 'Debe Seleccionar una persona';
-				}
-			}
+			$id = $postData['btnDelUpd'] ?? null;
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
 			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('peopledel', $sessionUserPermission)) {
-				  try{
-					$people = new Personas();
-					$people->destroy($id);
-					$responseMessage = "Se elimino el registro de la persona";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
-					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, esta persona esta en uso en la base de datos.';
-					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
-					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('peopleupd', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
+			  try{
+				$people = new Personas();
+				$people->destroy($id);
+				$responseMessage = "Se elimino el registro de la persona";
+			  }catch(\Exception $e){
+			  	//$responseMessage = $e->getMessage();
+			  	$prevMessage = substr($e->getMessage(), 0, 38);
+				if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
+					$responseMessage = 'Error, No se puede eliminar, esta persona esta en uso en la base de datos.';
+				}else{
+					$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 				}
+			  }
 			}else{
 				$responseMessage = 'Debe Seleccionar una persona';
 			}
 		}
-		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml 
-			$personas = Personas::find($id);
 
-			$roles = PersonaRoles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
-			$tiposdocumentos = PersonaTiposDocumento::orderBy('nombre')->get();
-			$generos = PersonaGeneros::orderBy('nombre')->get();
-			$estadocivil = PersonaEstadosCiviles::orderBy('nombre')->get();
-			$rh = PersonaRh::latest('nombre')->get();
-			$niveleducativo = PersonaNivelesEducativos::orderBy('nombre')->get();
-			$ruta='personasUpdate.twig';
-		}else{
-			$iniciar=0;
+		$paginador = $this->paginador();
+		$numeroDePaginas=$paginador['numeroDePaginas'];
+		$personas=$paginador['personas'];
+	
+		return $this->renderHTML('personasList.twig', [
+			'numeroDePaginas' => $numeroDePaginas,
+			'personas' => $personas,
+			'responseMessage' => $responseMessage
+		]);
+	}
 
-			$paginador = $this->paginador();
-			$numeroDePaginas=$paginador['numeroDePaginas'];
-			$personas=$paginador['personas'];
+
+	public function postUpdPersonas($request){
+		$roles = null; $tiposdocumentos=null; $personas=null; $numeroDePaginas=null; $id=null; $responseMessage = null;
+		$ruta='personasUpdate.twig'; $generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+			
+			if ($id) {
+				$personas = Personas::find($id);
+
+				$roles = PersonaRoles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
+				$tiposdocumentos = PersonaTiposDocumento::orderBy('nombre')->get();
+				$generos = PersonaGeneros::orderBy('nombre')->get();
+				$estadocivil = PersonaEstadosCiviles::orderBy('nombre')->get();
+				$rh = PersonaRh::latest('nombre')->get();
+				$niveleducativo = PersonaNivelesEducativos::orderBy('nombre')->get();	
+			}else{
+				$ruta='personasList.twig';
+
+				$paginador = $this->paginador();
+				$numeroDePaginas=$paginador['numeroDePaginas'];
+				$personas=$paginador['personas'];
+
+				$responseMessage = 'Debe Seleccionar una persona';
+			}
 		}
+		
+		
 		return $this->renderHTML($ruta, [
 			'numeroDePaginas' => $numeroDePaginas,
 			'personas' => $personas,
@@ -459,6 +431,7 @@ class PersonasController extends BaseController{
 			'niveleducativo' => $niveleducativo
 		]);
 	}
+
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdatePersonas($request){

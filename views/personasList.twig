@@ -107,10 +107,10 @@
               {% if btnUpd or btnDel %}
                 <td>
                   {% if btnUpd %}
-                    <button type="submit" class="btn btn-success" value="upd|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-success" formaction="peopleupd" value="{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                   {% if btnDel %}
-                    <button type="submit" class="btn btn-danger" value="del|{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-danger" value="{{ persona.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                 </td>
               {% endif %}
@@ -166,10 +166,10 @@
           <div class="form-group col-md-12" style="padding-left: 25px;">
             
             {% if btnDocumentos %}
-              <button type="submit" name="btnDocumentos" value="doc" class="btn btn-primary">Documentos</button>
+              <button type="submit" name="btnDocumentos" formaction="documentslist" value="doc" class="btn btn-primary">Documentos</button>
             {% endif %}
             {% if btnLicencias %}
-              <button type="submit" name="btnDocumentos" value="lic" class="btn btn-primary">Licencias</button>
+              <button type="submit" name="btnDocumentos" formaction="licenselist" value="lic" class="btn btn-primary">Licencias</button>
             {% endif %}
           </div>
         </div>

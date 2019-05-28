@@ -228,28 +228,18 @@ class PersonaDocumentosController extends BaseController{
 		return $retorno;
 	}
 
-	//Este metodo unicamente es llamado desde personasList.twig al seleccionar una persona y darle al boton documentos en el controller PersonasController en el metodo postUpdDelPersonas(), esta es la unica forma de entrada a este controller. (Porque si no se selecciona una persona, no se pueden ver sus documentos)
-	public function listPersonasDocumentos($idPer=null){
-		$numeroDePaginas=null; $documentos=null; $persona=null;
-
-		$paginador = $this->paginador($idPer);
-		
-		$documentos = $paginador['documentos'];
-		$numeroDePaginas = $paginador['numeroDePaginas'];
-		$persona = $paginador['persona'];
-		
-		return $this->renderHTML('personaDocumentosList.twig', [
-			'idPer' => $idPer,
-			'documentos' => $documentos,
-			'numeroDePaginas' => $numeroDePaginas,
-			'persona' => $persona
-		]);
-	}
-
 	public function getListDocumentos(){
 		$responseMessage=null; $numeroDePaginas=null; $documentos=null; $numeroDePaginas=null; $persona=null;
 		
+		//Se utiliza esta linea Si este metodo es invocado por el metodo get desde personaDocumentosList.twig 
 		$idPer = $_GET['?'] ?? null;
+		
+		//Se utiliza esta linea si el metodo es invocado desde personasList.twig, cuando el usuario seleccionar una persona y le da en el boton documentos
+		if (!$idPer) {
+			$idPer = $_POST['id'] ?? null;
+			
+		}
+
 		$paginaActual = $_GET['pag'] ?? null;
 
 		if ($idPer) {
@@ -390,70 +380,73 @@ class PersonaDocumentosController extends BaseController{
 		
 	}
 
-
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelDocumentos($request){
-		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='personaDocumentosList.twig'; $numeroDePaginas=null; $persona=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelDocumentos($request){
+		$documentos=null; $responseMessage = null; $id=null; $numeroDePaginas=null; $persona=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			$id = $postData['btnDelUpd'] ?? null;
 			$idPer = $postData['idPer'] ?? null;
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
-			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('documentsdel', $sessionUserPermission)) {
-				  try{
-					$people = new PersonaDocumentos();
-					$people->destroy($id);
-					$responseMessage = "Se elimino el documento";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
-					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, este documento esta en uso.';
-					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
-					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('documentsupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
+			if ($id) {	 
+			  try{
+				$people = new PersonaDocumentos();
+				$people->destroy($id);
+				$responseMessage = "Se elimino el documento";
+			  }catch(\Exception $e){
+			  	//$responseMessage = $e->getMessage();
+			  	$prevMessage = substr($e->getMessage(), 0, 38);
+				if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
+					$responseMessage = 'Error, No se puede eliminar, este documento esta en uso.';
+				}else{
+					$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 				}
+			  }
 			}else{
 				$responseMessage = 'Debe Seleccionar un documento';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$documentos = PersonaDocumentos::find($id);
-			$tiposdocumentos = PersonaTiposDocumentosPer::orderBy('nombre')->get();
+		$paginador = $this->paginador($idPer);
 
-			$ruta='personaDocumentosUpdate.twig';
-		}else{
-			$paginador = $this->paginador($idPer);
+		$documentos = $paginador['documentos'];
+		$numeroDePaginas = $paginador['numeroDePaginas'];
+		$persona = $paginador['persona'];
+		
+		return $this->renderHTML('personaDocumentosList.twig', [
+			'documentos' => $documentos,
+			'responseMessage' => $responseMessage,
+			'numeroDePaginas' => $numeroDePaginas,
+			'idPer' => $idPer,
+			'persona' => $persona
+		]);
+	}
 
-			$documentos = $paginador['documentos'];
-			$numeroDePaginas = $paginador['numeroDePaginas'];
-			$persona = $paginador['persona'];
+	public function postUpdDocumentos($request){
+		$tiposdocumentos=null; $documentos=null; $responseMessage = null; $id=null;
+		$ruta='personaDocumentosUpdate.twig'; $numeroDePaginas=null; $persona=null;
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+			$idPer = $postData['idPer'] ?? null;
+			
+			if ($id) {
+				$documentos = PersonaDocumentos::find($id);
+				$tiposdocumentos = PersonaTiposDocumentosPer::orderBy('nombre')->get();	
+			}else{
+				$ruta='personaDocumentosList.twig';
+				
+				$paginador = $this->paginador($idPer);
+
+				$documentos = $paginador['documentos'];
+				$numeroDePaginas = $paginador['numeroDePaginas'];
+				$persona = $paginador['persona'];
+
+				$responseMessage = 'Debe Seleccionar un documento';
+			}
 		}
+		
 		return $this->renderHTML($ruta, [
 			'documentos' => $documentos,
 			'tiposdocumentos' => $tiposdocumentos,

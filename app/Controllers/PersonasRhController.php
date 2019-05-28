@@ -131,70 +131,64 @@ class PersonasRhController extends BaseController{
 	}
 
 
-
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelRh($request){
-		$rh=null; $numeroDePaginas=null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='personaRhList.twig'; $responseMessage = null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelRh($request){
+		$rhs=null; $numeroDePaginas=null; $id=null; $responseMessage = null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
+			$id = $postData['btnDelUpd'] ?? null;
 
-			/*En este if verifica que boton se presiono si el de documentos o licencia y crea una instancia de la clase que corresponde, ejemplo si presiono documentos crea una instancia de la clase PersonaDocumentosController y llama al metodo listPersonasDocumentos(parametro el ID de la persona)*/
-			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
-			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('rhdel', $sessionUserPermission)) {
-				  try{
-					$people = new PersonaRh();
-					$people->destroy($id);
-					$responseMessage = "Se elimino el Rh";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
-					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, este Rh esta en uso.';
-					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
-					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('rhupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
+			if ($id) {	 
+			  try{
+				$people = new PersonaRh();
+				$people->destroy($id);
+				$responseMessage = "Se elimino el Rh";
+			  }catch(\Exception $e){
+			  	//$responseMessage = $e->getMessage();
+			  	$prevMessage = substr($e->getMessage(), 0, 38);
+				if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
+					$responseMessage = 'Error, No se puede eliminar, este Rh esta en uso.';
+				}else{
+					$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
 				}
+			  }
 			}else{
 				$responseMessage = 'Debe Seleccionar una persona';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$rhs = PersonaRh::find($id);
+		$paginador = $this->paginador();
+		$numeroDePaginas=$paginador['numeroDePaginas'];
+		$rhs=$paginador['rhs'];
+		
+		return $this->renderHTML('personaRhList.twig', [
+			'numeroDePaginas' => $numeroDePaginas,
+			'rhs' => $rhs,
+			'responseMessage' => $responseMessage
+		]);
+	}
 
-			$ruta='personaRhUpdate.twig';
-		}else{
-			$iniciar=0;
 
-			$paginador = $this->paginador();
-			$numeroDePaginas=$paginador['numeroDePaginas'];
-			$rhs=$paginador['rhs'];
+	public function postUpdRh($request){
+		$rhs=null; $numeroDePaginas=null; $id=null; $responseMessage = null;
+		$ruta='personaRhUpdate.twig';
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+
+			if ($id) {
+				$rhs = PersonaRh::find($id);  
+			}else{
+				$paginador = $this->paginador();
+				$numeroDePaginas=$paginador['numeroDePaginas'];
+				$rhs=$paginador['rhs'];
+
+				$ruta='personaRhList.twig';
+				$responseMessage = 'Debe Seleccionar una persona';
+			}
 		}
+		
 		return $this->renderHTML($ruta, [
 			'numeroDePaginas' => $numeroDePaginas,
 			'rhs' => $rhs,
