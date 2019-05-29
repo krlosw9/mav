@@ -26,6 +26,14 @@
         <form action="checkadd" method="post" role="form">
           <div class="box-body">
             <div class="form-group col-xs-12 col-sm-6 col-md-6">
+              <label>Referencia (*):</label>
+              <input type="text" name="referencia" class="form-control" required>
+            </div>
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
+              <label>Ciudad (*):</label>
+              <input type="text" name="ciudad" class="form-control" required>
+            </div>
+            <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Vehículo (*):</label>
               <select class="form-control select-picker" name="vehplacaid" required>
                 {% for vehiculo in vehiculos %}

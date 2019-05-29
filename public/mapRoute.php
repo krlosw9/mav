@@ -273,9 +273,15 @@ $map->get('getBuscarAlistamientos', $subdomain.'/checksearch', [
 ]);
 $map->post('postDelAlistamientos', $subdomain.'/checkdel', [
         'controller' => 'App\Controllers\AlistamientosController',
-        'action' => 'postUpdDelAlistamientos',
+        'action' => 'postDelAlistamientos',
         'auth' => true,
-        'license' => ['checkdel','checkupdate']
+        'license' => ['checkdel']
+]);
+$map->post('postUpdAlistamientos', $subdomain.'/checkupd', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'postUpdAlistamientos',
+        'auth' => true,
+        'license' => ['checkupdate']
 ]);
 $map->post('postUpdateAlistamientos', $subdomain.'/checkupdate', [
         'controller' => 'App\Controllers\AlistamientosController',

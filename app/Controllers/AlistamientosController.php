@@ -37,17 +37,6 @@ class AlistamientosController extends BaseController{
 		]);
 	}
 
-	public function getAddAlistamientos2(){
-		$gruposalistamiento = null; $tiposalistamiento=null;
-		$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
-		$tiposalistamiento = AlistamientosTiposAlistamiento::orderBy('gaid')->get();
-
-		return $this->renderHTML('alistamientosAdd2.twig',[
-				'gruposalistamiento' => $gruposalistamiento,
-				'tiposalistamiento' => $tiposalistamiento
-		]);
-	}
-
 	//Registra el Alistamientos
 	public function postAddAlistamientos($request){
 		$responseMessage = null; $prevMessage=null; $registrationErrorMessage=null;
@@ -78,6 +67,8 @@ class AlistamientosController extends BaseController{
 					$infoAlistamiento = new AlistamientosInformacionAlistamiento();
 					$infoAlistamiento->id=$ultimoIdInfoAlis;
 					$infoAlistamiento->fecha=$postData['fecha'];
+					$infoAlistamiento->referencia=$postData['referencia'];
+					$infoAlistamiento->ciudad=$postData['ciudad'];
 					$infoAlistamiento->kilometraje = $postData['kilometraje'];
 					$infoAlistamiento->calificacion = $calificacion;
 					$infoAlistamiento->observaciongeneral = $postData['observaciongeneral'];
@@ -135,6 +126,7 @@ class AlistamientosController extends BaseController{
 					
 				}catch(\Exception $exception){
 					$prevMessage = substr($exception->getMessage(), 0, 25);
+					$prevMessage = $exception->getMessage();
 
 					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 						$responseMessage = 'Error, El numero del documento ya esta registrado';
@@ -403,104 +395,82 @@ class AlistamientosController extends BaseController{
 	}
 
 
-	/*Al seleccionar uno de los dos botones (Eliminar o Actualizar) llega a esta accion y verifica cual de los dos botones oprimio si eligio el boton eliminar(del) elimina el registro de where $id Pero
-	Si elige actualizar(upd) cambia la ruta del renderHTML y guarda una consulta de los datos del registro a modificar para mostrarlos en formulario de actualizacion llamado updateActOperario.twig y cuando modifica los datos y le da guardar a ese formulaio regresa a esta class y elige la accion getUpdateActivity()*/
-	public function postUpdDelAlistamientos($request){
-		$roles = null; $tiposdocumentos=null; $personas=null; $numeroDePaginas=null; $id=null; $boton=null;
-		$quiereActualizar = false; $ruta='alistamientosList.twig'; $responseMessage = null;
-		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
-		$mensajeNoPermisos='Su rol no tiene permisos para realizar esta funcion';
-
-		$sessionUserPermission = $_SESSION['userLicense'] ?? null;
+	public function postDelAlistamientos($request){
+		$alistamientos=null; $numeroDePaginas=null; $id=null; $responseMessage = null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
-			$btnDelUpd = $postData['btnDelUpd'] ?? null;
-			$btnDocumentos = $postData['btnDocumentos'] ?? null;			
-
-			/*En este if verifica que boton se presiono si el de documentos o licencia y crea una instancia de la clase que corresponde, ejemplo si presiono documentos crea una instancia de la clase PersonaDocumentosController y llama al metodo listPersonasDocumentos(parametro el ID de la persona)*/
-			if ($btnDocumentos) {
-				$id = $postData['id'] ?? null;				
-				if ($id) {
-					if ($btnDocumentos == 'doc') {
-					  if (in_array('documentslist', $sessionUserPermission)) {
-						$DocumentosController = new PersonaDocumentosController();
-						return $DocumentosController->listPersonasDocumentos($id);
-					  }else{
-						$responseMessage=$mensajeNoPermisos;
-					  }
-					}elseif ($btnDocumentos == 'lic') {
-					  if (in_array('licenselist', $sessionUserPermission)) {
-						$LicenciasController = new PersonaLicenciasController();
-						return $LicenciasController->listPersonasLicencias($id);
-					  }else{
-					  	$responseMessage=$mensajeNoPermisos;
-					  }
-					}else{
-						$responseMessage = 'Opcion no definida, btn: '.$btnDocumentos;
-					}	
-				}else{
-					$responseMessage = 'Debe Seleccionar una persona';
-				}
-			}
+			$id = $postData['btnDelUpd'] ?? null;
 			
-			if ($btnDelUpd) {
-				$divideCadena = explode("|", $btnDelUpd);
-				$boton=$divideCadena[0];
-				$id=$divideCadena[1];
-			}
 			if ($id) {
-				if($boton == 'del'){
-				 if (in_array('checkdel', $sessionUserPermission)) {
-				  try{
-					$people = new Personas();
-					$people->destroy($id);
-					$responseMessage = "Se elimino el registro de la persona";
-				  }catch(\Exception $e){
-				  	//$responseMessage = $e->getMessage();
-				  	$prevMessage = substr($e->getMessage(), 0, 38);
-					if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
-						$responseMessage = 'Error, No se puede eliminar, esta persona esta en uso en la base de datos.';
-					}else{
-						$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
-					}
-				  }
-				 }else{
-				 	$responseMessage=$mensajeNoPermisos;
-				 }
-				}elseif ($boton == 'upd') {
-				  if (in_array('checkupdate', $sessionUserPermission)) {
-					$quiereActualizar=true;
-				  }else{
-				  	$responseMessage=$mensajeNoPermisos;
-				  }
+			  try{
+			  	$alistamientos = Alistamientos::where("infoalisid","=",$id)->get();
+			  	$alistamientoDel = new Alistamientos();
+			  	foreach ($alistamientos as $alistamiento) {
+					$alistamientoDel->destroy($alistamiento->id);
 				}
+				$checkDel = new AlistamientosInformacionAlistamiento();
+				$checkDel->destroy($id);
+				$responseMessage = "Se elimino el alistamiento";
+			  }catch(\Exception $e){
+			  	//$responseMessage = $e->getMessage();
+			  	$prevMessage = substr($e->getMessage(), 0, 38);
+				if ($prevMessage =="SQLSTATE[23503]: Foreign key violation") {
+					$responseMessage = 'Error, No se puede eliminar, este alistamiento esta en uso.';
+				}else{
+					$responseMessage= 'Error, No se puede eliminar, '.$prevMessage;
+				}
+			  }
 			}else{
-				$responseMessage = 'Debe Seleccionar una persona';
+				$responseMessage = 'Debe Seleccionar un alistamiento';
 			}
 		}
 		
-		if ($quiereActualizar){
-			//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
-			$personas = Personas::find($id);
+		$paginador = $this->paginador();
+		$numeroDePaginas=$paginador['numeroDePaginas'];
+		$alistamientos=$paginador['alistamientos'];
+		
+		return $this->renderHTML('alistamientosList.twig', [
+			'numeroDePaginas' => $numeroDePaginas,
+			'alistamientos' => $alistamientos,
+			'responseMessage' => $responseMessage
+		]);
+	}
 
-			$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
-			$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
-			$generos = Generos::orderBy('nombre')->get();
-			$estadocivil = EstadosCiviles::orderBy('nombre')->get();
-			$rh = Rh::latest('nombre')->get();
-			$niveleducativo = NivelesEducativos::orderBy('nombre')->get();
-			$ruta='alistamientosUpdate.twig';
-		}else{
-			$iniciar=0;
 
-			$paginador = $this->paginador();
-			$numeroDePaginas=$paginador['numeroDePaginas'];
-			$personas=$paginador['personas'];
+	public function postUpdAlistamientos($request){
+		$roles = null; $tiposdocumentos=null; $alistamientos=null; $numeroDePaginas=null; $id=null;
+		$ruta='alistamientosUpdate.twig'; $responseMessage = null;
+		$generos=null; $estadocivil=null; $rh=null; $niveleducativo=null;
+
+
+		if($request->getMethod()=='POST'){
+			$postData = $request->getParsedBody();
+			$id = $postData['btnDelUpd'] ?? null;
+			
+			if ($id) {
+				//si quiere actualizar hace una consulta where id=$id y la envia por el array del renderHtml
+				$alistamientos = Personas::find($id);
+
+				$roles = Roles::where("id",">=",$_SESSION['userRolId'])->latest('id')->get();
+				$tiposdocumentos = TiposDocumento::orderBy('nombre')->get();
+				$generos = Generos::orderBy('nombre')->get();
+				$estadocivil = EstadosCiviles::orderBy('nombre')->get();
+				$rh = Rh::latest('nombre')->get();
+				$niveleducativo = NivelesEducativos::orderBy('nombre')->get();	
+			}else{
+				$paginador = $this->paginador();
+				$numeroDePaginas=$paginador['numeroDePaginas'];
+				$alistamientos=$paginador['alistamientos'];
+
+				$responseMessage = 'Debe Seleccionar un alistamiento';
+				$ruta='alistamientosList.twig';
+			}
 		}
+		
 		return $this->renderHTML($ruta, [
 			'numeroDePaginas' => $numeroDePaginas,
-			'personas' => $personas,
+			'alistamientos' => $alistamientos,
 			'roles' => $roles,
 			'tiposdocumentos' => $tiposdocumentos,
 			'responseMessage' => $responseMessage,
@@ -510,6 +480,7 @@ class AlistamientosController extends BaseController{
 			'niveleducativo' => $niveleducativo
 		]);
 	}
+
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdateAlistamientos($request){

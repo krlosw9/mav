@@ -87,3 +87,25 @@
       </div>
       
 {% endblock %}
+{% block javascripts %}
+  <script type="text/javascript">
+    new Morris.Line({
+      element: 'morrisLine1',
+      data: [
+        { y: '2006', a: 100, b: 90 },
+        { y: '2007', a: 75,  b: 65 },
+        { y: '2008', a: 50,  b: 40 },
+        { y: '2009', a: 75,  b: 65 },
+        { y: '2010', a: 50,  b: 40 },
+      ],
+      xkey: 'y',
+      ykeys: ['a', 'b'],
+      labels: ['Accidentes', 'Incidentes'],
+      barColors: ['#5058AB', '#14A0C1'],
+      gridTextSize: 11,
+      hideHover: 'auto',
+      resize: true
+    });
+    
+  </script>
+{% endblock %}
