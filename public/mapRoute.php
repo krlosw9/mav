@@ -443,6 +443,56 @@ $map->post('postUpdateVehiculoPersonas', $subdomain.'/vehiclepeopleupdate', [
         'license' => ['vehiclepeopleupdate']
 ]);
 
+//Rutas Incidentes
+$map->get('getAddIncidentes', $subdomain.'/incidentadd', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'getAddIncidentes',
+        'auth' => true,
+        'license' => ['incidentadd']
+]);
+$map->post('postAddIncidentes', $subdomain.'/incidentadd', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'postAddIncidentes',
+        'auth' => true,
+        'license' => ['incidentadd']
+]);
+$map->get('getListIncidentes', $subdomain.'/incidentlist', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'getListIncidentes',
+        'auth' => true,
+        'license' => ['incidentlist']
+]);
+$map->post('postBuscarIncidentes', $subdomain.'/incidentsearch', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'postBusquedaIncidentes',
+        'auth' => true,
+        'license' => ['incidentlist']
+]);
+$map->get('getBuscarIncidentes', $subdomain.'/incidentsearch', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'postBusquedaIncidentes',
+        'auth' => true,
+        'license' => ['incidentlist']
+]);
+$map->post('postDelIncidentes', $subdomain.'/incidentdel', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'postDelIncidentes',
+        'auth' => true,
+        'license' => ['incidentdel']
+]);
+$map->post('postUpdIncidentes', $subdomain.'/incidentupd', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'postUpdIncidentes',
+        'auth' => true,
+        'license' => ['incidentupdate']
+]);
+$map->post('postUpdateIncidentes', $subdomain.'/incidentupdate', [
+        'controller' => 'App\Controllers\AccidentesIncidentesController',
+        'action' => 'postUpdateIncidentes',
+        'auth' => true,
+        'license' => ['incidentupdate']
+]);
+
 
 
 

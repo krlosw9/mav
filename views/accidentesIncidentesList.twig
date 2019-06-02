@@ -1,0 +1,205 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+
+<h1>
+    Accidentes/Incidentes
+    <small>Listado</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
+    <li><a href="./incidentlist">Accidentes/Incidentes</a></li>
+    <li class="active">Listado</li>
+  </ol>
+</section>
+<section class="content">
+  <div class="row">
+    <!-- left column -->
+    <div class="col-xs-12">
+     <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Buscar accidentes/incidentes</h3>
+      </div>
+      <div class="box-body">
+        {% set btnAdd = false %}
+        {% set btnUpd = false %}
+        {% set btnDel = false %}
+
+       {% for permission in arrayPermissions %}
+        {% if permission == 'incidentadd' %}
+          {% set btnAdd = true %}
+        {% endif %}
+        {% if permission == 'incidentupdate' %}
+          {% set btnUpd = true %}
+        {% endif %}
+        {% if permission == 'incidentdel' %}
+          {% set btnDel = true %}
+        {% endif %}
+      {% endfor %}
+       <form action="incidentsearch" method="post" role="form">
+          <div class="row" style="padding-left: 15px;">
+            <div class="form-group col-xs-6 col-sm-4 col-md-4">
+              <label>Buscar:</label>
+            </div>
+            <div class="form-group col-xs-6 col-sm-4 col-md-4">
+              <label>Por:</label>
+            </div>
+          </div>
+          <div class="row" style="padding-left: 15px;">
+          <div class="form-group col-xs-6 col-sm-4 col-md-4">
+            
+              
+            <select class="form-control select-picker" name="textBuscar" required>
+              {% for vehiculo in vehiculos %}
+                <option value="{{ vehiculo.id }}">{{ vehiculo.placa }}</option>
+              {% endfor %}
+            </select>
+            
+          </div>
+          <div class="form-group col-xs-6 col-sm-4 col-md-4">
+            
+            <select class="form-control select-picker" name="criterio">
+              <option value="1">Placa</option>
+            </select>
+          </div>
+          <div class="form-group col-xs-12 col-sm-4 col-md-4">
+              <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
+              {% if btnAdd %}
+                <a type="button" class="btn btn-primary" href="./incidentadd">Agregar</a>
+              {% endif %}
+          </div>
+        </div>
+       </form>
+     </div>
+     <hr noshade="noshade" size="4" width="95%" />
+      <!-- /.box-header -->
+      <div class="box-body">
+       <form action="incidentdel" method="post" role="form">
+        <div class="table-responsive">
+        <table class="table table-striped table-sm" >
+
+          <tr>
+            <th style="width: 10px">#</th>
+            <th style="width: 100px">Tipo</th>
+            <th style="width: 100px">Vehículo</th>
+            <th style="width: 100px">Clasificación</th>
+            <th style="width: 100px">Fecha</th>
+            {% if btnUpd or btnDel %}
+              <th style="width: 130px">Acción</th>
+            {% endif %}
+          </tr>
+          {% set ciclo = false %}
+          {% for incidente in incidentes %}
+          <tr>
+              <td><input type="radio" name="id" value="{{ incidente.id }}"></td>
+              <td>{{ incidente.tipo }}</td>
+              <td>{{ incidente.placa }}</td>
+              <td>{{ incidente.clasificacion }}</td>
+              <td>{{ incidente.fecha }}</td>
+              {% if btnUpd or btnDel %}
+                <td>
+                  {% if btnUpd %}
+                    <button type="submit" class="btn btn-success" formaction="incidentupd" value="{{ incidente.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                  {% if btnDel %}
+                    <button type="submit" class="btn btn-danger" value="{{ incidente.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                  {% endif %}
+                </td>
+              {% endif %}
+          </tr>
+          {% set ciclo = true %}
+          {% endfor %}
+          {% if ciclo == false %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  No se encontraron datos
+                  {% if queryErrorMessage %}
+                    {% for errorMessage in queryErrorMessage %} 
+                      {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                    {% endfor %}
+                  {% else %}
+                    {% if prevMessage %}
+                      {{ prevMessage }}
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+
+          {% if registrationErrorMessage %}
+            <tr>
+              <td colspan=8>
+                <div class="alert alert-danger" style="font-size:17px;">
+                  Se presentaron los siguientes errores, por favor corríjalos: <br>
+                  {% for errorMessage in registrationErrorMessage %} 
+                    {% if errorMessage %} <br> {{ errorMessage }}  {% endif %} 
+                  {% endfor %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            {% if responseMessage %}
+              <tr>
+                <td colspan=8>
+                  <div class="alert alert-danger" style="font-size:17px;">
+                    {{ responseMessage }}
+                  </div>
+                </td>
+              </tr>
+            {% endif %}
+          {% endif %}
+          
+        </table>
+      </div>
+
+        <div class="row">
+          <div class="form-group col-md-12" style="padding-left: 25px;">
+            
+            {% if btnDocumentos %}
+              <button type="submit" name="btnDocumentos" formaction="documentslist" value="doc" class="btn btn-primary">Documentos</button>
+            {% endif %}
+            {% if btnLicencias %}
+              <button type="submit" name="btnDocumentos" formaction="licenselist" value="lic" class="btn btn-primary">Licencias</button>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if numeroDePaginas%}
+          {% if numeroDePaginas > 1 %}
+            <nav aria-label="Page navigation example">
+              <ul class="pagination" style="padding-left: 10px;">
+                {% for i in 1..numeroDePaginas %}
+                  {% if paginaActual == i %}
+                    <li class="page-item active"><a class="page-link" href="./incidentlist?pag={{i}}">{{i}}</a></li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="./incidentlist?pag={{i}}">{{i}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}
+        {% else %}
+          {% if numeroDePaginasBusqueda > 1 %}
+            <nav aria-label="Page navigation example">
+              <ul class="pagination" style="padding-left: 10px;">
+                {% for i in 1..numeroDePaginasBusqueda %}
+                  {% if paginaActual == i %}
+                    <li class="page-item active"><a class="page-link" href="./incidentsearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="./incidentsearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </nav>
+          {% endif %}  
+        {% endif %}
+       </form>
+      </div>
+      <!-- /.box-body -->
+      </div>
+    </div>
+    
+
+{% endblock %}
