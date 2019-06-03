@@ -34,7 +34,9 @@
   {% set peoplelist = false %}
   {% set rhlist = false %}
   {% set incidentlist = false %}
-  {% set algunPermisoFuturo = false %}
+  {% set maintenancelist = false %}
+  {% set subpoenalist = false %}
+  {% set workshoplist = false %}
 
   <!-- Ciclo que recorre el vector con los permisos de ese usuario -->
   {% for permission in arrayPermissions %}
@@ -53,8 +55,14 @@
     {% if permission == 'incidentlist' %}
       {% set incidentlist = true %}
     {% endif %}
-    {% if permission == 'algunPermisoFuturo' %}
-      {% set algunPermisoFuturo = true %}
+    {% if permission == 'maintenancelist' %}
+      {% set maintenancelist = true %}
+    {% endif %}
+    {% if permission == 'subpoenalist' %}
+      {% set subpoenalist = true %}
+    {% endif %}
+    {% if permission == 'workshoplist' %}
+      {% set workshoplist = true %}
     {% endif %}
   {% endfor %}
   
@@ -161,7 +169,7 @@
           </li>
         {% endif %}
 
-        {% if algunPermisoFuturo %}
+        {% if maintenancelist %}
           <li>
             <a href="#">
               <i class="fa fa-steam"></i> <span>Manteniemientos</span>
@@ -177,7 +185,7 @@
           </li>
         {% endif %}
 
-        {% if algunPermisoFuturo %}
+        {% if subpoenalist %}
           <li>
             <a href="#">
               <i class="fa fa-clipboard"></i> <span>Comparendos</span>
@@ -185,7 +193,7 @@
           </li>
         {% endif %}
 
-        {% if algunPermisoFuturo %}  
+        {% if workshoplist %}  
           <li>
             <a href="#">
               <i class="fa fa-gear"></i> <span>Talleres</span>
