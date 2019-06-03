@@ -494,6 +494,57 @@ $map->post('postUpdateIncidentes', $subdomain.'/incidentupdate', [
 ]);
 
 
+//Rutas Comparendos
+$map->get('getAddComparendos', $subdomain.'/subpoenaadd', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'getAddComparendos',
+        'auth' => true,
+        'license' => ['subpoenaadd']
+]);
+$map->post('postAddComparendos', $subdomain.'/subpoenaadd', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'postAddComparendos',
+        'auth' => true,
+        'license' => ['subpoenaadd']
+]);
+$map->get('getListComparendos', $subdomain.'/subpoenalist', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'getListComparendos',
+        'auth' => true,
+        'license' => ['subpoenalist']
+]);
+$map->post('postBuscarComparendos', $subdomain.'/subpoenasearch', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'postBusquedaComparendos',
+        'auth' => true,
+        'license' => ['subpoenalist']
+]);
+$map->get('getBuscarComparendos', $subdomain.'/subpoenasearch', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'postBusquedaComparendos',
+        'auth' => true,
+        'license' => ['subpoenalist']
+]);
+$map->post('postDelComparendos', $subdomain.'/subpoenadel', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'postDelComparendos',
+        'auth' => true,
+        'license' => ['subpoenadel']
+]);
+$map->post('postUpdComparendos', $subdomain.'/subpoenaupd', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'postUpdComparendos',
+        'auth' => true,
+        'license' => ['subpoenaupdate']
+]);
+$map->post('postUpdateComparendos', $subdomain.'/subpoenaupdate', [
+        'controller' => 'App\Controllers\ComparendosController',
+        'action' => 'postUpdateComparendos',
+        'auth' => true,
+        'license' => ['subpoenaupdate']
+]);
+
+
 
 
 
