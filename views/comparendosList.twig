@@ -84,12 +84,11 @@
         <table class="table table-striped table-sm" >
 
           <tr>
-            <th style="width: 10px">#</th>
             <th style="width: 80px">Vehículo</th>
             <th style="width: 70px">Estado</th>
             <th style="width: 80px">Fecha</th>
             <th style="width: 80px">Lugar</th>
-            <th style="width: 100px">Tipo</th>
+            <th style="width: 120px">Tipo</th>
             {% if btnUpd or btnDel %}
               <th style="width: 130px">Acción</th>
             {% endif %}
@@ -97,8 +96,6 @@
           {% set ciclo = false %}
           {% for comparendo in comparendos %}
           <tr>
-              <input type="hidden" name="ruta" value="listar">
-              <td><input type="radio" name="id" value="{{ comparendo.id }}"></td>
               <td>{{ comparendo.vehiculo }}</td>
               <td>{{ comparendo.estado }}</td>
               <td>{{ comparendo.fecha }}</td>
@@ -161,18 +158,6 @@
           
         </table>
       </div>
-
-        <div class="row">
-          <div class="form-group col-md-12" style="padding-left: 25px;">
-            
-            {% if btnDocumentos %}
-              <button type="submit" name="btnDocumentos" formaction="documentslist" value="doc" class="btn btn-primary">Documentos</button>
-            {% endif %}
-            {% if btnLicencias %}
-              <button type="submit" name="btnDocumentos" formaction="licenselist" value="lic" class="btn btn-primary">Licencias</button>
-            {% endif %}
-          </div>
-        </div>
 
         {% if numeroDePaginas%}
           {% if numeroDePaginas > 1 %}

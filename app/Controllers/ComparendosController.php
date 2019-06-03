@@ -344,7 +344,7 @@ class ComparendosController extends BaseController{
 
 
 	public function postDelComparendos($request){
-		$comparendos=null; $numeroDePaginas=null; $id=null; $responseMessage = null;
+		$comparendos=null; $numeroDePaginas=null; $id=null; $responseMessage = null; $vehiculos=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -372,10 +372,12 @@ class ComparendosController extends BaseController{
 		$paginador = $this->paginador();
 		$numeroDePaginas=$paginador['numeroDePaginas'];
 		$comparendos=$paginador['comparendos'];
+		$vehiculos=$paginador['vehiculos'];
 	
 		return $this->renderHTML('comparendosList.twig', [
 			'numeroDePaginas' => $numeroDePaginas,
 			'comparendos' => $comparendos,
+			'vehiculos' => $vehiculos,
 			'responseMessage' => $responseMessage
 		]);
 	}
@@ -421,58 +423,35 @@ class ComparendosController extends BaseController{
 
 	//en esta accion se registra las modificaciones del registro utiliza metodo post no get
 	public function postUpdateComparendos($request){
-		$responseMessage = null; $registrationErrorMessage=null; $personas=null; $numeroDePaginas=null;
-		$activoCheck=1;
+		$responseMessage = null; $registrationErrorMessage=null; $comparendos=null; $numeroDePaginas=null; $vehiculos=null;
+		
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
 
-			$personaValidator = v::key('nombre', v::stringType()->length(1, 35)->notEmpty())
-					->key('apellido', v::stringType()->length(1, 35)->notEmpty())
-					->key('tipodocumentoid', v::numeric()->positive()->notEmpty())
-					->key('numerodocumento', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('genero', v::numeric()->positive()->notEmpty())
-					->key('estadocivil', v::numeric()->positive()->notEmpty())
-					->key('fechanacimiento', v::date())
-					->key('rh', v::numeric()->positive()->notEmpty())
-					->key('correo', v::email())
-					->key('celular', v::numeric()->positive()->length(1, 15)->notEmpty())
-					->key('rolid', v::numeric()->positive()->length(1, 2)->notEmpty());
-
+			$comparendoValidator = v::key('tipcomid', v::numeric()->positive()->notEmpty())
+					->key('lugar', v::stringType()->length(1, 75)->notEmpty())
+					->key('descripcion', v::stringType()->length(1, 255)->notEmpty())
+					->key('idestado', v::numeric()->positive()->notEmpty())
+					->key('vehid', v::numeric()->positive()->notEmpty())
+					->key('fecha', v::date());
 			
 			if($_SESSION['userId']){
 				try{
-					$personaValidator->assert($postData);
+					$comparendoValidator->assert($postData);
 					$postData = $request->getParsedBody();
-
-					$postActivoCheck = $postData['activocheck'] ?? null;
-					if ($postActivoCheck) {
-						$activoCheck = 1;
-					}else{
-						$activoCheck = 0;
-					}
 					
-					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en persona y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
-					$idPersona = $postData['id'];
-					$persona = Personas::find($idPersona);
+					//la siguiente linea hace una consulta en la DB y trae el registro where id=$id y lo guarda en comparendo y posteriormente remplaza los valores y con el ->save() guarda la modificacion en la DB
+					$idComparendo = $postData['id'];
+					$comparendo = Comparendos::find($idComparendo);
 					
-					$persona->numerodocumento=$postData['numerodocumento'];
-					$persona->tipodocumentoid = $postData['tipodocumentoid'];
-					$persona->nombre = $postData['nombre'];
-					$persona->apellido = $postData['apellido'];
-					$persona->generoid = $postData['genero'];
-					$persona->estadocivilid = $postData['estadocivil'];
-					$persona->fechanacimiento = $postData['fechanacimiento'];
-					$persona->rhid = $postData['rh'];
-					$persona->niveleducativoid = $postData['niveleducativo'];
-					$persona->profesion = $postData['profesion'];
-					$persona->direccion = $postData['direccion'];
-					$persona->correo = $postData['correo'];
-					$persona->telefono = $postData['telefono'];
-					$persona->celular = $postData['celular'];
-					$persona->rolid = $postData['rolid'];
-					$persona->activocheck = $activoCheck;
-					$persona->iduserupdate = $_SESSION['userId'];
-					$persona->save();
+					$comparendo->tipcomid=$postData['tipcomid'];
+					$comparendo->lugar = $postData['lugar'];
+					$comparendo->descripcion = $postData['descripcion'];
+					$comparendo->idestado = $postData['idestado'];
+					$comparendo->vehid = $postData['vehid'];
+					$comparendo->fecha = $postData['fecha'];
+					$comparendo->iduserupdate = $_SESSION['userId'];
+					$comparendo->save();
 
 					$responseMessage = 'Editado.';
 				}catch(\Exception $exception){
@@ -489,7 +468,6 @@ class ComparendosController extends BaseController{
 						'notEmpty' => '- Los campos con (*) no pueden estar vacios',
 						'length' => '- Tiene una longitud no permitida',
 						'stringType' => '- Solo puede contener numeros y letras',
-						'email' => '- Formato de correo no valido', 
 						'date' => '- Formato de fecha no valido',
 						'numeric' => '- Solo puede contener numeros', 
 						'positive' => '- Solo puede contener numeros mayores a cero'
@@ -500,17 +478,20 @@ class ComparendosController extends BaseController{
 				}
 			}
 		}
+		
+		$paginador = $this->paginador();
 		if ($responseMessage=='Editado.') {
-			$paginador = $this->paginador();
 			$numeroDePaginas=$paginador['numeroDePaginas'];
-			$personas=$paginador['personas'];
+			$comparendos=$paginador['comparendos'];
 		}
+		$vehiculos=$paginador['vehiculos'];
 
 		return $this->renderHTML('comparendosList.twig',[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'numeroDePaginas' => $numeroDePaginas,
-				'personas' => $personas
+				'comparendos' => $comparendos,
+				'vehiculos' => $vehiculos
 		]);
 	}
 }
