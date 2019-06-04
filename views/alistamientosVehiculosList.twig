@@ -1,14 +1,14 @@
-{% extends "layout.twig" %}
+{% extends "layout.twig" %} 
 
 {% block content %}
 
 <h1>
-    Alistamiento
+    Alistamiento-Vehículos
     <small>Listado</small>
   </h1>
   <ol class="breadcrumb">
     <li><a href="./"><i class="fa fa-dashboard"></i> Escritorio</a></li>
-    <li><a href="./checklist">Alistamiento</a></li>
+    <li><a href="./checklist">Alistamiento-Vehículos</a></li>
     <li class="active">Listado</li>
   </ol>
 </section>
@@ -18,25 +18,16 @@
     <div class="col-xs-12">
      <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Buscar personas </h3>
+        <h3 class="box-title">Seleccione el vehiculo</h3>
       </div>
       <div class="box-body">
-        {% set btnAdd = false %}
-        {% set btnUpd = false %}
-        {% set btnDel = false %}
-
+        {% set btnList = false %}
        {% for permission in arrayPermissions %}
-        {% if permission == 'checkadd' %}
-          {% set btnAdd = true %}
-        {% endif %}
-        {% if permission == 'checkupdate' %}
-          {% set btnUpd = true %}
-        {% endif %}
-        {% if permission == 'checkdel' %}
-          {% set btnDel = true %}
+        {% if permission == 'checklist' %}
+          {% set btnList = true %}
         {% endif %}
       {% endfor %}
-       <form action="checksearch" method="post" role="form">
+       <form action="vehiclesearch" method="post" role="form">
           <div class="row" style="padding-left: 15px;">
             <div class="form-group col-xs-6 col-sm-4 col-md-4">
               <label>Buscar:</label>
@@ -52,16 +43,13 @@
           <div class="form-group col-xs-6 col-sm-4 col-md-4">
             
             <select class="form-control select-picker" name="criterio">
-              <option value="1">Documento de identidad</option>
-              <option value="2">Nombre</option>
-              <option value="3">Apellido</option>
+              <option value="1">Placa</option>
+              <option value="2">Número interno</option>
+              <option value="3">Licencia de tránsito</option>
             </select>
           </div>
           <div class="form-group col-xs-12 col-sm-4 col-md-4">
               <button type="submit" name="btnBuscar" class="btn btn-primary" >Buscar</button>
-              {% if btnAdd %}
-                <a type="button" class="btn btn-primary" href="./selectvehicle">Agregar</a>
-              {% endif %}
           </div>
         </div>
        </form>
@@ -69,36 +57,37 @@
      <hr noshade="noshade" size="4" width="95%" />
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="checkdel" method="post" role="form">
+       <form action="vehicledel" method="post" role="form">
         <div class="table-responsive">
-        <table class="table table-striped table-sm" >
+          <table class="table table-striped table-sm" >
 
           <tr>
-            <th style="width: 10px">#</th>
-            <th style="width: 100px">Fecha</th>
-            <th style="width: 100px">Vehículo</th>
-            <th style="width: 100px">Conductor</th>
-            <th style="width: 100px">Resultado</th>
+            <th style="width: 100px">Placa</th>
+            <th style="width: 70px">Interno</th>
+            <th style="width: 50px">Capacidad</th>
+            <th style="width: 100px">Servicio</th>
+            <th style="width: 70px">Modelo</th>
+            <th style="width: 100px">Vinculación</th>
             {% if btnUpd or btnDel %}
               <th style="width: 130px">Acción</th>
             {% endif %}
           </tr>
           {% set ciclo = false %}
-          {% for alistamiento in alistamientos %}
+          {% for vehiculo in query %}
           <tr>
-              <input type="hidden" name="ruta" value="listar">
-              <td><input type="radio" name="id" value="{{ alistamiento.id }}"></td>
-              <td>{{ alistamiento.fecha }}</td>
-              <td>{{ alistamiento.placa }}</td>
-              <td>{{ alistamiento.nombre }}</td>
-              <td>{{ alistamiento.calificacion }}</td>
+              <td>{{ vehiculo.placa }}</td>
+              <td>{{ vehiculo.interno }}</td>
+              <td>{{ vehiculo.capacidad }}</td>
+              <td>{{ vehiculo.servicio }}</td>
+              <td>{{ vehiculo.modelo }}</td>
+              <td>{{ vehiculo.vinculacion }}</td>
               {% if btnUpd or btnDel %}
                 <td>
                   {% if btnUpd %}
-                    <button type="submit" class="btn btn-success" formaction="checkupd" value="{{ alistamiento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-success" formaction="vehicleupd" value="{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                   {% if btnDel %}
-                    <button type="submit" class="btn btn-danger" value="{{ alistamiento.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
+                    <button type="submit" class="btn btn-danger" value="{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
                   {% endif %}
                 </td>
               {% endif %}
@@ -150,7 +139,13 @@
         </table>
       </div>
 
-        
+        <div class="row">
+          <div class="form-group col-md-12" style="padding-left: 25px;">
+            {% if btnList %}
+              <a type="button" class="btn btn-primary" href="./checklist">Alistamientos-Listado</a>
+            {% endif %}
+          </div>
+        </div>
 
         {% if numeroDePaginas%}
           {% if numeroDePaginas > 1 %}
@@ -158,9 +153,9 @@
               <ul class="pagination" style="padding-left: 10px;">
                 {% for i in 1..numeroDePaginas %}
                   {% if paginaActual == i %}
-                    <li class="page-item active"><a class="page-link" href="./checklist?pag={{i}}">{{i}}</a></li>
+                    <li class="page-item active"><a class="page-link" href="./vehiclelist?pag={{i}}">{{i}}</a></li>
                   {% else %}
-                    <li class="page-item"><a class="page-link" href="./checklist?pag={{i}}">{{i}}</a></li>
+                    <li class="page-item"><a class="page-link" href="./vehiclelist?pag={{i}}">{{i}}</a></li>
                   {% endif %}
                 {% endfor %}
               </ul>
@@ -172,9 +167,9 @@
               <ul class="pagination" style="padding-left: 10px;">
                 {% for i in 1..numeroDePaginasBusqueda %}
                   {% if paginaActual == i %}
-                    <li class="page-item active"><a class="page-link" href="./checksearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                    <li class="page-item active"><a class="page-link" href="./vehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
                   {% else %}
-                    <li class="page-item"><a class="page-link" href="./checksearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                    <li class="page-item"><a class="page-link" href="./vehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
                   {% endif %}
                 {% endfor %}
               </ul>

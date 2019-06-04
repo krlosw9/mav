@@ -15,8 +15,13 @@ class AlistamientosController extends BaseController{
 	private $limitePaginacion=20;
 	private $maximoPuntosMalos=10;
 
+	public function getSelectVehiculoAlistamiento(){
+		
+		return $this->renderHTML('alistamientosVehiculosList.twig');
+	}
+
 	public function getAddAlistamientos(){
-		$gruposalistamiento = null; $tiposalistamiento=null; $vehiculos=null; $conductores=null; $responsables=null; $fechaHoy=null;
+		$gruposalistamiento=null; $tiposalistamiento=null; $vehiculos=null; $conductores=null; $responsables=null; $fechaHoy=null;
 
 		$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
 		$tiposalistamiento = AlistamientosTiposAlistamiento::orderBy('gaid')->get();

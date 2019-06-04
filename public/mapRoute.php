@@ -247,6 +247,12 @@ $map->get('getAddAlistamientos', $subdomain.'/checkadd', [
         'auth' => true,
         'license' => ['checkadd']
 ]);
+$map->get('getSelectVehiculoAlistamiento', $subdomain.'/selectvehicle', [
+        'controller' => 'App\Controllers\AlistamientosController',
+        'action' => 'getSelectVehiculoAlistamiento',
+        'auth' => true,
+        'license' => ['checkadd']
+]);
 $map->post('postAddAlistamientos', $subdomain.'/checkadd', [
         'controller' => 'App\Controllers\AlistamientosController',
         'action' => 'postAddAlistamientos',
