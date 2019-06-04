@@ -16,6 +16,8 @@ class AlistamientosController extends BaseController{
 	private $maximoPuntosMalos=10;
 
 	public function getSelectVehiculoAlistamiento(){
+
+		$vehiculosList = new 
 		
 		return $this->renderHTML('alistamientosVehiculosList.twig');
 	}
