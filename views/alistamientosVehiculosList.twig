@@ -27,7 +27,7 @@
           {% set btnList = true %}
         {% endif %}
       {% endfor %}
-       <form action="vehiclesearch" method="post" role="form">
+       <form action="checkvehiclesearch" method="post" role="form">
           <div class="row" style="padding-left: 15px;">
             <div class="form-group col-xs-6 col-sm-4 col-md-4">
               <label>Buscar:</label>
@@ -57,7 +57,7 @@
      <hr noshade="noshade" size="4" width="95%" />
       <!-- /.box-header -->
       <div class="box-body">
-       <form action="vehicledel" method="post" role="form">
+       <form action="checkadd" method="get" role="form">
         <div class="table-responsive">
           <table class="table table-striped table-sm" >
 
@@ -68,12 +68,10 @@
             <th style="width: 100px">Servicio</th>
             <th style="width: 70px">Modelo</th>
             <th style="width: 100px">Vinculación</th>
-            {% if btnUpd or btnDel %}
-              <th style="width: 130px">Acción</th>
-            {% endif %}
+            <th style="width: 130px">Acción</th>
           </tr>
           {% set ciclo = false %}
-          {% for vehiculo in query %}
+          {% for vehiculo in vehiculos %}
           <tr>
               <td>{{ vehiculo.placa }}</td>
               <td>{{ vehiculo.interno }}</td>
@@ -81,16 +79,10 @@
               <td>{{ vehiculo.servicio }}</td>
               <td>{{ vehiculo.modelo }}</td>
               <td>{{ vehiculo.vinculacion }}</td>
-              {% if btnUpd or btnDel %}
-                <td>
-                  {% if btnUpd %}
-                    <button type="submit" class="btn btn-success" formaction="vehicleupd" value="{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                  {% endif %}
-                  {% if btnDel %}
-                    <button type="submit" class="btn btn-danger" value="{{ vehiculo.id }}" name="btnDelUpd"><i class="fa fa-edit"></i></button>
-                  {% endif %}
-                </td>
-              {% endif %}
+              <td>
+                <input type="hidden" name="placaVehiculo" value="{{ vehiculo.placa }}">
+                <button type="submit" name="btnAdd" formtarget="_blank" class="btn btn-primary" value="{{ vehiculo.id }}">Alistamiento</button>
+              </td>
           </tr>
           {% set ciclo = true %}
           {% endfor %}
@@ -142,7 +134,7 @@
         <div class="row">
           <div class="form-group col-md-12" style="padding-left: 25px;">
             {% if btnList %}
-              <a type="button" class="btn btn-primary" href="./checklist">Alistamientos-Listado</a>
+              <a type="button" class="btn btn-default" href="./checklist">Regresar</a>
             {% endif %}
           </div>
         </div>
@@ -153,9 +145,9 @@
               <ul class="pagination" style="padding-left: 10px;">
                 {% for i in 1..numeroDePaginas %}
                   {% if paginaActual == i %}
-                    <li class="page-item active"><a class="page-link" href="./vehiclelist?pag={{i}}">{{i}}</a></li>
+                    <li class="page-item active"><a class="page-link" href="./selectvehicle?pag={{i}}">{{i}}</a></li>
                   {% else %}
-                    <li class="page-item"><a class="page-link" href="./vehiclelist?pag={{i}}">{{i}}</a></li>
+                    <li class="page-item"><a class="page-link" href="./selectvehicle?pag={{i}}">{{i}}</a></li>
                   {% endif %}
                 {% endfor %}
               </ul>
@@ -167,9 +159,9 @@
               <ul class="pagination" style="padding-left: 10px;">
                 {% for i in 1..numeroDePaginasBusqueda %}
                   {% if paginaActual == i %}
-                    <li class="page-item active"><a class="page-link" href="./vehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                    <li class="page-item active"><a class="page-link" href="./checkvehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
                   {% else %}
-                    <li class="page-item"><a class="page-link" href="./vehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
+                    <li class="page-item"><a class="page-link" href="./checkvehiclesearch?pag={{i}}&?={{criterio}}&??={{textBuscar}}">{{i}}</a></li>
                   {% endif %}
                 {% endfor %}
               </ul>

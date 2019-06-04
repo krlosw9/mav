@@ -35,17 +35,14 @@
             </div>
             <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Vehículo (*):</label>
-              <select class="form-control select-picker" name="vehplacaid" required>
-                {% for vehiculo in vehiculos %}
-                  <option value="{{ vehiculo.id }}">{{ vehiculo.placa }}</option>
-                {% endfor %}
-              </select>
+              <input type="hidden" name="vehplacaid" value="{{ vehiculo.id }}" class="form-control">
+              <input type="text" name="vehiculo" value="{{ vehiculo.placa }}" class="form-control" disabled>
             </div>
             <div class="form-group col-xs-12 col-sm-6 col-md-6">
               <label>Conductor (*):</label>
               <select class="form-control select-picker" name="perconductorid" required>
                 {% for conductor in conductores %}
-                  <option value="{{ conductor.id }}">{{ conductor.nombre }}</option>
+                  <option value="{{ conductor.id }}">{{ conductor.nombre }} {{ conductor.apellido }}</option>
                 {% endfor %}
               </select>
             </div>
@@ -124,10 +121,4 @@
 
 {% endblock %}
 {% block javascripts %}
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function(){
-      alert('Prueba')
-    });
-  </script>
 {% endblock %}

@@ -14,7 +14,7 @@
             <thead>
               <tr>
                 <th colspan="2" style="text-align:center;"><img src="uploads/logo.jpg" width="70" class="img-fluid" alt="Responsive image"></th>
-                <th colspan="2" style="text-align:center;">INSPECCION PREOPERACIONAL <BR>ALISTAMIENTO No. 1</th>
+                <th colspan="2" style="text-align:center;">INSPECCION PREOPERACIONAL <BR>ALISTAMIENTO No. {{infoAlistamientoRegistrado.referencia}}</th>
               </tr>
             </thead>
             <tbody>
@@ -26,9 +26,9 @@
               </tr>
               <tr>
                 <td colspan="1" style="text-align:center;">AAA111</td>
-                <td colspan="1" style="text-align:center;">10.0000</td>
-                <td colspan="1" style="text-align:center;">11-11-2019</td>
-                <td colspan="1" style="text-align:center;">PAMPLONA</td>
+                <td colspan="1" style="text-align:center;">{{infoAlistamientoRegistrado.kilometraje}}</td>
+                <td colspan="1" style="text-align:center;">{{infoAlistamientoRegistrado.fecha}}</td>
+                <td colspan="1" style="text-align:center;">{{infoAlistamientoRegistrado.ciudad}}</td>
               </tr>
               <tr>
                 <th colspan="2" style="text-align:center;">CONDUCTOR</th>

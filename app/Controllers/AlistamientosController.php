@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\{Personas, Vehiculos, Alistamientos, AlistamientoGruposAlistamiento, AlistamientosInformacionAlistamiento, AlistamientosTiposAlistamiento};
+use App\Models\{Personas, Vehiculos, Alistamientos, AlistamientoGruposAlistamiento, AlistamientosInformacionAlistamiento, AlistamientosTiposAlistamiento, VehiculoVehiculosPersonas};
 use App\Controllers\{DocumentosController};
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
@@ -17,18 +17,33 @@ class AlistamientosController extends BaseController{
 
 	public function getSelectVehiculoAlistamiento(){
 
-		$vehiculosList = new 
+		$paginaActual = $_GET['pag'] ?? null;
+
+		$vehiculosList = new VehiculosController();
+		$queryPaginador = $vehiculosList->paginador($paginaActual);
+		$numeroDePaginas=$queryPaginador['numeroDePaginas'];
+		$vehiculos=$queryPaginador['query'];
+		//var_dump($vehiculos);
 		
-		return $this->renderHTML('alistamientosVehiculosList.twig');
+		return $this->renderHTML('alistamientosVehiculosList.twig',[
+				'vehiculos' => $vehiculos,
+				'numeroDePaginas' => $numeroDePaginas
+		]);
 	}
 
 	public function getAddAlistamientos(){
-		$gruposalistamiento=null; $tiposalistamiento=null; $vehiculos=null; $conductores=null; $responsables=null; $fechaHoy=null;
+		$gruposalistamiento=null; $tiposalistamiento=null; $vehiculo=null; $conductores=null; $responsables=null; $fechaHoy=null;
+		$idVehiculo = $_GET['btnAdd'] ?? null;
+
+		$conductores = VehiculoVehiculosPersonas::Join("persona.personas","vehiculo.vehiculospersonas.perid","=","persona.personas.id")
+		->select('vehiculo.vehiculospersonas.*', 'persona.personas.nombre', 'persona.personas.apellido')
+		->orderBy('persona.personas.nombre')
+		->where("vehid","=",$idVehiculo)
+		->get();
 
 		$gruposalistamiento = AlistamientoGruposAlistamiento::orderBy('id')->get();
 		$tiposalistamiento = AlistamientosTiposAlistamiento::orderBy('gaid')->get();
-		$vehiculos = Vehiculos::orderBy('placa')->get();
-		$conductores = Personas::where("persona.personas.rolid",">=",4)->orderBy('nombre')->get();
+		$vehiculo = Vehiculos::find($idVehiculo);
 		$responsables = Personas::where("persona.personas.rolid","=",3)->orderBy('nombre')->get();
 
 
@@ -38,7 +53,7 @@ class AlistamientosController extends BaseController{
 				'gruposalistamiento' => $gruposalistamiento,
 				'tiposalistamiento' => $tiposalistamiento,
 				'fechaHoy' => $fechaHoy,
-				'vehiculos' => $vehiculos,
+				'vehiculo' => $vehiculo,
 				'conductores' => $conductores,
 				'responsables' => $responsables,
 		]);
@@ -48,7 +63,7 @@ class AlistamientosController extends BaseController{
 	public function postAddAlistamientos($request){
 		$responseMessage = null; $prevMessage=null; $registrationErrorMessage=null;
 		$alistamientos = null; $numeroDePaginas=null; $puntosMalos=0; $ruta='alistamientosList.twig';
-		$infoAlistamientoRegistrado=null; $alistamientosRegistrados=null; $gruposalistamiento=null;
+		$infoAlistamientoRegistrado=null; $alistamientosRegistrados=null; $gruposalistamiento=null; $placaVehiculo=null;
 
 		if($request->getMethod()=='POST'){
 			$postData = $request->getParsedBody();
@@ -114,12 +129,15 @@ class AlistamientosController extends BaseController{
 						$infoAlistamientoUpd->calificacion = 'RECHAZADO';
 						$infoAlistamientoUpd->save();	
 					}
-					
-					$infoAlistamientoRegistrado = AlistamientosInformacionAlistamiento::Join("vehiculo.vehiculos","alistamiento.informacionalistamiento.vehplacaid","=","vehiculo.vehiculos.id")
+
+					/*$infoAlistamientoRegistrado = AlistamientosInformacionAlistamiento::Join("vehiculo.vehiculos","alistamiento.informacionalistamiento.vehplacaid","=","vehiculo.vehiculos.id")
 					->Join("persona.personas","alistamiento.informacionalistamiento.perinspectorid","=","persona.personas.id")
 					->Join("persona.personas","alistamiento.informacionalistamiento.perconductorid","=","persona.personas.id")
 					->select('alistamiento.informacionalistamiento.*', 'persona.personas.nombre', 'vehiculo.vehiculos.placa')
 					->find($ultimoIdInfoAlis);
+					*/
+
+					$placaVehiculo = $postData['placaVehiculo'] ?? null; var_dump($placaVehiculo);
 
 					$alistamientosRegistrados=Alistamientos::Join("alistamiento.tiposalistamiento","alistamiento.alistamientos.taid","=","alistamiento.tiposalistamiento.id")
 					->where("alistamiento.alistamientos.infoalisid","=",$ultimoIdInfoAlis)->orderBy('alistamiento.alistamientos.id')
@@ -133,7 +151,7 @@ class AlistamientosController extends BaseController{
 					
 				}catch(\Exception $exception){
 					$prevMessage = substr($exception->getMessage(), 0, 25);
-					$prevMessage = $exception->getMessage();
+					//$prevMessage = $exception->getMessage();
 
 					if ($prevMessage == "SQLSTATE[23505]: Unique v") {
 						$responseMessage = 'Error, El numero del documento ya esta registrado';
@@ -157,20 +175,21 @@ class AlistamientosController extends BaseController{
 			}
 		}
 		
-		if ($responseMessage=='Registrado') {
+		/*if ($responseMessage=='Registrado') {
 			$paginador = $this->paginador();
 			$numeroDePaginas=$paginador['numeroDePaginas'];
 			$alistamientos=$paginador['alistamientos'];
-		}
+		}*/
 
 		return $this->renderHTML($ruta,[
 				'registrationErrorMessage' => $registrationErrorMessage,
 				'responseMessage' => $responseMessage,
 				'numeroDePaginas' => $numeroDePaginas,
 				'alistamientos' => $alistamientos,
-				'infoAlistamientoRegistrado' => $infoAlistamientoRegistrado,
+				'infoAlistamientoRegistrado' => $infoAlistamiento,
 				'alistamientosRegistrados' => $alistamientosRegistrados,
-				'gruposalistamiento' => $gruposalistamiento
+				'gruposalistamiento' => $gruposalistamiento,
+				'placaVehiculo' => $placaVehiculo
 		]);
 	}
 
