@@ -25,7 +25,7 @@
                 <th colspan="1" style="text-align:center;">CIUDAD</th>
               </tr>
               <tr>
-                <td colspan="1" style="text-align:center;">AAA111</td>
+                <td colspan="1" style="text-align:center;">{{ placaVehiculo }}</td>
                 <td colspan="1" style="text-align:center;">{{infoAlistamientoRegistrado.kilometraje}}</td>
                 <td colspan="1" style="text-align:center;">{{infoAlistamientoRegistrado.fecha}}</td>
                 <td colspan="1" style="text-align:center;">{{infoAlistamientoRegistrado.ciudad}}</td>
@@ -35,8 +35,14 @@
                 <th colspan="2" style="text-align:center;">RESPONSABLE</th>
               </tr>
               <tr>
-                <td colspan="2" style="text-align:center;">JULIAN CASTRO</td>
-                <td colspan="2" style="text-align:center;">CARLOS WALDO</td>
+                {% for persona in personas %}
+                  {% if infoAlistamientoRegistrado.perconductorid == persona.id %}
+                    <td colspan="2" style="text-align:center;">{{ persona.nombre }} {{ persona.apellido }}</td>
+                  {% endif %}
+                  {% if infoAlistamientoRegistrado.perinspectorid == persona.id %}
+                    <td colspan="2" style="text-align:center;">{{ persona.nombre }} {{ persona.apellido }}</td>
+                  {% endif %}
+                {% endfor %}
               </tr>
               <tr>
                 <th colspan="1" style="text-align:center;">ELEMENTOS INSPECCIONADOS</th>

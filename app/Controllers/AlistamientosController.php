@@ -85,7 +85,7 @@ class AlistamientosController extends BaseController{
 					$queryInfoAlis = AlistamientosInformacionAlistamiento::all();
 					$ultimoInfoAlis = $queryInfoAlis->last();
 					$ultimoIdInfoAlis = $ultimoInfoAlis->id+1;
-
+echo "Cond:: ".$postData['perconductorid'];
 					$infoAlistamiento = new AlistamientosInformacionAlistamiento();
 					$infoAlistamiento->id=$ultimoIdInfoAlis;
 					$infoAlistamiento->fecha=$postData['fecha'];
@@ -137,7 +137,8 @@ class AlistamientosController extends BaseController{
 					->find($ultimoIdInfoAlis);
 					*/
 
-					$placaVehiculo = $postData['placaVehiculo'] ?? null; var_dump($placaVehiculo);
+					$placaVehiculo = $postData['placaVehiculo'] ?? null;
+					$personas = Personas::orderBy('nombre')->get();
 
 					$alistamientosRegistrados=Alistamientos::Join("alistamiento.tiposalistamiento","alistamiento.alistamientos.taid","=","alistamiento.tiposalistamiento.id")
 					->where("alistamiento.alistamientos.infoalisid","=",$ultimoIdInfoAlis)->orderBy('alistamiento.alistamientos.id')
@@ -189,6 +190,7 @@ class AlistamientosController extends BaseController{
 				'infoAlistamientoRegistrado' => $infoAlistamiento,
 				'alistamientosRegistrados' => $alistamientosRegistrados,
 				'gruposalistamiento' => $gruposalistamiento,
+				'personas' => $personas,
 				'placaVehiculo' => $placaVehiculo
 		]);
 	}
