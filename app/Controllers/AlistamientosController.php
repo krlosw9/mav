@@ -85,7 +85,8 @@ class AlistamientosController extends BaseController{
 					$queryInfoAlis = AlistamientosInformacionAlistamiento::all();
 					$ultimoInfoAlis = $queryInfoAlis->last();
 					$ultimoIdInfoAlis = $ultimoInfoAlis->id+1;
-echo "Cond:: ".$postData['perconductorid'];
+
+					
 					$infoAlistamiento = new AlistamientosInformacionAlistamiento();
 					$infoAlistamiento->id=$ultimoIdInfoAlis;
 					$infoAlistamiento->fecha=$postData['fecha'];
