@@ -550,6 +550,56 @@ $map->post('postUpdateComparendos', $subdomain.'/subpoenaupdate', [
         'license' => ['subpoenaupdate']
 ]);
 
+//Rutas Mantenimiento Operadores
+$map->get('getAddOperadores', $subdomain.'/workshopadd', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'getAddOperadores',
+        'auth' => true,
+        'license' => ['workshopadd']
+]);
+$map->post('postAddOperadores', $subdomain.'/workshopadd', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'postAddOperadores',
+        'auth' => true,
+        'license' => ['workshopadd']
+]);
+$map->get('getListOperadores', $subdomain.'/workshoplist', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'getListOperadores',
+        'auth' => true,
+        'license' => ['workshoplist']
+]);
+$map->post('postBuscarOperadores', $subdomain.'/workshopsearch', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'postBusquedaOperadores',
+        'auth' => true,
+        'license' => ['workshoplist']
+]);
+$map->get('getBuscarOperadores', $subdomain.'/workshopsearch', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'postBusquedaOperadores',
+        'auth' => true,
+        'license' => ['workshoplist']
+]);
+$map->post('postDelOperadores', $subdomain.'/workshopdel', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'postDelOperadores',
+        'auth' => true,
+        'license' => ['workshopdel']
+]);
+$map->post('postUpdOperadores', $subdomain.'/workshopupd', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'postUpdOperadores',
+        'auth' => true,
+        'license' => ['workshopupdate']
+]);
+$map->post('postUpdateOperadores', $subdomain.'/workshopupdate', [
+        'controller' => 'App\Controllers\MantenimientoOperadoresController',
+        'action' => 'postUpdateOperadores',
+        'auth' => true,
+        'license' => ['workshopupdate']
+]);
+
 
 
 
